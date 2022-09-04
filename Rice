@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
 # xhost + && su -w WEZTERM_PANE,WEZTERM_UNIX_SOCKET,LESSKEYIN -
 # docker run -it --name ubuntu-nix-rice -v $PWD:/home/dotfiles/CICD ubuntu bash -uelic '
@@ -8,7 +8,7 @@
 #         useradd -mG sudo,tty drksl
 #         echo root:toor | chpasswd
 #         echo drksl:toor | chpasswd
-#         echo "%sudo ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/drksl
+#         echo "%sudo ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel
 #         chown -R drksl:drksl /home/dotfiles
 #         sudo -u "drksl" bash -c "/home/dotfiles/CICD/Rice"
 #     }
@@ -24,21 +24,31 @@ PACMAN_INSTALL=true
 NIX_INSTALL=true
 
 # dependencies
-[[ "$APT_INSTALL" == "true" ]]&& [ -e /etc/apt ] && sudo apt update && sudo DEBIAN_FRONTEND=noninteractive apt install -y curl sudo tmux xz-utils zsh
-[[ "$PACMAN_INSTALL" == "true" ]]&& [ -e /etc/pacman.d ] && sudo pacman -Syu --noconfirm curl sudo tmux xz zsh
+[ "$APT_INSTALL" = "true" ] && [ -e /etc/apt ] && sudo apt update && sudo DEBIAN_FRONTEND=noninteractive apt install -y curl sudo tmux xz-utils zsh
+[ "$PACMAN_INSTALL" = "true" ] && [ -e /etc/pacman.d ] && sudo pacman -Syu --noconfirm curl sudo tmux xz zsh
 
 # install nix
-[[ "$NIX_INSTALL" == "true" ]]&& [ ! -e /nix ] && curl -L nixos.org/nix/install | sh \
-    && . $HOME/.nix-profile/etc/profile.d/nix.sh \
-    && nix-env -iA nixpkgs.bat nixpkgs.gcc nixpkgs.git nixpkgs.killall nixpkgs.libsixel nixpkgs.less nixpkgs.lf nixpkgs.neovim nixpkgs.xclip \
-                   nixpkgs.timg nixpkgs.spaceship-prompt nixpkgs.zsh-autosuggestions nixpkgs.zsh-fast-syntax-highlighting \
-    && nix-collect-garbage -d
+[ "$NIX_INSTALL" = "true" ]&& {
+    export NIX_PKGS_OS="nixpkgs"
+    [ ! -e /nix ] && {
+      curl -L nixos.org/nix/install | sh
+      . "$HOME/.nix-profile/etc/profile.d/nix.sh"
+    }
+    [ -e /etc/nixos ] && {
+      export NIX_PKGS_OS="nixos"
+      nix-env -iA ${NIX_PKGS_OS}.zsh ${NIX_PKGS_OS}.tmux
+    }
+    nix-env -iA ${NIX_PKGS_OS}.bat ${NIX_PKGS_OS}.gcc ${NIX_PKGS_OS}.git ${NIX_PKGS_OS}.killall ${NIX_PKGS_OS}.libsixel \
+                ${NIX_PKGS_OS}.less ${NIX_PKGS_OS}.lf ${NIX_PKGS_OS}.neovim ${NIX_PKGS_OS}.xclip ${NIX_PKGS_OS}.timg \
+                ${NIX_PKGS_OS}.spaceship-prompt ${NIX_PKGS_OS}.zsh-autosuggestions ${NIX_PKGS_OS}.zsh-fast-syntax-highlighting
+    nix-collect-garbage -d
+  }
 
 # install neovim plugins
 git clone --depth=1 https://github.com/nvchad/nvchad ~/.config/nvim
 
 # source zsh plugins
-cat <<"====" >> $HOME/.zprofile
+cat <<"====" >> "$HOME/.zprofile"
     export DISPLAY=:0
     export EDITOR="nvim"
     export HISTFILE=~/.cache/history
@@ -51,7 +61,7 @@ cat <<"====" >> $HOME/.zprofile
     source $HOME/.nix-profile/lib/spaceship-prompt/spaceship.zsh
     source $HOME/.nix-profile/share/zsh/site-functions/fast-syntax-highlighting.plugin.zsh
     source $HOME/.nix-profile/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-    source $HOME/.nix-profile/etc/profile.d/nix.sh
+    source $HOME/.nix-profile/etc/profile.d/nix.sh >/dev/null 2>&1
     tty >> /tmp/sixel-$WEZTERM_PANE
     trap "rm /tmp/sixel-$WEZTERM_PANE" EXIT
     [[ -z $TMUX ]] && sleep 1 && exec tmux -u
@@ -73,16 +83,16 @@ cat <<"====" >> $HOME/.zprofile
 ====
 
 # lfcd
-mkdir -p $HOME/.config/lf \
-    && curl -L "https://raw.githubusercontent.com/gokcehan/lf/master/etc/lfcd.sh" >> $HOME/.zprofile \
-    && echo -E "zle -N lfcd </dev/tty"                                            >> $HOME/.zprofile \
-    && echo -E "bindkey '\eo' 'lfcd'"                                             >> $HOME/.zprofile \
-    && sed -i 's/cd "$dir"/cd "$dir" \&\& zle reset-prompt/'                         $HOME/.zprofile \
-    && ln -s $HOME/.zprofile $HOME/.zshrc  #for nvchad-terminal                                      \
+mkdir -p "$HOME/.config/lf" \
+    && curl -L "https://raw.githubusercontent.com/gokcehan/lf/master/etc/lfcd.sh" >> "$HOME/.zprofile" \
+    && echo -E "zle -N lfcd </dev/tty"                                               >> "$HOME/.zprofile" \
+    && echo -E "bindkey '\eo' 'lfcd'"                                                >> "$HOME/.zprofile" \
+    && sed -i 's/cd "$dir"/cd "$dir" \&\& zle reset-prompt/'                         "$HOME/.zprofile" \
+    && ln -s "$HOME/.zprofile" "$HOME/.zshrc"  #for nvchad-terminal                                      \
     # && cp -r /home/*/.nix-profile $HOME  #if running as root
 
 # lfrc
-cat <<"====">> $HOME/.config/lf/lfrc
+cat <<"====">> "$HOME/.config/lf/lfrc"
 set shell /bin/bash
 set hidden true
 set previewer ~/.config/lf/previewer
@@ -96,25 +106,25 @@ map gmt $wezterm cli spawn -- bash -c "timg --center $fx && read"
 ====
 
 # lf previewer
-cat <<"====">> $HOME/.config/lf/previewer
+cat <<"====">> "$HOME/.config/lf/previewer"
 #!/bin/bash
 [[ $1 =~ .png|.jpg ]] && (tput cup $5 $4 && img2sixel --loop-control=disable -w $((${2}*8)) $1) >$(head -n1 /tmp/sixel-$WEZTERM_PANE) && exit 1 || bat --style=plain --color=always $1
 ====
 
 # lf cleaner
-cat <<"====">> $HOME/.config/lf/cleaner
+cat <<"====">> "$HOME/.config/lf/cleaner"
 #!/bin/bash
 killall -s SIGWINCH lf
 ====
 
 # lf executables
-chmod +x $HOME/.config/lf/{previewer,cleaner} \
+chmod +x "$HOME"/.config/lf/{previewer,cleaner} \
 
 # use zsh as default shell
-sudo chsh -s $(which zsh) $USER
+sudo chsh -s "$(which zsh)" "$USER"
 
 # tmux config
-cat <<====>> $HOME/.tmux.conf
+cat <<====>> "$HOME/.tmux.conf"
     set -g default-shell /bin/zsh
     set -g mouse on
     set -g status off

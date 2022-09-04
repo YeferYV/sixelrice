@@ -10,7 +10,7 @@
 #     && useradd -mG wheel -s /bin/bash drksl \
 #     && echo root:toor | chpasswd \
 #     && echo drksl:toor | chpasswd \
-#     && echo "%wheel ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/drksl
+#     && echo "%wheel ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel
 
 FROM ubuntu
 RUN apt update \
@@ -18,7 +18,7 @@ RUN apt update \
     && useradd -mG sudo -s /bin/bash drksl \
     && echo root:toor | chpasswd \
     && echo drksl:toor | chpasswd \
-    && echo "%sudo ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/drksl
+    && echo "%sudo ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel
 
 USER drksl
 WORKDIR /home/drksl
