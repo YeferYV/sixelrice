@@ -24,8 +24,8 @@ PACMAN_INSTALL=true
 NIX_INSTALL=true
 
 # dependencies
-[ "$APT_INSTALL" = "true" ] && [ -e /etc/apt ] && sudo apt update && sudo DEBIAN_FRONTEND=noninteractive apt install -y curl sudo tmux xz-utils zsh
-[ "$PACMAN_INSTALL" = "true" ] && [ -e /etc/pacman.d ] && sudo pacman -Syu --noconfirm curl sudo tmux xz zsh
+[ "$APT_INSTALL" = "true" ] && [ -e /etc/apt ] && sudo apt update && sudo DEBIAN_FRONTEND=noninteractive apt install -y curl fuse3 sudo tmux xz-utils zsh
+[ "$PACMAN_INSTALL" = "true" ] && [ -e /etc/pacman.d ] && sudo pacman -Syu --noconfirm curl fuse3 sudo tmux xz zsh
 
 # install nix
 [ "$NIX_INSTALL" = "true" ]&& {
@@ -39,12 +39,13 @@ NIX_INSTALL=true
       nix-env -iA ${NIX_PKGS_OS}.zsh ${NIX_PKGS_OS}.tmux
     }
     nix-env -iA ${NIX_PKGS_OS}.bat ${NIX_PKGS_OS}.fzf ${NIX_PKGS_OS}.gcc ${NIX_PKGS_OS}.git ${NIX_PKGS_OS}.killall ${NIX_PKGS_OS}.lazygit \
-                ${NIX_PKGS_OS}.libsixel ${NIX_PKGS_OS}.less ${NIX_PKGS_OS}.lf ${NIX_PKGS_OS}.neovim  ${NIX_PKGS_OS}.ripgrep ${NIX_PKGS_OS}.timg ${NIX_PKGS_OS}.trash-cli \
-                 ${NIX_PKGS_OS}.xclip ${NIX_PKGS_OS}.spaceship-prompt ${NIX_PKGS_OS}.zsh-autosuggestions ${NIX_PKGS_OS}.zsh-fast-syntax-highlighting
+                ${NIX_PKGS_OS}.libsixel ${NIX_PKGS_OS}.less ${NIX_PKGS_OS}.lf  ${NIX_PKGS_OS}.ripgrep ${NIX_PKGS_OS}.timg ${NIX_PKGS_OS}.trash-cli \
+                ${NIX_PKGS_OS}.xclip ${NIX_PKGS_OS}.spaceship-prompt ${NIX_PKGS_OS}.zsh-autosuggestions ${NIX_PKGS_OS}.zsh-fast-syntax-highlighting
     nix-collect-garbage -d
   }
 
-# install neovim plugins
+# install neovim + plugins
+curl -Lo "$HOME"/.local/bin/nvim https://github.com/neovim/neovim/releases/download/v0.7.2/nvim.appimage && chmod +x "$HOME"/.local/bin/nvim
 git clone --depth=1 https://github.com/nvchad/nvchad ~/.config/nvim
 
 # source zsh plugins
@@ -55,6 +56,7 @@ cat <<"====" >> "$HOME/.zprofile"
     export SAVEHIST=10000000
     export LANG=en_US.UTF-8
     export PAGER="less -r --use-color -Dd+r -Du+b -DPyk -DSyk"
+    export PATH="$PATH:$HOME/.local/bin"
     export SPACESHIP_PROMPT_SEPARATE_LINE="false"
     export SPACESHIP_VI_MODE_SHOW="false"
     export TERM="xterm-256color"
@@ -82,13 +84,16 @@ cat <<"====" >> "$HOME/.zprofile"
     preexec() { echo -ne '\e[6 q' ;} # Use beam shape cursor for each new prompt.
 ====
 
+# zshrc for nvchad-terminal 
+if [ -e "$HOME/.bashrc" ]; then echo "/bin/zsh -l"           >> "$HOME/.bashrc"; fi;
+if [ -e "$HOME/.zshrc" ]; then echo "source $HOME/.zprofile" >> "$HOME/.zshrc"; else ln -s "$HOME/.zprofile" "$HOME/.zshrc"; fi;               
+
 # lfcd
 mkdir -p "$HOME/.config/lf" \
-    && curl -L "https://raw.githubusercontent.com/gokcehan/lf/master/etc/lfcd.sh"  >> "$HOME/.zprofile" \
-    && echo -E "zle -N lfcd </dev/tty"                                             >> "$HOME/.zprofile" \
-    && echo -E "bindkey '\eo' 'lfcd'"                                              >> "$HOME/.zprofile" \
-    && sed -i 's/cd "$dir"/cd "$dir" \&\& zle reset-prompt/'                          "$HOME/.zprofile" \
-    && ln -s "$HOME/.zprofile" "$HOME/.zshrc"  #for nvchad-terminal                                     \
+    && curl -L "https://raw.githubusercontent.com/gokcehan/lf/master/etc/lfcd.sh"  >> "$HOME/.zprofile"    \
+    && echo -E "zle -N lfcd </dev/tty"                                             >> "$HOME/.zprofile"    \
+    && echo -E "bindkey '\eo' 'lfcd'"                                              >> "$HOME/.zprofile"    \
+    && sed -i 's/cd "$dir"/cd "$dir" \&\& zle reset-prompt/'                          "$HOME/.zprofile"    #\
     # && cp -r /home/*/.nix-profile $HOME  #if running as root
 
 # lfrc
@@ -171,3 +176,4 @@ cat <<====>> "$HOME/.tmux.conf"
     bind -r  K                  resize-pane -U
     bind -r  L                  resize-pane -R
 ====
+tput setaf 2; echo Done!
