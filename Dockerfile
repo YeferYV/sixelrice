@@ -31,8 +31,9 @@ SHELL ["/bin/zsh","-c"]
 # install nix
 RUN curl -L nixos.org/nix/install | sh \
     && . $HOME/.nix-profile/etc/profile.d/nix.sh \
-    && nix-env -iA nixpkgs.bat nixpkgs.gcc nixpkgs.git nixpkgs.killall nixpkgs.libsixel nixpkgs.less nixpkgs.lf nixpkgs.neovim nixpkgs.xclip\
-                   nixpkgs.timg nixpkgs.spaceship-prompt nixpkgs.zsh-autosuggestions nixpkgs.zsh-fast-syntax-highlighting \
+    && nix-env -iA nixpkgs.bat nixpkgs.fzf nixpkgs.gcc nixpkgs.git nixpkgs.killall nixpkgs.lazygit \
+                   nixpkgs.libsixel nixpkgs.less nixpkgs.lf nixpkgs.neovim nixpkgs.ripgrep nixpkgs.timg nixpkgs.trash-cli \
+                   nixpkgs.xclip nixpkgs.spaceship-prompt nixpkgs.zsh-autosuggestions nixpkgs.zsh-fast-syntax-highlighting \
     && nix-collect-garbage -d
 
 # # ssh
@@ -90,14 +91,35 @@ RUN mkdir -p $HOME/.config/lf \
 COPY --chown=drksl <<"====" $HOME/.config/lf/lfrc
 set shell /bin/bash
 set hidden true
+set ratios 1:2
 set previewer ~/.config/lf/previewer
 set cleaner ~/.config/lf/cleaner
-map i   $[[ $fx =~ .png|.jpg ]] && img2sixel --loop-control=disable $fx | less -r >/dev/pts/0 && lf -remote "send $id reload redraw" || bat --paging=always --wrap=never $fx
-map o   $( timg -pi --loops=1 --frames=1 $fx | less -rX) >/dev/pts/0 && lf -remote "send $id reload redraw"
-map gmi $[[ $fx =~ .png|.jpg ]] && img2sixel --loop-control=disable $fx | less -r >/dev/pts/0 && lf -remote "send $id reload redraw" || bat --paging=always --wrap=never $fx
-map gmo $( timg -pi --loops=1 --frames=1 $fx | less -rX) >/dev/pts/0 && lf -remote "send $id reload redraw"
-map gms $wezterm cli split-pane --horizontal -- bash -c "timg --center $fx && read"
-map gmt $wezterm cli spawn -- bash -c "timg --center $fx && read"
+
+cmd fzf_ripgrep ${{
+  IFS=: read -ra selected < <(
+    rg --color=always --line-number --no-heading --smart-case "${*:-}" |
+      fzf --ansi \
+          --color "hl:-1:underline,hl+:-1:underline:reverse" \
+          --delimiter : \
+          --preview 'bat --color=always {1} --highlight-line {2}' \
+          --preview-window 'up,60%,border-bottom,+{2}+3/3,~3'
+  )
+  [ -n "${selected[0]}" ] && lf -remote "send $id select \"${selected[0]}\""
+  [ -n "${selected[0]}" ] && nvim "${selected[0]}" "+${selected[1]}"
+}}
+
+map i       $[[ $fx =~ .png|.jpg ]] && img2sixel --loop-control=disable $fx | less -r >/dev/pts/0 && lf -remote "send $id reload redraw" || bat --paging=always --wrap=never $fx
+map o       $( timg -pi --loops=1 --frames=1 $fx | less -rX) >/dev/pts/0 && lf -remote "send $id reload redraw"
+map gmi     $[[ $fx =~ .png|.jpg ]] && img2sixel --loop-control=disable $fx | less -r >/dev/pts/0 && lf -remote "send $id reload redraw" || bat --paging=always --wrap=never $fx
+map gmo     $( timg -pi --loops=1 --frames=1 $fx | less -rX) >/dev/pts/0 && lf -remote "send $id reload redraw"
+map gms     $wezterm cli split-pane --horizontal -- bash -c "timg --center $fx && read"
+map gmt     $wezterm cli spawn -- bash -c "timg --center $fx && read"
+map gll     $lazygit
+map gfs     $lf -remote "send $id select \"$(fzf --bind='?:toggle-preview' --preview 'bat --color=always {}' --preview-window 'right,50%,border-left' </dev/tty)\""
+map gfr     :fzf_ripgrep
+map <enter> shell
+map J       half-down
+map K       half-up
 ====
 
 # lf previewer
@@ -117,13 +139,30 @@ RUN chmod +x $HOME/.config/lf/{previewer,cleaner}
 
 # tmux config
 RUN <<==== >> $HOME/.tmux.conf
-    set -g default-shell /bin/zsh
-    set -g mouse on
-    set -g status off
-    set -g default-terminal "xterm-256color"
-    setw -g mode-keys vi
-    bind-key b "set -g status"
-    bind-key c "set -g status on; new-window"
+    set  -g  default-shell      /bin/zsh
+    set  -g  mouse              on
+    set  -g  status             off
+    setw -g  mode-keys          vi
+    set  -ga terminal-overrides "xterm-256color:Tc"
+    bind -T  copy-mode-vi y     send-keys -X copy-pipe-and-cancel "xclip -i -sel clip > /dev/null"
+    bind -T  copy-mode-vi v     send-keys -X begin-selection
+    bind -n  C-M-l              send-keys C-l \; run 'tmux clear-history'
+    bind -n  C-M-Space          copy-mode \; send-keys left left
+    bind     Space              copy-mode \; send-keys left left
+    bind -n  C-M-b              set -g status
+    bind     b                  set -g status
+    bind     c                  set -g status on \; new-window
+    bind     x                  kill-pane
+    bind     v                  split-window -h
+    bind     V                  split-window -v
+    bind -r  h                  select-pane -L
+    bind -r  j                  select-pane -D
+    bind -r  k                  select-pane -U
+    bind -r  l                  select-pane -R
+    bind -r  H                  resize-pane -L
+    bind -r  J                  resize-pane -D
+    bind -r  K                  resize-pane -U
+    bind -r  L                  resize-pane -R
 ====
 
 CMD ["/usr/bin/zsh","-l"]
