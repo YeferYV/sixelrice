@@ -24,8 +24,8 @@ PACMAN_INSTALL=true
 NIX_INSTALL=true
 
 # dependencies
-[ "$APT_INSTALL" = "true" ] && [ -e /etc/apt ] && sudo apt update && sudo DEBIAN_FRONTEND=noninteractive apt install -y curl fuse3 sudo tmux xz-utils zsh
-[ "$PACMAN_INSTALL" = "true" ] && [ -e /etc/pacman.d ] && sudo pacman -Syu --noconfirm curl fuse3 sudo tmux xz zsh
+[ "$APT_INSTALL" = "true" ] && [ -e /etc/apt ] && sudo apt update && sudo DEBIAN_FRONTEND=noninteractive apt install -y curl fuse sudo tmux xz-utils zsh
+[ "$PACMAN_INSTALL" = "true" ] && [ -e /etc/pacman.d ] && sudo pacman -Syu --noconfirm curl fuse2 sudo tmux xz zsh
 
 # install nix
 [ "$NIX_INSTALL" = "true" ]&& {
