@@ -53,10 +53,12 @@ cat <<"====" >> "$HOME/.zprofile"
     export DISPLAY=:0
     export EDITOR="nvim"
     export HISTFILE=~/.cache/history
-    export SAVEHIST=10000000
     export LANG=en_US.UTF-8
+    export LF_ICONS=" tw= :or= :ex= :bd= :di= :ow= :ln= :fi= "
+    export LS_COLORS="tw=30:or=91:ex=92:bd=93:di=90:ow=94:ln=34:fi=37"
     export PAGER="less -r --use-color -Dd+r -Du+b -DPyk -DSyk"
     export PATH="$PATH:$HOME/.local/bin"
+    export SAVEHIST=10000000
     export SPACESHIP_PROMPT_SEPARATE_LINE="false"
     export SPACESHIP_VI_MODE_SHOW="false"
     export TERM="xterm-256color"
@@ -84,9 +86,9 @@ cat <<"====" >> "$HOME/.zprofile"
     preexec() { echo -ne '\e[6 q' ;} # Use beam shape cursor for each new prompt.
 ====
 
-# zshrc for nvchad-terminal 
+# zshrc for nvchad-terminal
 if [ -e "$HOME/.bashrc" ]; then echo "/bin/zsh -l"           >> "$HOME/.bashrc"; fi;
-if [ -e "$HOME/.zshrc" ]; then echo "source $HOME/.zprofile" >> "$HOME/.zshrc"; else ln -s "$HOME/.zprofile" "$HOME/.zshrc"; fi;               
+if [ -e "$HOME/.zshrc" ]; then echo "source $HOME/.zprofile" >> "$HOME/.zshrc"; else ln -s "$HOME/.zprofile" "$HOME/.zshrc"; fi;
 
 # lfcd
 mkdir -p "$HOME/.config/lf" \
@@ -98,9 +100,10 @@ mkdir -p "$HOME/.config/lf" \
 
 # lfrc
 cat <<"====">> "$HOME/.config/lf/lfrc"
-set shell /bin/bash
+set icons
 set hidden true
 set ratios 1:2
+set shell /bin/bash
 set previewer ~/.config/lf/previewer
 set cleaner ~/.config/lf/cleaner
 
@@ -176,4 +179,4 @@ cat <<====>> "$HOME/.tmux.conf"
     bind -r  K                  resize-pane -U
     bind -r  L                  resize-pane -R
 ====
-tput setaf 2; echo Done!
+tput -T ansi setaf 2; echo Done!

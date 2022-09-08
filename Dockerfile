@@ -53,8 +53,10 @@ RUN <<"====" >> $HOME/.zprofile
     export EDITOR="nvim"
     export HISTFILE=~/.cache/history
     export LANG=en_US.UTF-8
-    export SAVEHIST=10000000
+    export LF_ICONS=" tw= :or= :ex= :bd= :di= :ow= :ln= :fi= "
+    export LS_COLORS="tw=30:or=91:ex=92:bd=93:di=90:ow=94:ln=34:fi=37"
     export PAGER="less -r --use-color -Dd+r -Du+b -DPyk -DSyk"
+    export SAVEHIST=10000000
     export SPACESHIP_PROMPT_SEPARATE_LINE="false"
     export SPACESHIP_VI_MODE_SHOW="false"
     export TERM="xterm-256color"
@@ -89,9 +91,10 @@ RUN mkdir -p $HOME/.config/lf \
 
 # lfrc
 COPY --chown=drksl <<"====" $HOME/.config/lf/lfrc
-set shell /bin/bash
+set icons
 set hidden true
 set ratios 1:2
+set shell /bin/bash
 set previewer ~/.config/lf/previewer
 set cleaner ~/.config/lf/cleaner
 
