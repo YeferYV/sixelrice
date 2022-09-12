@@ -60,11 +60,9 @@ RUN <<"====" >> $HOME/.zprofile
     export SPACESHIP_PROMPT_SEPARATE_LINE="false"
     export SPACESHIP_VI_MODE_SHOW="false"
     export TERM="xterm-256color"
-    source $HOME/.nix-profile/share/fzf/completion.zsh
-    source $HOME/.nix-profile/share/fzf/key-bindings.zsh
+    source $HOME/.nix-profile/lib/spaceship-prompt/spaceship.zsh
     source $HOME/.nix-profile/share/zsh/site-functions/fast-syntax-highlighting.plugin.zsh
     source $HOME/.nix-profile/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-    source $HOME/.nix-profile/lib/spaceship-prompt/spaceship.zsh
     source $HOME/.nix-profile/etc/profile.d/nix.sh
     [[ -z $TMUX ]] && sleep 1 && exec tmux -u
     bindkey -v '^?' backward-delete-char
@@ -123,6 +121,7 @@ map gll     $lazygit
 map gfs     $lf -remote "send $id select \"$(fzf --bind='?:toggle-preview' --preview 'bat --color=always {}' --preview-window 'right,50%,border-left' </dev/tty)\""
 map gfr     :fzf_ripgrep
 map <enter> shell
+map D       $trash --trash-dir ~/.cache/Trash $fx
 map J       half-down
 map K       half-up
 ====
@@ -154,6 +153,28 @@ RUN <<==== >> $HOME/.tmux.conf
     bind -n  C-M-l              send-keys C-l \; run 'tmux clear-history'
     bind -n  C-M-Space          copy-mode \; send-keys left left
     bind     Space              copy-mode \; send-keys left left
+    bind -n  M-w                copy-mode \; send-keys left left
+    bind -n  M-s                copy-mode \; send-keys left left
+    bind -n  M-e                copy-mode \; send-keys left left
+    bind -n  M-d                copy-mode \; send-keys left left
+    bind -n  M-r                copy-mode \; send-keys left left
+    bind -n  M-f                copy-mode \; send-keys left left
+    bind -n  M-t                copy-mode \; send-keys left left
+    bind -n  M-g                copy-mode \; send-keys left left
+    bind -T  copy-mode-vi M-w   send-keys -X scroll-up
+    bind -T  copy-mode-vi M-s   send-keys -X scroll-down
+    bind -T  copy-mode-vi M-e   send-keys -X scroll-up
+    bind -T  copy-mode-vi M-d   send-keys -X scroll-down
+    bind -T  copy-mode-vi M-r   send-keys -X page-up
+    bind -T  copy-mode-vi M-f   send-keys -X page-down
+    bind -T  copy-mode-vi M-t   send-keys -X history-top
+    bind -T  copy-mode-vi M-g   send-keys -X history-bottom
+    bind -T  copy-mode-vi u     send-keys -X halfpage-up
+    bind -T  copy-mode-vi d     send-keys -X halfpage-down
+    bind -T  copy-mode-vi H     send-keys left  left  left  left  left  left  left  left  left  left
+    bind -T  copy-mode-vi J     send-keys down  down  down  down  down  down  down  down  down  down
+    bind -T  copy-mode-vi K     send-keys up    up    up    up    up    up    up    up    up    up
+    bind -T  copy-mode-vi L     send-keys right right right right right right right right right right
     bind -n  C-M-b              set -g status
     bind     b                  set -g status
     bind     c                  set -g status on \; new-window
