@@ -60,9 +60,11 @@ RUN <<"====" >> $HOME/.zprofile
     export SPACESHIP_PROMPT_SEPARATE_LINE="false"
     export SPACESHIP_VI_MODE_SHOW="false"
     export TERM="xterm-256color"
-    source $HOME/.nix-profile/lib/spaceship-prompt/spaceship.zsh
+    source $HOME/.nix-profile/share/fzf/completion.zsh
+    source $HOME/.nix-profile/share/fzf/key-bindings.zsh
     source $HOME/.nix-profile/share/zsh/site-functions/fast-syntax-highlighting.plugin.zsh
     source $HOME/.nix-profile/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+    source $HOME/.nix-profile/lib/spaceship-prompt/spaceship.zsh
     source $HOME/.nix-profile/etc/profile.d/nix.sh
     [[ -z $TMUX ]] && sleep 1 && exec tmux -u
     bindkey -v '^?' backward-delete-char
