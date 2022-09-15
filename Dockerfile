@@ -53,7 +53,7 @@ RUN <<"====" >> $HOME/.zprofile
     export EDITOR="nvim"
     export HISTFILE=~/.cache/history
     export LANG=en_US.UTF-8
-    export LF_ICONS=" tw= :or= :ex= :bd= :di= :ow= :ln= :fi= "
+    export LF_ICONS=" tw=:or=:ex=:bd=:di=:ow=:ln=:fi="
     export LS_COLORS="tw=30:or=91:ex=92:bd=93:di=90:ow=94:ln=34:fi=37"
     export PAGER="less -r --use-color -Dd+r -Du+b -DPyk -DSyk"
     export SAVEHIST=10000000
@@ -151,16 +151,17 @@ RUN <<==== >> $HOME/.tmux.conf
     bind -T  copy-mode-vi y     send-keys -X copy-pipe-and-cancel "xclip -i -sel clip > /dev/null"
     bind -T  copy-mode-vi v     send-keys -X begin-selection
     bind -n  C-M-l              send-keys C-l \; run 'tmux clear-history'
-    bind -n  C-M-Space          copy-mode \; send-keys left left
     bind     Space              copy-mode \; send-keys left left
-    bind -n  M-w                copy-mode \; send-keys left left
-    bind -n  M-s                copy-mode \; send-keys left left
-    bind -n  M-e                copy-mode \; send-keys left left
-    bind -n  M-d                copy-mode \; send-keys left left
-    bind -n  M-r                copy-mode \; send-keys left left
-    bind -n  M-f                copy-mode \; send-keys left left
-    bind -n  M-t                copy-mode \; send-keys left left
-    bind -n  M-g                copy-mode \; send-keys left left
+    bind -n  C-M-Space          copy-mode \; send-keys left left
+    bind -n  C-M-h              copy-mode \; send-keys left left
+    bind -n  M-w                copy-mode \; send-keys left left \; send-keys -X scroll-up
+    bind -n  M-s                copy-mode \; send-keys left left \; send-keys -X scroll-down
+    bind -n  M-e                copy-mode \; send-keys left left \; send-keys -X scroll-up
+    bind -n  M-d                copy-mode \; send-keys left left \; send-keys -X scroll-down
+    bind -n  M-r                copy-mode \; send-keys left left \; send-keys -X page-up
+    bind -n  M-f                copy-mode \; send-keys left left \; send-keys -X page-down
+    bind -n  M-t                copy-mode \; send-keys left left \; send-keys -X history-top
+    bind -n  M-g                copy-mode \; send-keys left left \; send-keys -X history-bottom
     bind -T  copy-mode-vi M-w   send-keys -X scroll-up
     bind -T  copy-mode-vi M-s   send-keys -X scroll-down
     bind -T  copy-mode-vi M-e   send-keys -X scroll-up
@@ -171,6 +172,7 @@ RUN <<==== >> $HOME/.tmux.conf
     bind -T  copy-mode-vi M-g   send-keys -X history-bottom
     bind -T  copy-mode-vi u     send-keys -X halfpage-up
     bind -T  copy-mode-vi d     send-keys -X halfpage-down
+    bind -T  copy-mode-vi i     send-keys -X cancel
     bind -T  copy-mode-vi H     send-keys left  left  left  left  left  left  left  left  left  left
     bind -T  copy-mode-vi J     send-keys down  down  down  down  down  down  down  down  down  down
     bind -T  copy-mode-vi K     send-keys up    up    up    up    up    up    up    up    up    up
