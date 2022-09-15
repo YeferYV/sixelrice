@@ -100,6 +100,8 @@ set shell /bin/bash
 set previewer ~/.config/lf/previewer
 set cleaner ~/.config/lf/cleaner
 
+cmd open $xdg-open "$f"
+
 cmd fzf_ripgrep ${{
   IFS=: read -ra selected < <(
     rg --color=always --line-number --no-heading --smart-case "${*:-}" |
