@@ -54,15 +54,17 @@ RUN <<"====" >> $HOME/.zprofile
     export HISTFILE=~/.cache/history
     export LANG=en_US.UTF-8
     export LF_ICONS=" tw=:or=:ex=:bd=:di=:ow=:ln=:fi="
-    export LS_COLORS="tw=30:or=91:ex=92:bd=93:di=90:ow=94:ln=34:fi=37"
+    export LS_COLORS="tw=30:or=91:ex=92:bd=93:di=94:ow=14:ln=34:fi=37"
     export PAGER="less -r --use-color -Dd+r -Du+b -DPyk -DSyk"
     export SAVEHIST=10000000
     export SPACESHIP_PROMPT_SEPARATE_LINE="false"
     export SPACESHIP_VI_MODE_SHOW="false"
     export TERM="xterm-256color"
-    source $HOME/.nix-profile/lib/spaceship-prompt/spaceship.zsh
+    source $HOME/.nix-profile/share/fzf/completion.zsh
+    source $HOME/.nix-profile/share/fzf/key-bindings.zsh
     source $HOME/.nix-profile/share/zsh/site-functions/fast-syntax-highlighting.plugin.zsh
     source $HOME/.nix-profile/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+    source $HOME/.nix-profile/lib/spaceship-prompt/spaceship.zsh
     source $HOME/.nix-profile/etc/profile.d/nix.sh
     [[ -z $TMUX ]] && sleep 1 && exec tmux -u
     bindkey -v '^?' backward-delete-char
