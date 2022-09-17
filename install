@@ -57,6 +57,7 @@ cat <<"====" >> "$HOME/.zprofile"
     export LF_ICONS=" tw=:or=:ex=:bd=:di=:ow=:ln=:fi="
     export LS_COLORS="tw=30:or=91:ex=92:bd=93:di=94:ow=14:ln=34:fi=37"
     export PAGER="less -r --use-color -Dd+r -Du+b -DPyk -DSyk"
+    export BAT_THEME="base16"
     export PATH="$PATH:$HOME/.local/bin"
     export SAVEHIST=10000000
     export SPACESHIP_PROMPT_SEPARATE_LINE="false"
