@@ -33,7 +33,7 @@ RUN curl -L nixos.org/nix/install | sh \
     && . $HOME/.nix-profile/etc/profile.d/nix.sh \
     && nix-env -iA nixpkgs.bat nixpkgs.fzf nixpkgs.gcc nixpkgs.git nixpkgs.killall nixpkgs.lazygit \
                    nixpkgs.libsixel nixpkgs.less nixpkgs.lf nixpkgs.neovim nixpkgs.ripgrep nixpkgs.timg nixpkgs.trash-cli \
-                   nixpkgs.xclip nixpkgs.spaceship-prompt nixpkgs.zsh-autosuggestions nixpkgs.zsh-fast-syntax-highlighting \
+                   nixpkgs.xclip nixpkgs.xdg-utils nixpkgs.spaceship-prompt nixpkgs.zsh-autosuggestions nixpkgs.zsh-fast-syntax-highlighting \
     && nix-collect-garbage -d
 
 # # ssh
@@ -101,7 +101,12 @@ set shell /bin/bash
 set previewer ~/.config/lf/previewer
 set cleaner ~/.config/lf/cleaner
 
-cmd open $xdg-open "$f"
+cmd open ${{
+    case $(file --dereference --brief --mime-type $f) in
+        text/*|application/json) $EDITOR $fx ;;
+        *) for f in $fx; do xdg-open $f &>/dev/null & disown; done;;
+    esac
+}}
 
 cmd fzf_ripgrep ${{
   IFS=: read -ra selected < <(
@@ -151,6 +156,8 @@ RUN <<==== >> $HOME/.tmux.conf
     set  -g  default-shell      /bin/zsh
     set  -g  mouse              on
     set  -g  status             off
+    set  -g  status-bg          colour233
+    set  -g  status-fg          colour245
     setw -g  mode-keys          vi
     set  -ga terminal-overrides "xterm-256color:Tc"
     bind -T  copy-mode-vi y     send-keys -X copy-pipe-and-cancel "xclip -i -sel clip > /dev/null"

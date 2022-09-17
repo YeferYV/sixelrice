@@ -40,7 +40,7 @@ NIX_INSTALL=true
     }
     nix-env -iA ${NIX_PKGS_OS}.bat ${NIX_PKGS_OS}.fzf ${NIX_PKGS_OS}.gcc ${NIX_PKGS_OS}.git ${NIX_PKGS_OS}.killall ${NIX_PKGS_OS}.lazygit \
                 ${NIX_PKGS_OS}.libsixel ${NIX_PKGS_OS}.less ${NIX_PKGS_OS}.lf  ${NIX_PKGS_OS}.ripgrep ${NIX_PKGS_OS}.timg ${NIX_PKGS_OS}.trash-cli \
-                ${NIX_PKGS_OS}.xclip ${NIX_PKGS_OS}.spaceship-prompt ${NIX_PKGS_OS}.zsh-autosuggestions ${NIX_PKGS_OS}.zsh-fast-syntax-highlighting
+                ${NIX_PKGS_OS}.xclip ${NIX_PKGS_OS}.xdg-utils ${NIX_PKGS_OS}.spaceship-prompt ${NIX_PKGS_OS}.zsh-autosuggestions ${NIX_PKGS_OS}.zsh-fast-syntax-highlighting
     nix-collect-garbage -d
   }
 
@@ -110,7 +110,12 @@ set shell /bin/bash
 set previewer ~/.config/lf/previewer
 set cleaner ~/.config/lf/cleaner
 
-cmd open $xdg-open "$f"
+cmd open ${{
+    case $(file --dereference --brief --mime-type $f) in
+        text/*|application/json) $EDITOR $fx ;;
+        *) for f in $fx; do xdg-open $f &>/dev/null & disown; done;;
+    esac
+}}
 
 cmd fzf_ripgrep ${{
   IFS=: read -ra selected < <(
@@ -163,6 +168,8 @@ cat <<====>> "$HOME/.tmux.conf"
     set  -g  default-shell      /bin/zsh
     set  -g  mouse              on
     set  -g  status             off
+    set  -g  status-bg          colour233
+    set  -g  status-fg          colour245
     setw -g  mode-keys          vi
     set  -ga terminal-overrides "xterm-256color:Tc"
     bind -T  copy-mode-vi y     send-keys -X copy-pipe-and-cancel "xclip -i -sel clip > /dev/null"
