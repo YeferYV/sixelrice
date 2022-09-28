@@ -14,7 +14,7 @@
 
 FROM ubuntu
 RUN apt update \
-    && DEBIAN_FRONTEND=noninteractive apt install -y curl sudo tmux xz-utils zsh \
+    && DEBIAN_FRONTEND=noninteractive apt install -y curl file sudo tmux unzip xz-utils zsh \
     && useradd -mG sudo -s /bin/bash drksl \
     && echo root:toor | chpasswd \
     && echo drksl:toor | chpasswd \
