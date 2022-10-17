@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
+#=================== Docker run ubuntu-nix ===================#
+
 # xhost + && su -w WEZTERM_PANE,WEZTERM_UNIX_SOCKET,LESSKEYIN -
-# docker run -it --name ubuntu-nix-rice -v $PWD:/home/dotfiles/CICD ubuntu bash -uelic '
+# docker run -it --name ubuntu-nix -v $PWD:/home/dotfiles/CICD ubuntu bash -uelic '
 #     [[ ! -e /home/drksl ]] && {
 #         apt update
 #         DEBIAN_FRONTEND=noninteractive apt install -y sudo
@@ -10,11 +12,13 @@
 #         echo drksl:toor | chpasswd
 #         echo "%sudo ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel
 #         chown -R drksl:drksl /home/dotfiles
-#         sudo -u "drksl" bash -c "/home/dotfiles/CICD/Rice"
+#         sudo -u "drksl" bash -c "/home/dotfiles/CICD/install"
 #     }
 #     chmod g+w /dev/pts/0
 #     su - drksl
 #     '
+
+#======== Post-Install: ubuntu-nix arch-nix nixos-nix ========#
 
 # exit on error
 set -eu

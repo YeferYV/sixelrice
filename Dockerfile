@@ -1,9 +1,12 @@
 # syntax=docker/dockerfile:1
 
-# export DOCKER_BUILDKIT=1
+#=========== Docker build/run alpine-nix-dockerfile ==========#
+
 # xhost +
-# docker buildx build -t ubuntu-nix-dockerfile .
-# docker run -it --name ubuntu-nix-dockerfile -v /tmp/.X11-unix:/tmp/.X11-unix ubuntu-nix-dockerfile
+# DOCKER_BUILDKIT=1 docker build -t alpine-nix-dockerfile .
+# docker run -it --name alpine-nix-dockerfile -v /tmp/.X11-unix:/tmp/.X11-unix alpine-nix-dockerfile
+
+#============= Dockerfile: alpine-nix-dockerfile =============#
 
 # FROM alpine
 # RUN apk add bash curl shadow sudo tmux xz zsh zsh-vcs \
@@ -11,6 +14,15 @@
 #     && echo root:toor | chpasswd \
 #     && echo drksl:toor | chpasswd \
 #     && echo "%wheel ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel
+# ...
+
+#=========== Docker build/run ubuntu-nix-dockerfile ==========#
+
+# xhost +
+# DOCKER_BUILDKIT=1 docker build -t ubuntu-nix-dockerfile .
+# docker run -it --name ubuntu-nix-dockerfile -v /tmp/.X11-unix:/tmp/.X11-unix ubuntu-nix-dockerfile
+
+#============= Dockerfile: ubuntu-nix-dockerfile =============#
 
 FROM ubuntu
 RUN apt update \
