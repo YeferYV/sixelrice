@@ -3,7 +3,8 @@
 #=========== Docker build/run alpine-nix-dockerfile ==========#
 
 # xhost +
-# DOCKER_BUILDKIT=1 docker build -t alpine-nix-dockerfile .
+# sudo dockerd --experimental & disown
+# DOCKER_BUILDKIT=1 docker build --squash -t alpine-nix-dockerfile .
 # docker run -it --name alpine-nix-dockerfile -v /tmp/.X11-unix:/tmp/.X11-unix alpine-nix-dockerfile
 
 #============= Dockerfile: alpine-nix-dockerfile =============#
@@ -19,7 +20,8 @@
 #=========== Docker build/run ubuntu-nix-dockerfile ==========#
 
 # xhost +
-# DOCKER_BUILDKIT=1 docker build -t ubuntu-nix-dockerfile .
+# sudo dockerd --experimental & disown
+# DOCKER_BUILDKIT=1 docker build --squash -t ubuntu-nix-dockerfile .
 # docker run -it --name ubuntu-nix-dockerfile -v /tmp/.X11-unix:/tmp/.X11-unix ubuntu-nix-dockerfile
 
 #============= Dockerfile: ubuntu-nix-dockerfile =============#
