@@ -3,7 +3,7 @@
 #=================== Docker run ubuntu-nix ===================#
 
 # xhost + && su -w WEZTERM_PANE,WEZTERM_UNIX_SOCKET,LESSKEYIN -
-# docker run -it --name ubuntu-nix -v $PWD:/home/dotfiles/CICD ubuntu bash -uelic '
+# docker run -it --name ubuntu-nix -v ${PWD%/*}:/home/dtfls//CICD-docker-volume ubuntu bash -uelic '
 #     [[ ! -e /home/drksl ]] && {
 #         apt update
 #         DEBIAN_FRONTEND=noninteractive apt install -y sudo
@@ -11,8 +11,8 @@
 #         echo root:toor | chpasswd
 #         echo drksl:toor | chpasswd
 #         echo "%sudo ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel
-#         chown -R drksl:drksl /home/dotfiles
-#         sudo -u "drksl" bash -c "/home/dotfiles/CICD/install"
+#         chown -R drksl:drksl /home/dtfls
+#         sudo -u "drksl" bash -c "/home/dtfls/CICD-docker-volume/CICD/install"
 #     }
 #     chmod g+w /dev/pts/0
 #     su - drksl
@@ -36,12 +36,12 @@ NIX_INSTALL=true
     export NIX_PKGS_OS="nixpkgs"
     [ ! -e /nix ] && {
       curl -L nixos.org/nix/install | sh
-      . "$HOME/.nix-profile/etc/profile.d/nix.sh"
     }
     [ -e /etc/nixos ] && {
       export NIX_PKGS_OS="nixos"
       nix-env -iA ${NIX_PKGS_OS}.zsh ${NIX_PKGS_OS}.tmux
     }
+    . "$HOME/.nix-profile/etc/profile.d/nix.sh"
     nix-env -iA ${NIX_PKGS_OS}.bat ${NIX_PKGS_OS}.fzf ${NIX_PKGS_OS}.gcc ${NIX_PKGS_OS}.git ${NIX_PKGS_OS}.killall ${NIX_PKGS_OS}.lazygit \
                 ${NIX_PKGS_OS}.libsixel ${NIX_PKGS_OS}.less ${NIX_PKGS_OS}.lf  ${NIX_PKGS_OS}.ripgrep ${NIX_PKGS_OS}.timg ${NIX_PKGS_OS}.trash-cli \
                 ${NIX_PKGS_OS}.xclip ${NIX_PKGS_OS}.xdg-utils ${NIX_PKGS_OS}.spaceship-prompt ${NIX_PKGS_OS}.zsh-autosuggestions ${NIX_PKGS_OS}.zsh-fast-syntax-highlighting
