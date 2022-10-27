@@ -43,14 +43,14 @@ NIX_INSTALL=true
     }
     . "$HOME/.nix-profile/etc/profile.d/nix.sh"
     nix-env -iA ${NIX_PKGS_OS}.bat ${NIX_PKGS_OS}.fzf ${NIX_PKGS_OS}.gcc ${NIX_PKGS_OS}.git ${NIX_PKGS_OS}.killall ${NIX_PKGS_OS}.lazygit \
-                ${NIX_PKGS_OS}.libsixel ${NIX_PKGS_OS}.less ${NIX_PKGS_OS}.lf ${NIX_PKGS_OS}.neovim  ${NIX_PKGS_OS}.ripgrep ${NIX_PKGS_OS}.timg ${NIX_PKGS_OS}.trash-cli \
+                ${NIX_PKGS_OS}.libsixel ${NIX_PKGS_OS}.less ${NIX_PKGS_OS}.lf ${NIX_PKGS_OS}.ripgrep ${NIX_PKGS_OS}.timg ${NIX_PKGS_OS}.trash-cli \
                 ${NIX_PKGS_OS}.xclip ${NIX_PKGS_OS}.xdg-utils ${NIX_PKGS_OS}.spaceship-prompt ${NIX_PKGS_OS}.zsh-autosuggestions ${NIX_PKGS_OS}.zsh-fast-syntax-highlighting
     nix-collect-garbage -d
   }
 
-# install neovim v0.7.2 + nvchad
-# [ -e /.dockerenv ] && echo "export APPIMAGE_EXTRACT_AND_RUN=1" >> "$HOME"/.zprofile
-# sudo curl -Lo /usr/local/bin/nvim https://github.com/neovim/neovim/releases/download/v0.7.2/nvim.appimage && chmod +x /usr/local/bin/nvim
+# install neovim.appimage v0.7.2 (nixpkgs.neovim doesn't work in codespaces) + nvchad
+[ -e /.dockerenv ] && echo "export APPIMAGE_EXTRACT_AND_RUN=1" >> "$HOME"/.zprofile
+sudo curl -Lo /usr/local/bin/nvim https://github.com/neovim/neovim/releases/download/v0.7.2/nvim.appimage && chmod +x /usr/local/bin/nvim
 git clone --depth=1 https://github.com/nvchad/nvchad ~/.config/nvim
 
 # source zsh plugins
