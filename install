@@ -3,7 +3,7 @@
 #=================== Docker run ubuntu-nix ===================#
 
 # xhost + && su -w WEZTERM_PANE,WEZTERM_UNIX_SOCKET,LESSKEYIN -
-# docker run -it --name ubuntu-nix -v ${PWD%/*}:/home/dtfls//CICD-docker-volume ubuntu bash -uelic '
+# docker run -it --name ubuntu-nix -v ${PWD%/*}:/home/dtfls/rice-docker-volume ubuntu bash -uelic '
 #     [[ ! -e /home/drksl ]] && {
 #         apt update
 #         DEBIAN_FRONTEND=noninteractive apt install -y sudo
@@ -12,7 +12,7 @@
 #         echo drksl:toor | chpasswd
 #         echo "%sudo ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel
 #         chown -R drksl:drksl /home/dtfls
-#         sudo -u "drksl" bash -c "/home/dtfls/CICD-docker-volume/CICD/install"
+#         sudo -u "drksl" bash -c "/home/dtfls/rice-docker-volume/rice/install"
 #     }
 #     chmod g+w /dev/pts/0
 #     su - drksl
