@@ -3,7 +3,7 @@
 #=========== Docker build/run alpine-nix-dockerfile ==========#
 
 # xhost +
-# sudo dockerd --experimental & disown
+# sudo pkill dockerd && sleep 1 && sudo dockerd --experimental & disown
 # DOCKER_BUILDKIT=1 docker build --squash -t alpine-nix-dockerfile .
 # docker run -it --name alpine-nix-dockerfile -v /tmp/.X11-unix:/tmp/.X11-unix alpine-nix-dockerfile
 
@@ -20,7 +20,7 @@
 #=========== Docker build/run ubuntu-nix-dockerfile ==========#
 
 # xhost +
-# sudo dockerd --experimental & disown
+# sudo pkill dockerd && sleep 1 && sudo dockerd --experimental & disown
 # DOCKER_BUILDKIT=1 docker build --squash -t ubuntu-nix-dockerfile .
 # docker run -it --name ubuntu-nix-dockerfile -v /tmp/.X11-unix:/tmp/.X11-unix ubuntu-nix-dockerfile
 
@@ -55,7 +55,6 @@ RUN curl -L nixos.org/nix/install | sh \
 #     && sudo mkdir /run/sshd \
 #     && sudo /usr/bin/ssh-keygen -A \
 #     && echo "sudo /sbin/sshd" >>/home/drksl/.zprofile
-
 
 # install neovim plugins
 RUN . $HOME/.nix-profile/etc/profile.d/nix.sh \
