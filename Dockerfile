@@ -187,24 +187,27 @@ RUN <<==== >> $HOME/.tmux.conf
     set  -ga terminal-overrides        "xterm-256color:Tc"
     bind -T  copy-mode-vi y            send-keys -X copy-pipe-and-cancel "xclip -i -sel clip > /dev/null"
     bind -T  copy-mode-vi v            send-keys -X begin-selection
+    bind -T  copy-mode-vi BTab         select-window -p
+    bind -T  copy-mode-vi Tab          select-window -n
+    bind -T  copy-mode-vi \;           select-window -l
     bind -n  C-M-l                     send-keys C-l \; run 'tmux clear-history'
     bind     Space                     copy-mode \; send-keys left left
     bind -n  C-M-Space                 copy-mode \; send-keys left left
     bind -n  C-M-h                     copy-mode \; send-keys left left
-    bind -n  M-w                       copy-mode \; send-keys left left \; send-keys -X scroll-up
-    bind -n  M-s                       copy-mode \; send-keys left left \; send-keys -X scroll-down
+    bind -n  M-r                       copy-mode \; send-keys left left \; send-keys -X scroll-up
+    bind -n  M-w                       copy-mode \; send-keys left left \; send-keys -X scroll-down
     bind -n  M-e                       copy-mode \; send-keys left left \; send-keys -X scroll-up
     bind -n  M-d                       copy-mode \; send-keys left left \; send-keys -X scroll-down
-    bind -n  M-r                       copy-mode \; send-keys left left \; send-keys -X page-up
-    bind -n  M-f                       copy-mode \; send-keys left left \; send-keys -X page-down
+    bind -n  M-q                       copy-mode \; send-keys left left \; send-keys -X page-up
+    bind -n  M-a                       copy-mode \; send-keys left left \; send-keys -X page-down
     bind -n  M-t                       copy-mode \; send-keys left left \; send-keys -X history-top
     bind -n  M-g                       copy-mode \; send-keys left left \; send-keys -X history-bottom
-    bind -T  copy-mode-vi M-w          send-keys -X scroll-up
-    bind -T  copy-mode-vi M-s          send-keys -X scroll-down
+    bind -T  copy-mode-vi M-r          send-keys -X scroll-up
+    bind -T  copy-mode-vi M-w          send-keys -X scroll-down
     bind -T  copy-mode-vi M-e          send-keys -X scroll-up
     bind -T  copy-mode-vi M-d          send-keys -X scroll-down
-    bind -T  copy-mode-vi M-r          send-keys -X page-up
-    bind -T  copy-mode-vi M-f          send-keys -X page-down
+    bind -T  copy-mode-vi M-q          send-keys -X page-up
+    bind -T  copy-mode-vi M-a          send-keys -X page-down
     bind -T  copy-mode-vi M-t          send-keys -X history-top
     bind -T  copy-mode-vi M-g          send-keys -X history-bottom
     bind -T  copy-mode-vi u            send-keys -X halfpage-up
@@ -218,8 +221,14 @@ RUN <<==== >> $HOME/.tmux.conf
     bind     b                         set -g status
     bind     c                         set -g status on \; new-window
     bind     x                         kill-pane
-    bind     v                         split-window -h
-    bind     V                         split-window -v
+    bind -n  M-S                       swap-window -t -1\; select-window -t -1
+    bind -n  M-F                       swap-window -t +1\; select-window -t +1
+    bind -n  M-\;                      select-window -l
+    bind -r  \;                        select-window -l
+    bind -n  M-s                       select-window -p
+    bind -n  M-f                       select-window -n
+    bind -r  BTab                      select-window -p
+    bind -r  Tab                       select-window -n
     bind -n  C-M-n                     select-window -n
     bind -n  C-M-p                     select-window -p
     bind -n  C-Left                    select-pane -L
@@ -234,6 +243,8 @@ RUN <<==== >> $HOME/.tmux.conf
     bind -r  J                         resize-pane -D
     bind -r  K                         resize-pane -U
     bind -r  L                         resize-pane -R
+    bind     v                         split-window -h
+    bind     V                         split-window -v
 ====
 
 CMD ["/usr/bin/zsh","-l"]
