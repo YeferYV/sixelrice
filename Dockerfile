@@ -64,13 +64,15 @@ RUN . $HOME/.nix-profile/etc/profile.d/nix.sh \
 RUN <<"====" >> $HOME/.zprofile
     export DISPLAY=:0
     export EDITOR="nvim"
-    export HISTFILE=~/.cache/history
+    export HISTFILE="$HOME/.cache/history"
     export LANG=en_US.UTF-8
+    export LESSKEYIN="$HOME/.config/lf/lesskey"
     export LF_ICONS=" tw=:or=:ex=:bd=:di=:ow=:ln=:fi="
     export LS_COLORS="tw=30:or=91:ex=92:bd=93:di=94:ow=14:ln=34:fi=37"
     export PAGER="less -r --use-color -Dd+r -Du+b -DPyk -DSyk"
     export BAT_THEME="base16"
     export SAVEHIST=10000000
+    export SHELL="$(which zsh)"
     export SPACESHIP_PROMPT_ADD_NEWLINE="false"
     export SPACESHIP_PROMPT_SEPARATE_LINE="false"
     export SPACESHIP_VI_MODE_SHOW="false"
@@ -116,6 +118,15 @@ RUN mkdir -p $HOME/.config/lf \
     && sed -i 's/cd "$dir"/cd "$dir" \&\& zle reset-prompt/'                         $HOME/.zprofile \
     && ln -s $HOME/.zprofile $HOME/.zshrc
 
+# LessKeys
+cat <<"====">> "$HOME/.config/lf/lesskey"
+h left-scroll
+l right-scroll
+i quit
+J forw-scroll
+K back-scroll
+====
+
 # lfrc
 COPY --chown=drksl <<"====" $HOME/.config/lf/lfrc
 set icons
@@ -136,7 +147,7 @@ cmd fzf_ripgrep ${{
   IFS=: read -ra selected < <(
     rg --color=always --line-number --no-heading --smart-case "${*:-}" |
       fzf --ansi \
-          --color "hl:-1:underline,hl+:-1:underline:reverse" \
+          --color "hl:-1:underline,hl+:-1:underline:reverse,bg+:#111111" \
           --delimiter : \
           --preview 'bat --color=always {1} --highlight-line {2}' \
           --preview-window 'up,60%,border-bottom,+{2}+3/3,~3'
@@ -156,8 +167,8 @@ map gfs     $lf -remote "send $id select \"$(fzf --bind='?:toggle-preview' --pre
 map gfr     :fzf_ripgrep
 map <enter> shell
 map D       $trash --trash-dir ~/.cache/Trash $fx
-map J       half-down
-map K       half-up
+map J       push 10j
+map K       push 10k
 ====
 
 # lf previewer
@@ -181,10 +192,10 @@ RUN <<==== >> $HOME/.tmux.conf
     set  -g  mouse                     on
     set  -g  pane-active-border-style  fg=colour235
     set  -g  status                    off
-    set  -g  status-bg                 colour233
-    set  -g  status-fg                 colour245
-    setw -g  mode-keys                 vi
+    set  -ga status-style              bg="#111111"
+    set  -ga status-style              fg="#aaaaaa"
     set  -ga terminal-overrides        "xterm-256color:Tc"
+    setw -g  mode-keys                 vi
     bind -T  copy-mode-vi y            send-keys -X copy-pipe-and-cancel "xclip -i -sel clip > /dev/null"
     bind -T  copy-mode-vi v            send-keys -X begin-selection
     bind -T  copy-mode-vi BTab         select-window -p

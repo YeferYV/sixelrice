@@ -48,7 +48,7 @@ NIX_INSTALL=true
     nix-collect-garbage -d
   }
 
-# install neovim.appimage v0.8.1 (nixpkgs.neovim doesn't work in codespaces) + nvchad
+# install neovim.appimage v0.8.1 (nixpkgs.neovim doesn't work in codespaces) + astronvim
 [ -e /.dockerenv ] && echo "export APPIMAGE_EXTRACT_AND_RUN=1" >> "$HOME"/.zprofile
 sudo curl -Lo /usr/local/bin/nvim https://github.com/neovim/neovim/releases/download/v0.8.1/nvim.appimage && sudo chmod +x /usr/local/bin/nvim
 git clone --depth=1 https://github.com/astronvim/astronvim ~/.config/nvim
@@ -57,8 +57,9 @@ git clone --depth=1 https://github.com/astronvim/astronvim ~/.config/nvim
 cat <<"====" >> "$HOME/.zprofile"
     export DISPLAY=:0
     export EDITOR="nvim"
-    export HISTFILE=~/.cache/history
+    export HISTFILE="$HOME/.cache/history"
     export LANG=en_US.UTF-8
+    export LESSKEYIN="$HOME/.config/lf/lesskey"
     export LF_ICONS=" tw=:or=:ex=:bd=:di=:ow=:ln=:fi="
     export LS_COLORS="tw=30:or=91:ex=92:bd=93:di=94:ow=14:ln=34:fi=37"
     export PAGER="less -r --use-color -Dd+r -Du+b -DPyk -DSyk"
@@ -105,7 +106,7 @@ cat <<"====" >> "$HOME/.zprofile"
     bindkey -v '^?' backward-delete-char
 ====
 
-# zshrc for nvchad-terminal
+# zshrc for astronvim-terminal
 if [ -e "$HOME/.bashrc" ]; then echo "/bin/zsh -l"           >> "$HOME/.bashrc"; fi;
 if [ -e "$HOME/.zshrc" ]; then echo "source $HOME/.zprofile" >> "$HOME/.zshrc"; else ln -s "$HOME/.zprofile" "$HOME/.zshrc"; fi;
 
@@ -116,6 +117,15 @@ mkdir -p "$HOME/.config/lf" \
     && echo -E "bindkey '\eo' 'lfcd'"                                              >> "$HOME/.zprofile"    \
     && sed -i 's/cd "$dir"/cd "$dir" \&\& zle reset-prompt/'                          "$HOME/.zprofile"    #\
     # && cp -r /home/*/.nix-profile $HOME  #if running as root
+
+# LessKeys
+cat <<"====">> "$HOME/.config/lf/lesskey"
+h left-scroll
+l right-scroll
+i quit
+J forw-scroll
+K back-scroll
+====
 
 # lfrc
 cat <<"====">> "$HOME/.config/lf/lfrc"
@@ -137,7 +147,7 @@ cmd fzf_ripgrep ${{
   IFS=: read -ra selected < <(
     rg --color=always --line-number --no-heading --smart-case "${*:-}" |
       fzf --ansi \
-          --color "hl:-1:underline,hl+:-1:underline:reverse" \
+          --color "hl:-1:underline,hl+:-1:underline:reverse,bg+:#111111" \
           --delimiter : \
           --preview 'bat --color=always {1} --highlight-line {2}' \
           --preview-window 'up,60%,border-bottom,+{2}+3/3,~3'
@@ -157,8 +167,8 @@ map gfs     $lf -remote "send $id select \"$(fzf --bind='?:toggle-preview' --pre
 map gfr     :fzf_ripgrep
 map <enter> shell
 map D       $trash --trash-dir ~/.cache/Trash $fx
-map J       half-down
-map K       half-up
+map J       push 10j
+map K       push 10k
 ====
 
 # lf previewer
@@ -185,10 +195,10 @@ cat <<====>> "$HOME/.tmux.conf"
     set  -g  mouse                     on
     set  -g  pane-active-border-style  fg=colour235
     set  -g  status                    off
-    set  -g  status-bg                 colour233
-    set  -g  status-fg                 colour245
-    setw -g  mode-keys                 vi
+    set  -ga status-style              bg="#111111"
+    set  -ga status-style              fg="#aaaaaa"
     set  -ga terminal-overrides        "xterm-256color:Tc"
+    setw -g  mode-keys                 vi
     bind -T  copy-mode-vi y            send-keys -X copy-pipe-and-cancel "xclip -i -sel clip > /dev/null"
     bind -T  copy-mode-vi v            send-keys -X begin-selection
     bind -T  copy-mode-vi BTab         select-window -p
@@ -250,4 +260,5 @@ cat <<====>> "$HOME/.tmux.conf"
     bind     v                         split-window -h
     bind     V                         split-window -v
 ====
+tput -T ansi setaf 3; echo "cp -r /home/*/.nix-profile $HOME  #if running as root"
 tput -T ansi setaf 2; echo Done!
