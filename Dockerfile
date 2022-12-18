@@ -58,7 +58,7 @@ RUN curl -L nixos.org/nix/install | sh \
 
 # install neovim plugins
 RUN . $HOME/.nix-profile/etc/profile.d/nix.sh \
-    && git clone --depth=1 https://github.com/nvchad/nvchad ~/.config/nvim
+    && git clone --depth=1 https://github.com/astronvim/astronvim ~/.config/nvim
 
 # source zsh plugins
 RUN <<"====" >> $HOME/.zprofile
