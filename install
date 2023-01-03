@@ -63,6 +63,7 @@ cat <<"====" >> "$HOME/.zprofile"
     export LF_ICONS=" tw=:or=:ex=:bd=:di=:ow=:ln=:fi="
     export LS_COLORS="tw=30:or=91:ex=92:bd=93:di=94:ow=14:ln=34:fi=37"
     export PAGER="less -r --use-color -Dd+r -Du+b -DPyk -DSyk"
+    export PROMPT_COMMAND='echo -ne "\033]0; ${${PWD/#$HOME/~}##*/} \a"'
     export BAT_THEME="base16"
     export PATH="$PATH:$HOME/.local/bin"
     export SAVEHIST=10000000
@@ -76,6 +77,7 @@ cat <<"====" >> "$HOME/.zprofile"
     source $HOME/.nix-profile/share/zsh-autosuggestions/zsh-autosuggestions.zsh
     source $HOME/.nix-profile/lib/spaceship-prompt/spaceship.zsh
     source $HOME/.nix-profile/etc/profile.d/nix.sh >/dev/null 2>&1
+    precmd() { eval "$PROMPT_COMMAND" }
     tty >> /tmp/sixel-$WEZTERM_PANE
     trap "rm /tmp/sixel-$WEZTERM_PANE" EXIT
     [[ -z $TMUX ]] && sleep 1 && exec tmux -u
@@ -136,9 +138,11 @@ set shell /bin/bash
 set previewer ~/.config/lf/previewer
 set cleaner ~/.config/lf/cleaner
 
+cmd on-cd &{{ printf "\033]0; $(TMP=${PWD/#$HOME/\~};echo ${TMP##*/}) \a" >/dev/tty }}
+
 cmd open ${{
     case $(file --dereference --brief --mime-type $f) in
-        text/*|application/json) $EDITOR $fx ;;
+        text/*|application/json) printf "\033]0; ${f##*/} \a" >/dev/tty; $EDITOR $fx ;;
         *) for f in $fx; do xdg-open $f &>/dev/null & disown; done;;
     esac
 }}
@@ -191,74 +195,80 @@ sudo chsh -s "$(which zsh)" "$USER"
 
 # tmux config
 cat <<====>> "$HOME/.tmux.conf"
-    set  -g  default-shell             /bin/zsh
-    set  -g  mouse                     on
-    set  -g  pane-active-border-style  fg=colour235
-    set  -g  status                    off
-    set  -ga status-style              bg="#111111"
-    set  -ga status-style              fg="#aaaaaa"
-    set  -ga terminal-overrides        "xterm-256color:Tc"
-    setw -g  mode-keys                 vi
-    bind -T  copy-mode-vi y            send-keys -X copy-pipe-and-cancel "xclip -i -sel clip > /dev/null"
-    bind -T  copy-mode-vi v            send-keys -X begin-selection
-    bind -T  copy-mode-vi BTab         select-window -p
-    bind -T  copy-mode-vi Tab          select-window -n
-    bind -T  copy-mode-vi \;           select-window -l
-    bind -n  C-M-l                     send-keys C-l \; run 'tmux clear-history'
-    bind     Space                     copy-mode \; send-keys left left
-    bind -n  C-M-Space                 copy-mode \; send-keys left left
-    bind -n  C-M-h                     copy-mode \; send-keys left left
-    bind -n  M-r                       copy-mode \; send-keys left left \; send-keys -X scroll-up
-    bind -n  M-w                       copy-mode \; send-keys left left \; send-keys -X scroll-down
-    bind -n  M-e                       copy-mode \; send-keys left left \; send-keys -X scroll-up
-    bind -n  M-d                       copy-mode \; send-keys left left \; send-keys -X scroll-down
-    bind -n  M-q                       copy-mode \; send-keys left left \; send-keys -X page-up
-    bind -n  M-a                       copy-mode \; send-keys left left \; send-keys -X page-down
-    bind -n  M-t                       copy-mode \; send-keys left left \; send-keys -X history-top
-    bind -n  M-g                       copy-mode \; send-keys left left \; send-keys -X history-bottom
-    bind -T  copy-mode-vi M-r          send-keys -X scroll-up
-    bind -T  copy-mode-vi M-w          send-keys -X scroll-down
-    bind -T  copy-mode-vi M-e          send-keys -X scroll-up
-    bind -T  copy-mode-vi M-d          send-keys -X scroll-down
-    bind -T  copy-mode-vi M-q          send-keys -X page-up
-    bind -T  copy-mode-vi M-a          send-keys -X page-down
-    bind -T  copy-mode-vi M-t          send-keys -X history-top
-    bind -T  copy-mode-vi M-g          send-keys -X history-bottom
-    bind -T  copy-mode-vi u            send-keys -X halfpage-up
-    bind -T  copy-mode-vi d            send-keys -X halfpage-down
-    bind -T  copy-mode-vi i            send-keys -X cancel
-    bind -T  copy-mode-vi H            send-keys left  left  left  left  left  left  left  left  left  left
-    bind -T  copy-mode-vi J            send-keys down  down  down  down  down  down  down  down  down  down
-    bind -T  copy-mode-vi K            send-keys up    up    up    up    up    up    up    up    up    up
-    bind -T  copy-mode-vi L            send-keys right right right right right right right right right right
-    bind -n  C-M-b                     set -g status
-    bind     b                         set -g status
-    bind     c                         set -g status on \; new-window
-    bind     x                         kill-pane
-    bind -n  M-S                       swap-window -t -1\; select-window -t -1
-    bind -n  M-F                       swap-window -t +1\; select-window -t +1
-    bind -n  M-\;                      select-window -l
-    bind -r  \;                        select-window -l
-    bind -n  M-s                       select-window -p
-    bind -n  M-f                       select-window -n
-    bind -r  BTab                      select-window -p
-    bind -r  Tab                       select-window -n
-    bind -n  C-M-n                     select-window -n
-    bind -n  C-M-p                     select-window -p
-    bind -n  C-Left                    select-pane -L
-    bind -n  C-Down                    select-pane -D
-    bind -n  C-Up                      select-pane -U
-    bind -n  C-Right                   select-pane -R
-    bind -r  h                         select-pane -L
-    bind -r  j                         select-pane -D
-    bind -r  k                         select-pane -U
-    bind -r  l                         select-pane -R
-    bind -r  H                         resize-pane -L
-    bind -r  J                         resize-pane -D
-    bind -r  K                         resize-pane -U
-    bind -r  L                         resize-pane -R
-    bind     v                         split-window -h
-    bind     V                         split-window -v
+    set  -g  default-shell                /bin/zsh
+    set  -g  mouse                        on
+    set  -g  pane-active-border-style     bg=default,fg=gray
+    set  -g  pane-border-style            fg=colour235
+    set  -g  status                       off
+    set  -ga status-style                 bg=default
+    set  -ga status-style                 fg="#aaaaaa"
+    set  -g  status-left                  ""
+    set  -g  status-right                 ""
+    set  -ga terminal-overrides           "xterm-256color:Tc"
+    set  -g  window-status-current-format "#[bg=#1c1c1c,fg=#888888]#{window_index}:#{pane_title}"
+    set  -g  window-status-format         "#[bg=default,fg=#2c2c2c]#{window_index}:#{pane_title}"
+    set  -g  window-status-separator      " "
+    setw -g  mode-keys                    vi
+    bind -T  copy-mode-vi y               send-keys -X copy-pipe-and-cancel "xclip -i -sel clip > /dev/null"
+    bind -T  copy-mode-vi v               send-keys -X begin-selection
+    bind -T  copy-mode-vi BTab            select-window -p
+    bind -T  copy-mode-vi Tab             select-window -n
+    bind -T  copy-mode-vi \;              select-window -l
+    bind -n  C-M-l                        send-keys C-l \; run 'tmux clear-history'
+    bind     Space                        copy-mode \; send-keys left left
+    bind -n  C-M-Space                    copy-mode \; send-keys left left
+    bind -n  C-M-h                        copy-mode \; send-keys left left
+    bind -n  M-r                          copy-mode \; send-keys left left \; send-keys -X scroll-up
+    bind -n  M-w                          copy-mode \; send-keys left left \; send-keys -X scroll-down
+    bind -n  M-e                          copy-mode \; send-keys left left \; send-keys -X scroll-up
+    bind -n  M-d                          copy-mode \; send-keys left left \; send-keys -X scroll-down
+    bind -n  M-q                          copy-mode \; send-keys left left \; send-keys -X page-up
+    bind -n  M-a                          copy-mode \; send-keys left left \; send-keys -X page-down
+    bind -n  M-t                          copy-mode \; send-keys left left \; send-keys -X history-top
+    bind -n  M-g                          copy-mode \; send-keys left left \; send-keys -X history-bottom
+    bind -T  copy-mode-vi M-r             send-keys -X scroll-up
+    bind -T  copy-mode-vi M-w             send-keys -X scroll-down
+    bind -T  copy-mode-vi M-e             send-keys -X scroll-up
+    bind -T  copy-mode-vi M-d             send-keys -X scroll-down
+    bind -T  copy-mode-vi M-q             send-keys -X page-up
+    bind -T  copy-mode-vi M-a             send-keys -X page-down
+    bind -T  copy-mode-vi M-t             send-keys -X history-top
+    bind -T  copy-mode-vi M-g             send-keys -X history-bottom
+    bind -T  copy-mode-vi u               send-keys -X halfpage-up
+    bind -T  copy-mode-vi d               send-keys -X halfpage-down
+    bind -T  copy-mode-vi i               send-keys -X cancel
+    bind -T  copy-mode-vi H               send-keys left  left  left  left  left  left  left  left  left  left
+    bind -T  copy-mode-vi J               send-keys down  down  down  down  down  down  down  down  down  down
+    bind -T  copy-mode-vi K               send-keys up    up    up    up    up    up    up    up    up    up
+    bind -T  copy-mode-vi L               send-keys right right right right right right right right right right
+    bind -n  C-M-b                        set -g status
+    bind     b                            set -g status
+    bind     c                            set -g status on \; new-window
+    bind     x                            kill-pane
+    bind -n  M-S                          swap-window -t -1\; select-window -t -1
+    bind -n  M-F                          swap-window -t +1\; select-window -t +1
+    bind -n  M-\;                         select-window -l
+    bind -r  \;                           select-window -l
+    bind -n  M-s                          select-window -p
+    bind -n  M-f                          select-window -n
+    bind -r  BTab                         select-window -p
+    bind -r  Tab                          select-window -n
+    bind -n  C-M-n                        select-window -n
+    bind -n  C-M-p                        select-window -p
+    bind -n  C-Left                       select-pane -L
+    bind -n  C-Down                       select-pane -D
+    bind -n  C-Up                         select-pane -U
+    bind -n  C-Right                      select-pane -R
+    bind -r  h                            select-pane -L
+    bind -r  j                            select-pane -D
+    bind -r  k                            select-pane -U
+    bind -r  l                            select-pane -R
+    bind -r  H                            resize-pane -L
+    bind -r  J                            resize-pane -D
+    bind -r  K                            resize-pane -U
+    bind -r  L                            resize-pane -R
+    bind     v                            split-window -h
+    bind     V                            split-window -v
 ====
 tput -T ansi setaf 3; echo "cp -r /home/*/.nix-profile $HOME  #if running as root"
 tput -T ansi setaf 2; echo Done!
