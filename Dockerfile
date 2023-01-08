@@ -60,6 +60,9 @@ RUN curl -L nixos.org/nix/install | sh \
 RUN . $HOME/.nix-profile/etc/profile.d/nix.sh \
     && git clone --depth=1 https://github.com/astronvim/astronvim ~/.config/nvim
 
+# copy astronvim custom cofigs
+COPY init.lua ~/.config/nvim/lua/user/
+
 # source zsh plugins
 RUN <<"====" >> $HOME/.zprofile
     export DISPLAY=:0

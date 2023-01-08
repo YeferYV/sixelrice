@@ -256,6 +256,8 @@ local config = {
         -- ["L"] = false, -- disable next buffer
         ["K"] = false, -- disable Hover symbol
         ["gh"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", desc = "Hover Symbol" },
+        ["go"] = { "<cmd>lua vim.diagnostic.open_float()<cr>", desc = "Hover Diagnostics" },
+        ["gl"] = { "`.", desc = "Jump to Last change" }, -- Overwrites Hover Diagnostics
       }
     },
     -- add to the global LSP on_attach function
@@ -298,10 +300,6 @@ local config = {
       ["R"] = { "<cmd>w<cr>", desc = "Save" },
       ["Q"] = { "<cmd>q<cr>", desc = "Quit" },
       ["Y"] = { "yg_", desc = "Forward yank" },
-      -- ["H"] = { "10h", desc = "Jump 10h" },
-      -- ["J"] = { "10j", desc = "Jump 10j" },
-      -- ["K"] = { "10k", desc = "Jump 10k" },
-      -- ["L"] = { "10l", desc = "Jump 10l" },
       ["<left>"] = { "<cmd>bprevious<cr>", desc = "buffer prev" },
       ["<right>"] = { "<cmd>bnext<cr>", desc = "buffer next" },
       ["<M-Up>"] = { "<cmd>resize -2<cr>", desc = "Resize up" },
