@@ -8,7 +8,7 @@ local config = {
   -- Configure AstroNvim updates
   updater = {
     remote = "origin", -- remote to use
-    channel = "nightly", -- "stable" or "nightly"
+    channel = "stable", -- "stable" or "nightly"
     version = "v2.*", -- "latest", tag name, or regex search like "v1.*" to only do updates before v2 (STABLE ONLY)
     branch = "main", -- branch name (NIGHTLY ONLY)
     commit = nil, -- commit hash (NIGHTLY ONLY)
@@ -126,8 +126,12 @@ local config = {
       number = true, -- sets vim.opt.number
       relativenumber = true, -- sets vim.opt.relativenumber
       cursorline = false, -- sets vim.opt.cursorline
-      spell = false, -- sets vim.opt.spell
+      completeopt = { "menu", "menuone", "noinsert" }, -- mostly just for cmp
+      scrolloff = 8, -- vertical scrolloff
+      sidescrolloff = 8, -- horizontal scrolloff
       signcolumn = "auto", -- sets vim.opt.signcolumn to auto
+      spell = false, -- sets vim.opt.spell
+      undofile = false, -- disable persistent undo
       virtualedit = "all", -- allow cursor bypass end of line
       wrap = false, -- sets vim.opt.wrap
 
@@ -251,7 +255,8 @@ local config = {
     -- easily add or disable built in mappings added during LSP attaching
     mappings = {
       n = {
-        -- ["<leader>lf"] = false, -- disable formatting keymap
+        ["<leader>lF"] = { function() vim.lsp.buf.format(astronvim.lsp.format_opts) end,
+          desc = "Format buffer" },
         -- ["H"] = false, -- disable prev buffer
         -- ["L"] = false, -- disable next buffer
         ["K"] = false, -- disable Hover symbol
@@ -374,8 +379,237 @@ local config = {
       --   end,
       -- },
 
-      ['folke/tokyonight.nvim'] = {},
-      ['olivercederborg/poimandres.nvim'] = {},
+      -- UI
+      ["folke/tokyonight.nvim"] = {},
+      ["olivercederborg/poimandres.nvim"] = {},
+      ["DaikyXendo/nvim-material-icon"] = {},
+
+      -- Automation
+      ["tzachar/cmp-tabnine"] = {
+        commit = "851fbcc8ee54bdb93f9482e13b5fc31b50012422",
+        run = "./install.sh",
+        config = function()
+          require("cmp_tabnine.config"):setup()
+          astronvim.add_cmp_source({ name = "cmp_tabnine", priority = 1000, max_item_count = 7 })
+        end
+      },
+      ["github/copilot.vim"] = { commit = "5a411d19ce7334ab10ba12516743fc25dad363fa" },
+      ["ahmedkhalf/project.nvim"] = {
+        commit = "685bc8e3890d2feb07ccf919522c97f7d33b94e4",
+        config = function()
+          require("project_nvim").setup()
+          require("telescope").load_extension('projects')
+        end
+      },
+      ["hrsh7th/nvim-cmp"] = { keys = { ":", "/", "?" } },
+      ["hrsh7th/cmp-cmdline"] = { commit = "23c51b2a3c00f6abc4e922dbd7c3b9aca6992063", after = "nvim-cmp" },
+      {
+        "hrsh7th/cmp-emoji",
+        commit = "19075c36d5820253d32e2478b6aaf3734aeaafa0",
+        after = "nvim-cmp",
+        config = function() astronvim.add_user_cmp_source "emoji" end,
+      },
+
+      -- Motions
+      ["tpope/vim-repeat"] = { commit = "24afe922e6a05891756ecf331f39a1f6743d3d5a" },
+      ["justinmk/vim-sneak"] = { commit = "93395f5b56eb203e4c8346766f258ac94ea81702", },
+
+      -- Text-Objects
+      ["nvim-treesitter/nvim-treesitter-textobjects"] = { commit = "98476e7364821989ab9b500e4d20d9ae2c5f6564" },
+      ["RRethy/nvim-treesitter-textsubjects"] = { commit = "bc047b20768845fd54340eb76272b2cf2f6fa3f3" },
+      ["coderifous/textobj-word-column.vim"] = { commit = "cb40e1459817a7fa23741ff6df05e4481bde5a33" },
+      ["chrisgrieser/nvim-various-textobjs"] = {
+        commit = "2fddc521bd8172dc157c89d2c182983caa898164",
+        config = function() require("various-textobjs").setup({ useDefaultKeymaps = true }) end
+      },
+      ["RRethy/vim-illuminate"] = {
+        commit = "a6d0b28ea7d6b9d139374be1f94a16bd120fcda3",
+        config = function() require("illuminate").configure({ filetypes_denylist = { 'neo-tree', } }) end
+      },
+
+      ["echasnovski/mini.nvim"] = {
+        commit = "",
+        config = function()
+
+          local spec_treesitter = require('mini.ai').gen_spec.treesitter
+          require('mini.ai').setup({
+            custom_textobjects = {
+              q = spec_treesitter({ a = '@call.outer', i = '@call.inner', }),
+              Q = spec_treesitter({ a = '@class.outer', i = '@class.inner', }),
+              g = spec_treesitter({ a = '@comment.outer', i = '@comment.inner', }),
+              G = spec_treesitter({ a = '@conditional.outer', i = '@conditional.inner', }),
+              B = spec_treesitter({ a = '@block.outer', i = '@block.inner', }),
+              F = spec_treesitter({ a = '@function.outer', i = '@function.inner', }),
+              L = spec_treesitter({ a = '@loop.outer', i = '@loop.inner', }),
+              P = spec_treesitter({ a = '@parameter.outer', i = '@parameter.inner', }),
+            },
+            mappings = {
+              around = 'a',
+              inside = 'i',
+              around_next = 'aN',
+              inside_next = 'iN',
+              around_last = 'al',
+              inside_last = 'il',
+              goto_left = 'g[',
+              goto_right = 'g]',
+            },
+          })
+
+          require('mini.align').setup({
+            mappings = {
+              start = 'ga',
+              start_with_preview = 'gA',
+            },
+          })
+
+          require('mini.indentscope').setup({
+            draw = {
+              delay = 100,
+              animation = nil
+            },
+            mappings = {
+              object_scope = 'ii',
+              object_scope_with_border = 'ai',
+              goto_top = '[ii',
+              goto_bottom = ']ii',
+            },
+            options = {
+              border = 'both',
+              indent_at_cursor = true,
+              try_as_border = false,
+            },
+            symbol = '',
+          })
+
+          require('mini.surround').setup({
+            custom_surroundings = nil,
+            highlight_duration = 500,
+            mappings = {
+              add = 'ys', -- Add surrounding in Normal and Visual modes
+              delete = 'ds', -- Delete surrounding
+              find = 'zf', -- Find surrounding (to the right)
+              find_left = 'zF', -- Find surrounding (to the left)
+              highlight = 'zh', -- Highlight surrounding
+              replace = 'cs', -- Replace surrounding
+              update_n_lines = 'zn', -- Update `n_lines`
+              suffix_last = 'l', -- Suffix to search with "prev" method
+              suffix_next = 'N', -- Suffix to search with "next" method
+            },
+          })
+
+        end
+      },
+
+    },
+
+    ["treesitter"] = {
+      ensure_installed = { "html", "css", "javascript" },
+      textobjects = {
+        move = {
+          enable = true,
+          set_jumps = true,
+          goto_previous_start = {
+            ['[aq'] = '@call.outer',
+            ['[aQ'] = '@class.outer',
+            ['[ag'] = '@comment.outer',
+            ['[aG'] = '@conditional.outer',
+            ['[aB'] = '@block.outer',
+            ['[aF'] = '@function.outer',
+            ['[aL'] = '@loop.outer',
+            ['[aP'] = '@parameter.outer',
+            ['[iq'] = '@call.inner',
+            ['[iQ'] = '@class.inner',
+            ['[ig'] = '@comment.inner',
+            ['[iG'] = '@conditional.inner',
+            ['[iB'] = '@block.inner',
+            ['[iF'] = '@function.inner',
+            ['[iL'] = '@loop.inner',
+            ['[iP'] = '@parameter.inner',
+            ['[['] = '@parameter.inner',
+          },
+          goto_next_start = {
+            [']aq'] = '@call.outer',
+            [']aQ'] = '@class.outer',
+            [']ag'] = '@comment.outer',
+            [']aG'] = '@conditional.outer',
+            [']aB'] = '@block.outer',
+            [']aF'] = '@function.outer',
+            [']aL'] = '@loop.outer',
+            [']aP'] = '@parameter.outer',
+            [']iq'] = '@call.inner',
+            [']iQ'] = '@class.inner',
+            [']ig'] = '@comment.inner',
+            [']iG'] = '@conditional.inner',
+            [']iB'] = '@block.inner',
+            [']iF'] = '@function.inner',
+            [']iL'] = '@loop.inner',
+            [']iP'] = '@parameter.inner',
+            [']]'] = '@parameter.inner',
+          },
+          goto_previous_end = {
+            ['[eaq'] = '@call.outer',
+            ['[eaQ'] = '@class.outer',
+            ['[eag'] = '@comment.outer',
+            ['[eaG'] = '@conditional.outer',
+            ['[eaB'] = '@block.outer',
+            ['[eaF'] = '@function.outer',
+            ['[eaL'] = '@loop.outer',
+            ['[eaP'] = '@parameter.outer',
+            ['[eiq'] = '@call.inner',
+            ['[eiQ'] = '@class.inner',
+            ['[eig'] = '@comment.inner',
+            ['[eiG'] = '@conditional.inner',
+            ['[eiB'] = '@block.inner',
+            ['[eiF'] = '@function.inner',
+            ['[eiL'] = '@loop.inner',
+            ['[eiP'] = '@parameter.inner',
+          },
+          goto_next_end = {
+            [']eaq'] = '@call.outer',
+            [']eaQ'] = '@class.outer',
+            [']eag'] = '@comment.outer',
+            [']eaG'] = '@conditional.outer',
+            [']eaB'] = '@block.outer',
+            [']eaF'] = '@function.outer',
+            [']eaL'] = '@loop.outer',
+            [']eaP'] = '@parameter.outer',
+            [']eiq'] = '@call.inner',
+            [']eiQ'] = '@class.inner',
+            [']eig'] = '@comment.inner',
+            [']eiG'] = '@conditional.inner',
+            [']eiB'] = '@block.inner',
+            [']eiF'] = '@function.inner',
+            [']eiL'] = '@loop.inner',
+            [']eiP'] = '@parameter.inner',
+          },
+        },
+        swap = {
+          enable = true,
+          swap_next = {
+            ['>,'] = '@parameter.inner',
+          },
+          swap_previous = {
+            ['<,'] = '@parameter.inner',
+          },
+        },
+        lsp_interop = {
+          enable = true,
+          border = 'rounded', --'none', 'single', 'double', 'rounded', 'solid', 'shadow'.
+          peek_definition_code = {
+            ['<leader>lf'] = '@function.outer',
+            ['<leader>lc'] = '@class.outer',
+          },
+        },
+      },
+      textsubjects = {
+        enable = true,
+        prev_selection = ',', -- (Optional) keymap to select the previous selection
+        keymaps = {
+          ['.'] = 'textsubjects-smart', -- useful for block of comments
+          ['aK'] = 'textsubjects-container-outer',
+          ['iK'] = 'textsubjects-container-inner',
+        },
+      },
     },
 
     ["indent_blankline"] = {
@@ -427,9 +661,11 @@ local config = {
           getparent_closenode = function(state)
             local node = state.tree:get_node()
             if node.type == 'directory' and node:is_expanded() then
-              require 'neo-tree.sources.filesystem'.toggle_directory(state, node)
+              require 'neo-tree.sources.filesystem'.toggle_directory(state,
+                node)
             else
-              require 'neo-tree.ui.renderer'.focus_node(state, node:get_parent_id())
+              require 'neo-tree.ui.renderer'.focus_node(state,
+                node:get_parent_id())
             end
           end,
 
@@ -442,9 +678,11 @@ local config = {
             local node = state.tree:get_node()
             if node.type == 'directory' then
               if not node:is_expanded() then
-                require 'neo-tree.sources.filesystem'.toggle_directory(state, node)
+                require 'neo-tree.sources.filesystem'.toggle_directory(state
+                  , node)
               elseif node:has_children() then
-                require 'neo-tree.ui.renderer'.focus_node(state, node:get_child_ids()[1])
+                require 'neo-tree.ui.renderer'.focus_node(state,
+                  node:get_child_ids()[1])
               end
             else
               state.commands['open'](state)
@@ -465,6 +703,36 @@ local config = {
       },
     },
 
+    ["cmp"] = function(opts)
+      -- opts parameter is the default options table
+      -- the function is lazy loaded so cmp is able to be required
+      local cmp = require "cmp"
+
+      -- modify the mapping part of the table
+      opts.mapping["<A-j>"] = cmp.mapping.select_next_item()
+      opts.mapping["<A-k>"] = cmp.mapping.select_prev_item()
+
+      -- modify the formatting part of the table
+      opts.formatting = {
+        fields = { "kind", "abbr", "menu" },
+        format = function(entry, vim_item)
+          vim_item.kind = require("lspkind").symbolic(vim_item.kind, { mode = "symbol" })
+          vim_item.menu = ({
+            cmp_tabnine = "[TN]",
+            nvim_lsp = "[LSP]",
+            luasnip = "[Snippet]",
+            buffer = "[Buffer]",
+            path = "[Path]",
+            emoji = "[Emoji]",
+          })[entry.source.name]
+          return vim_item
+        end,
+      }
+
+      -- return the new table to be used
+      return opts
+    end,
+
     -- All other entries override the require("<key>").setup({...}) call for default plugins
     ["null-ls"] = function(config) -- overrides `require("null-ls").setup(config)`
       -- config variable is the default configuration table for the setup function call
@@ -480,9 +748,6 @@ local config = {
       }
       return config -- return final config table
     end,
-    treesitter = { -- overrides `require("treesitter").setup(...)`
-      ensure_installed = { "html", "css", "javascript" },
-    },
     -- use mason-lspconfig to configure LSP installations
     ["mason-lspconfig"] = { -- overrides `require("mason-lspconfig").setup(...)`
       ensure_installed = { "tsserver" },
@@ -515,13 +780,53 @@ local config = {
   -- The value can also be set to a boolean for disabling default sources:
   -- false == disabled
   -- true == 1000
-  cmp = {
+
+  ["cmp"] = {
     source_priority = {
-      nvim_lsp = 1000,
+      cmp_tabnine = 1000,
+      nvim_lsp = 900,
       luasnip = 750,
       buffer = 500,
-      path = 250
-    }
+      path = 250,
+      emoji = 200,
+    },
+
+    setup = function()
+      -- load cmp to access it's internal functions
+      local cmp = require "cmp"
+
+      -- configure mappings for cmdline
+      local fallback_func = function(func)
+        return function(fallback)
+          if cmp.visible() then
+            cmp[func]()
+          else
+            fallback()
+          end
+        end
+      end
+      local mappings = cmp.mapping.preset.cmdline {
+        ["<C-j>"] = { c = fallback_func "select_next_item" },
+        ["<C-k>"] = { c = fallback_func "select_prev_item" },
+        ["<M-j>"] = { c = fallback_func "select_next_item" },
+        ["<M-k>"] = { c = fallback_func "select_prev_item" },
+      }
+
+      local config = {
+        -- configure cmp.setup.cmdline(source, options)
+        cmdline = {
+          [":"] = {
+            mapping = mappings,
+            -- configure sources normally without getting priority from cmp.source_priority
+            sources = cmp.config.sources({ { name = "path" } },
+              { { name = "cmdline" } })
+          },
+          ["/"] = { mapping = mappings, sources = { { name = "buffer" } } },
+          ["?"] = { mapping = mappings, sources = { { name = "buffer" } } },
+        },
+      }
+      return config
+    end,
   },
 
   -- Customize Heirline options
@@ -529,7 +834,7 @@ local config = {
     -- Customize different separators between sections
     -- separators = { tab = { "", "" } },
     separators = { tab = { "▎", " " } },
-    -- -- Customize colors for each element each element has a `_fg` and a `_bg`
+    -- Customize colors for each element each element has a `_fg` and a `_bg`
     colors = function(colors)
       -- colors.bg                      = astronvim.get_hlgroup("Normal").bg
       colors.bg = "NONE" -- Status line
@@ -582,12 +887,31 @@ local config = {
             name = "UI",
             h = { "<cmd>set cmdheight=1<cr>", "enable cmdheight" },
             H = { "<cmd>set cmdheight=0<cr>", "disable cmdheight" },
+            u = {
+              function()
+                local ok, start = require("indent_blankline.utils").get_current_context(
+                  vim.g.indent_blankline_context_patterns,
+                  vim.g.indent_blankline_use_treesitter_scope
+                )
+                if ok then
+                  vim.api.nvim_win_set_cursor(vim.api.nvim_get_current_win()
+                    , { start, 0 })
+                  vim.cmd [[normal! _]]
+                end
+              end,
+              "Jump to current_context",
+            },
+            U = { function() astronvim.ui.toggle_url_match() end,
+              "Toggle URL highlight" },
+            w = { "<cmd>set winbar=%@<cr>", "enable winbar" },
+            W = { "<cmd>set winbar=  <cr>", "disable winbar" },
           },
 
           ["s"] = {
             name = "Search",
             c = { "<cmd>lua require('telescope.builtin').colorscheme({enable_preview = true, initial_mode='normal'})<cr>",
               "Colorscheme" },
+            p = { "<cmd>Telescope projects<cr>", "Projects" },
           },
 
           ["v"] = "which_key_ignore",
@@ -622,6 +946,25 @@ local config = {
 
     -- _jump_to_last_position_on_reopen
     vim.cmd [[ au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif ]]
+
+    -- _sneakLabel_or_bnext
+    vim.cmd [[ nmap <expr> <Tab> sneak#is_sneaking() ? '<Plug>SneakLabel_s<cr>' : ':bnext<cr>' ]]
+
+    -- _illuminate_text_objects
+    vim.keymap.set({ 'n', 'x', 'o' }, '<a-n>', '<cmd>lua require"illuminate".goto_next_reference(wrap)<cr>')
+    vim.keymap.set({ 'n', 'x', 'o' }, '<a-p>', '<cmd>lua require"illuminate".goto_prev_reference(wrap)<cr>')
+    vim.keymap.set({ 'n', 'x', 'o' }, '<a-i>', '<cmd>lua require"illuminate".textobj_select()<cr>')
+
+    -- _disable_autocommented_new_lines
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = "*",
+      callback = function()
+        vim.opt.formatoptions:remove { "c", "r", "o" }
+      end,
+    })
+
+    -- _material_icons
+    require("nvim-web-devicons").setup({ override = require("nvim-material-icon").get_icons() })
 
   end
 }
