@@ -60,8 +60,9 @@ RUN curl -L nixos.org/nix/install | sh \
 RUN . $HOME/.nix-profile/etc/profile.d/nix.sh \
     && git clone --depth=1 https://github.com/astronvim/astronvim ~/.config/nvim
 
-# copy astronvim custom cofigs
-COPY init.lua ~/.config/nvim/lua/user/
+# copy astronvim custom config
+RUN mkdir -p  $HOME/.config/nvim/lua/user
+COPY --chown=drksl init.lua $HOME/.config/nvim/lua/user
 
 # source zsh plugins
 RUN <<"====" >> $HOME/.zprofile
@@ -124,7 +125,7 @@ RUN mkdir -p $HOME/.config/lf \
     && ln -s $HOME/.zprofile $HOME/.zshrc
 
 # LessKeys
-cat <<"====">> "$HOME/.config/lf/lesskey"
+COPY --chown=drksl <<"====" "$HOME/.config/lf/lesskey"
 h left-scroll
 l right-scroll
 i quit
