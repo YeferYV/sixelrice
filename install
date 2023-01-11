@@ -28,8 +28,8 @@ PACMAN_INSTALL=true
 NIX_INSTALL=true
 
 # dependencies
-[ "$APT_INSTALL" = "true" ] && [ -e /etc/apt ] && sudo apt update && sudo DEBIAN_FRONTEND=noninteractive apt install -y curl file fuse sudo tmux unzip xz-utils zsh
-[ "$PACMAN_INSTALL" = "true" ] && [ -e /etc/pacman.d ] && sudo pacman -Syu --noconfirm curl fuse2 sudo tmux xz zsh
+[ "$APT_INSTALL" = "true" ] && [ -e /etc/apt ] && sudo apt update && sudo DEBIAN_FRONTEND=noninteractive apt install -y curl file fuse sudo unzip xz-utils zsh
+[ "$PACMAN_INSTALL" = "true" ] && [ -e /etc/pacman.d ] && sudo pacman -Syu --noconfirm curl fuse2 sudo xz zsh
 
 # install nix
 [ "$NIX_INSTALL" = "true" ] && [ "$(id -u)" != 0 ] && {
@@ -43,8 +43,9 @@ NIX_INSTALL=true
     }
     . "$HOME/.nix-profile/etc/profile.d/nix.sh"
     nix-env -iA ${NIX_PKGS_OS}.bat ${NIX_PKGS_OS}.fzf ${NIX_PKGS_OS}.gcc ${NIX_PKGS_OS}.git ${NIX_PKGS_OS}.killall ${NIX_PKGS_OS}.lazygit \
-                ${NIX_PKGS_OS}.libsixel ${NIX_PKGS_OS}.less ${NIX_PKGS_OS}.lf ${NIX_PKGS_OS}.ripgrep ${NIX_PKGS_OS}.timg ${NIX_PKGS_OS}.trash-cli \
-                ${NIX_PKGS_OS}.xclip ${NIX_PKGS_OS}.xdg-utils ${NIX_PKGS_OS}.spaceship-prompt ${NIX_PKGS_OS}.zsh-autosuggestions ${NIX_PKGS_OS}.zsh-fast-syntax-highlighting
+                ${NIX_PKGS_OS}.libsixel ${NIX_PKGS_OS}.less ${NIX_PKGS_OS}.lf ${NIX_PKGS_OS}.ripgrep ${NIX_PKGS_OS}.timg ${NIX_PKGS_OS}.tmux ${NIX_PKGS_OS}.trash-cli \
+                ${NIX_PKGS_OS}.xclip ${NIX_PKGS_OS}.xdg-utils ${NIX_PKGS_OS}.zsh-autosuggestions ${NIX_PKGS_OS}.zsh-fast-syntax-highlighting
+    nix-env -iA spaceship-prompt -f https://github.com/NixOS/nixpkgs/archive/ff8b619cfecb98bb94ae49ca7ceca937923a75fa.tar.gz
     nix-collect-garbage -d
   }
 

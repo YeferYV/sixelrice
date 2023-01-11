@@ -28,7 +28,7 @@
 
 FROM ubuntu
 RUN apt update \
-    && DEBIAN_FRONTEND=noninteractive apt install -y curl file sudo tmux unzip xz-utils zsh \
+    && DEBIAN_FRONTEND=noninteractive apt install -y curl file sudo unzip xz-utils zsh \
     && useradd -mG sudo -s /bin/bash drksl \
     && echo root:toor | chpasswd \
     && echo drksl:toor | chpasswd \
@@ -46,8 +46,9 @@ SHELL ["/bin/zsh","-c"]
 RUN curl -L nixos.org/nix/install | sh \
     && . $HOME/.nix-profile/etc/profile.d/nix.sh \
     && nix-env -iA nixpkgs.bat nixpkgs.fzf nixpkgs.gcc nixpkgs.git nixpkgs.killall nixpkgs.lazygit \
-                   nixpkgs.libsixel nixpkgs.less nixpkgs.lf nixpkgs.neovim nixpkgs.ripgrep nixpkgs.timg nixpkgs.trash-cli \
-                   nixpkgs.xclip nixpkgs.xdg-utils nixpkgs.spaceship-prompt nixpkgs.zsh-autosuggestions nixpkgs.zsh-fast-syntax-highlighting \
+                   nixpkgs.libsixel nixpkgs.less nixpkgs.lf nixpkgs.neovim nixpkgs.ripgrep nixpkgs.timg nixpkgs.tmux nixpkgs.trash-cli \
+                   nixpkgs.xclip nixpkgs.xdg-utils nixpkgs.zsh-autosuggestions nixpkgs.zsh-fast-syntax-highlighting \
+    && nix-env -iA spaceship-prompt -f https://github.com/NixOS/nixpkgs/archive/ff8b619cfecb98bb94ae49ca7ceca937923a75fa.tar.gz \
     && nix-collect-garbage -d
 
 # # ssh
