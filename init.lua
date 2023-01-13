@@ -943,8 +943,23 @@ local config = {
     -- _jump_to_last_position_on_reopen
     vim.cmd [[ au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif ]]
 
-    -- _sneakLabel_or_bnext
-    vim.cmd [[ nmap <expr> <Tab> sneak#is_sneaking() ? '<Plug>SneakLabel_s<cr>' : ':bnext<cr>' ]]
+    -- _sneak_keymaps
+    vim.cmd [[
+      map f <Plug>Sneak_f
+      map F <Plug>Sneak_F
+      map t <Plug>Sneak_t
+      map T <Plug>Sneak_T
+      map \ <Plug>SneakLabel_s
+      map \| <Plug>SneakLabel_S
+      nmap <expr> <Tab> sneak#is_sneaking() ? '<Plug>SneakLabel_s<cr>' : ':bnext<cr>'
+      nmap <expr> <S-Tab> sneak#is_sneaking() ? '<Plug>SneakLabel_S<cr>' : ':bprevious<cr>'
+      omap <Tab> <Plug>SneakLabel_s<cr>
+      omap <S-Tab> <Plug>SneakLabel_S<cr>
+      vmap <Tab> <Plug>SneakLabel_s<cr>
+      vmap <S-Tab> <Plug>SneakLabel_S<cr>
+      xmap <Tab> <Plug>SneakLabel_s<cr>
+      xmap <S-Tab> <Plug>SneakLabel_S<cr>
+    ]]
 
     -- _illuminate_text_objects
     vim.keymap.set({ 'n', 'x', 'o' }, '<a-n>', '<cmd>lua require"illuminate".goto_next_reference(wrap)<cr>')
