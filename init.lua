@@ -474,8 +474,8 @@ local config = {
               goto_bottom = ']ii',
             },
             options = {
-              border = 'both',
-              indent_at_cursor = true,
+              border = 'top',
+              indent_at_cursor = false,
               try_as_border = false,
             },
             symbol = '',
@@ -499,11 +499,10 @@ local config = {
 
         end
       },
-
     },
 
     ["treesitter"] = {
-      ensure_installed = { "html", "css", "javascript" },
+      ensure_installed = { "python", "bash", "javascript", "html", "css", "c", "lua" },
       textobjects = {
         move = {
           enable = true,
@@ -613,7 +612,7 @@ local config = {
     },
 
     ["indent_blankline"] = {
-      show_first_indent_level = true,
+      show_first_indent_level = false,
       show_current_context = true,
       show_current_context_start = false,
     },
