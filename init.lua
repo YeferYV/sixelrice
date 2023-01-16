@@ -319,10 +319,8 @@ local config = {
       ["<leader><S-Tab>"] = { "<cmd>tabprevious<cr>", desc = "tab prev" },
       ["<leader>X"] = { "<cmd>tabclose<cr>", desc = "tab close" },
       ["<leader>x"] = { function() astronvim.close_buf(0) end, desc = "Close buffer" },
-      ["<leader>v"] = { "<Cmd>ToggleTerm direction=vertical   size=70<CR>",
-        desc = "ToggleTerm vertical" },
-      ["<leader>V"] = { "<Cmd>ToggleTerm direction=horizontal size=10<CR>",
-        desc = "ToggleTerm horizontal" },
+      ["<leader>v"] = { "<Cmd>ToggleTerm direction=vertical   size=70<CR>", desc = "ToggleTerm vertical" },
+      ["<leader>V"] = { "<Cmd>ToggleTerm direction=horizontal size=10<CR>", desc = "ToggleTerm horizontal" },
     },
     t = {
       -- setting a mapping to false will disable it
@@ -333,10 +331,12 @@ local config = {
       ["<M-Right>"] = { "<C-\\><C-n>:vertical resize +2<CR>", desc = "Resize right" }
     },
     o = {
-      ["im"] = { "<cmd>normal! `[v`]<Left><cr>", desc = "Last change" }
+      ["im"] = { "<cmd>normal! `[v`]<Left><cr>", desc = "Last change" },
+      ["gl"] = { "`.", desc = "Jump to Last change" },
     },
     x = {
-      ["im"] = { "<cmd>normal! `[v`]<Left><cr>", desc = "last change" }
+      ["im"] = { "<cmd>normal! `[v`]<Left><cr>", desc = "last change" },
+      ["gl"] = { "`.", desc = "Jump to Last change" },
     },
     v = {
       ["p"] = { '"_dP', desc = "Paste unaltered" },
@@ -415,6 +415,7 @@ local config = {
       ["justinmk/vim-sneak"] = { commit = "93395f5b56eb203e4c8346766f258ac94ea81702", },
 
       -- Text-Objects
+      ["baysmith/vim-indent-object"] = { commit = "f8034c3235a3ba4e39503f2af511957bb01530fe" },
       ["nvim-treesitter/nvim-treesitter-textobjects"] = { commit = "98476e7364821989ab9b500e4d20d9ae2c5f6564" },
       ["RRethy/nvim-treesitter-textsubjects"] = { commit = "bc047b20768845fd54340eb76272b2cf2f6fa3f3" },
       ["coderifous/textobj-word-column.vim"] = { commit = "cb40e1459817a7fa23741ff6df05e4481bde5a33" },
@@ -468,8 +469,8 @@ local config = {
               animation = nil
             },
             mappings = {
-              object_scope = 'ii',
-              object_scope_with_border = 'ai',
+              object_scope = '', -- default 'ii', empty to disable
+              object_scope_with_border = '', -- default 'ai', empty to disable
               goto_top = '[ii',
               goto_bottom = ']ii',
             },
@@ -602,9 +603,9 @@ local config = {
       },
       textsubjects = {
         enable = true,
-        prev_selection = ',', -- (Optional) keymap to select the previous selection
+        prev_selection = 'Q', -- (Optional) keymap to select the previous selection
         keymaps = {
-          ['.'] = 'textsubjects-smart', -- useful for block of comments
+          ['K'] = 'textsubjects-smart', -- useful for block of comments
           ['aK'] = 'textsubjects-container-outer',
           ['iK'] = 'textsubjects-container-inner',
         },
@@ -941,6 +942,19 @@ local config = {
 
     -- _jump_to_last_position_on_reopen
     vim.cmd [[ au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif ]]
+
+    -- _vim_indent_object_(repeable_+_vimrepeat)
+    vim.cmd [[
+      let g:indent_object_no_mappings = '1'
+      onoremap ai <Plug>IndentObject-ii<cmd>normal oko<cr>
+      onoremap ii <Plug>IndentObject-ii
+      xnoremap ai <Plug>IndentObject-ii<cmd>normal oko<cr>
+      xnoremap ii <Plug>IndentObject-ii
+      onoremap aI <Plug>IndentObject-aI
+      onoremap iI <Plug>IndentObject-ai<cmd>normal ojo<cr>
+      xnoremap aI <Plug>IndentObject-aI
+      xnoremap iI <Plug>IndentObject-ai<cmd>normal ojo<cr>
+    ]]
 
     -- _sneak_keymaps
     vim.cmd [[
