@@ -427,7 +427,6 @@ local config = {
         commit = "a6d0b28ea7d6b9d139374be1f94a16bd120fcda3",
         config = function() require("illuminate").configure({ filetypes_denylist = { 'neo-tree', } }) end
       },
-
       ["echasnovski/mini.nvim"] = {
         commit = "",
         config = function()
@@ -469,8 +468,8 @@ local config = {
               animation = nil
             },
             mappings = {
-              object_scope = '', -- default 'ii', empty to disable
-              object_scope_with_border = '', -- default 'ai', empty to disable
+              object_scope = '', -- default 'iI' empty to disable
+              object_scope_with_border = 'ai', -- empty to disable
               goto_top = '[ii',
               goto_bottom = ']ii',
             },
@@ -943,17 +942,25 @@ local config = {
     -- _jump_to_last_position_on_reopen
     vim.cmd [[ au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif ]]
 
-    -- _vim_indent_object_(repeable_+_vimrepeat)
+    -- _vim_indent_object_(visualrepeatable_+_vimrepeat)
     vim.cmd [[
       let g:indent_object_no_mappings = '1'
-      onoremap ai <Plug>IndentObject-ii<cmd>normal oko<cr>
+      " onoremap ii = vim-indentobject +    visual-repeatable +    vim-repeat + no-extra-lines-below + cursor-at-the-end
+      " xnoremap ii = vim-indentobject +    visual-repeatable + no-vim-repeat + no-extra-lines-below + cursor-at-the-end
+      " onoremap ai = mini.indentscope +    visual-repeatable +    vim-repeat + no-extra-lines-below + cursor-at-the-end
+      " xnoremap ai = vim-indentobject +    visual-repeatable + no-vim-repeat + no-extra-lines-below + cursor-at-the-end
+      " onoremap iI = various-textobjs + no-visual-repeatable + no-vim-repeat +    extra-lines-below + cursor-at-the-end
+      " xnoremap iI = vim-indentobject + no-visual-repeatable + no-vim-repeat +    extra-lines-below + cursor-at-the-end
+      " onoremap aI = vim-indentobject +    visual-repeatable +    vim-repeat + no-extra-lines-below + cursor-at-the-end
+      " xnoremap aI = vim-indentobject +    visual-repeatable + no-vim-repeat + no-extra-lines-below + cursor-at-the-end
       onoremap ii <Plug>IndentObject-ii
-      xnoremap ai <Plug>IndentObject-ii<cmd>normal oko<cr>
       xnoremap ii <Plug>IndentObject-ii
+      onoremap ai <cmd>lua MiniIndentscope.textobject(true)<cr>
+      xnoremap ai <Plug>IndentObject-ii<cmd>normal! oko<cr>
+      onoremap iI <cmd>lua function() require("various-textobjs").indentation(true, true) end<cr>
+      xnoremap iI <Plug>IndentObject-ai<cmd>normal! ojo<cr>
       onoremap aI <Plug>IndentObject-aI
-      onoremap iI <Plug>IndentObject-ai<cmd>normal ojo<cr>
       xnoremap aI <Plug>IndentObject-aI
-      xnoremap iI <Plug>IndentObject-ai<cmd>normal ojo<cr>
     ]]
 
     -- _sneak_keymaps
