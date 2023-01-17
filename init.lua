@@ -380,8 +380,8 @@ local config = {
       -- },
 
       -- UI
-      ["folke/tokyonight.nvim"] = {},
-      ["olivercederborg/poimandres.nvim"] = {},
+      ["folke/tokyonight.nvim"] = { require("tokyonight").setup { transparent = true } }, -- transparent startup
+      ["olivercederborg/poimandres.nvim"] = { require('poimandres').setup { disable_background = true } }, -- transparent startup
       ["DaikyXendo/nvim-material-icon"] = {},
 
       -- Automation
