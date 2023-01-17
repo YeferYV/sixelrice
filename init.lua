@@ -981,6 +981,12 @@ local config = {
       xmap <S-Tab> <Plug>SneakLabel_S<cr>
     ]]
 
+    -- _varios_textobjs
+    vim.keymap.set({ 'o', 'x' }, 'r', 'r', { desc = "Replace" })
+    vim.keymap.set({ 'o', 'x' }, 'R',
+      function() require("various-textobjs").restOfParagraph() end,
+      { desc = "RestOfParagraph textobj" })
+
     -- _illuminate_text_objects
     vim.keymap.set({ 'n', 'x', 'o' }, '<a-n>', '<cmd>lua require"illuminate".goto_next_reference(wrap)<cr>')
     vim.keymap.set({ 'n', 'x', 'o' }, '<a-p>', '<cmd>lua require"illuminate".goto_prev_reference(wrap)<cr>')
