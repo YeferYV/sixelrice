@@ -93,6 +93,7 @@ local config = {
       NotifyWARNBorder           = { fg = "#55473a" },
       TelescopeSelection         = { bg = "#080811" },
       TelescopeSelectionCaret    = { bg = "#080811" },
+      WinSeparator               = { fg = "#565f89" },
       rainbowcol2                = { fg = "#89ddff" },
       rainbowcol1                = { fg = "#2ac3de" },
       rainbowcol3                = { fg = "#7dcfff" },
@@ -116,6 +117,14 @@ local config = {
       LspReferenceWrite          = { bg = "#080811" },
       TelescopeSelection         = { bg = "#080811" },
       TelescopeSelectionCaret    = { bg = "#080811" },
+      WinSeparator               = { fg = "#565f89" },
+      rainbowcol2                = { fg = "#89ddff" },
+      rainbowcol1                = { fg = "#2ac3de" },
+      rainbowcol3                = { fg = "#7dcfff" },
+      rainbowcol4                = { fg = "#1abc9c" },
+      rainbowcol5                = { fg = "#7aa2f7" },
+      rainbowcol6                = { fg = "#bb9af7" },
+      rainbowcol7                = { fg = "#9d7cd8" },
     }
   },
 
@@ -813,8 +822,7 @@ local config = {
           [":"] = {
             mapping = mappings,
             -- configure sources normally without getting priority from cmp.source_priority
-            sources = cmp.config.sources({ { name = "path" } },
-              { { name = "cmdline" } })
+            sources = cmp.config.sources({ { name = "path" } }, { { name = "cmdline" } })
           },
           ["/"] = { mapping = mappings, sources = { { name = "buffer" } } },
           ["?"] = { mapping = mappings, sources = { { name = "buffer" } } },
@@ -889,8 +897,7 @@ local config = {
                   vim.g.indent_blankline_use_treesitter_scope
                 )
                 if ok then
-                  vim.api.nvim_win_set_cursor(vim.api.nvim_get_current_win()
-                    , { start, 0 })
+                  vim.api.nvim_win_set_cursor(vim.api.nvim_get_current_win(), { start, 0 })
                   vim.cmd [[normal! _]]
                 end
               end,
@@ -1003,6 +1010,64 @@ local config = {
     -- _material_icons
     require("nvim-web-devicons").setup({ override = require("nvim-material-icon").get_icons() })
 
+    -- _custom_terminal_colors
+    vim.api.nvim_create_autocmd("ColorScheme", {
+      pattern = "*",
+      callback = function()
+        local custom_themes = {
+          tokyonight = {
+            custom_terminal_colors = {
+              terminal_color_0  = '#15161e',
+              terminal_color_1  = '#db4b4b',
+              terminal_color_2  = '#1abc9c',
+              terminal_color_3  = '#e0af68',
+              terminal_color_4  = '#7aa2f7',
+              terminal_color_5  = '#bb9af7',
+              terminal_color_6  = '#7dcfff',
+              terminal_color_7  = '#a9b1d6',
+              terminal_color_8  = '#414868',
+              terminal_color_9  = '#ff0000',
+              terminal_color_10 = '#00ff00',
+              terminal_color_11 = '#ffff00',
+              terminal_color_12 = '#1c1cff',
+              terminal_color_13 = '#8844bb',
+              terminal_color_14 = '#008888',
+              terminal_color_15 = '#ff4400',
+            }
+          },
+          poimandres = {
+            custom_terminal_colors = {
+              terminal_color_0  = '#171922',
+              terminal_color_1  = '#d0679d',
+              terminal_color_2  = '#5de4c7',
+              terminal_color_3  = '#fffac2',
+              terminal_color_4  = '#add7ff',
+              terminal_color_5  = '#fcc5e9',
+              terminal_color_6  = '#89ddff',
+              terminal_color_7  = '#ffffff',
+              terminal_color_8  = '#506477',
+              terminal_color_9  = '#ff0000',
+              terminal_color_10 = '#00ff00',
+              terminal_color_11 = '#ffff00',
+              terminal_color_12 = '#1c1cff',
+              terminal_color_13 = '#8844bb',
+              terminal_color_14 = '#008888',
+              terminal_color_15 = '#ff4400',
+            }
+          },
+        }
+        local selected_colorscheme = custom_themes[vim.g.colors_name]
+        if selected_colorscheme then
+          for k, v in pairs(selected_colorscheme.custom_terminal_colors) do
+            vim.g[k] = v
+          end
+        end
+      end
+    })
+    local status_ok, _ = pcall(vim.cmd, "colorscheme " .. vim.g.colors_name)
+    if not status_ok then
+      return
+    end
   end
 }
 
