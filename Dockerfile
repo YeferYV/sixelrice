@@ -73,7 +73,7 @@ RUN <<"====" >> $HOME/.zprofile
     export LANG=en_US.UTF-8
     export LESSKEYIN="$HOME/.config/lf/lesskey"
     export LF_ICONS=" tw=:or=:ex=:bd=:di=:ow=:ln=:fi="
-    export LS_COLORS="tw=30:or=91:ex=92:bd=93:di=94:ow=14:ln=34:fi=37"
+    export LS_COLORS="tw=30:or=31:ex=32:bd=33:di=34:ow=35:ln=36:fi=37"
     export PAGER="less -r --use-color -Dd+r -Du+b -DPyk -DSyk"
     export PROMPT_COMMAND='echo -ne "\033]0; ${${PWD/#$HOME/~}##*/} \a"'
     export BAT_THEME="base16"
@@ -83,12 +83,14 @@ RUN <<"====" >> $HOME/.zprofile
     export SPACESHIP_PROMPT_SEPARATE_LINE="false"
     export SPACESHIP_VI_MODE_SHOW="false"
     export TERM="xterm-256color"
+    export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#555555"
     source $HOME/.nix-profile/share/fzf/completion.zsh
     source $HOME/.nix-profile/share/fzf/key-bindings.zsh
     source $HOME/.nix-profile/share/zsh/site-functions/fast-syntax-highlighting.plugin.zsh
     source $HOME/.nix-profile/share/zsh-autosuggestions/zsh-autosuggestions.zsh
     source $HOME/.nix-profile/lib/spaceship-prompt/spaceship.zsh
     source $HOME/.nix-profile/etc/profile.d/nix.sh
+    setopt interactive_comments
     precmd() { eval "$PROMPT_COMMAND" }
     [[ -z $TMUX ]] && sleep 1 && exec tmux -u
     bindkey -v '^?' backward-delete-char
