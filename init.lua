@@ -72,6 +72,9 @@ local config = {
       ["@number"]                = { fg = "#1cff1c" },
       ["Constant"]               = { fg = "#1cff1c" },
       ["String"]                 = { fg = "#73daca" },
+      GitSignsAdd                = { fg = "#1abc9c" },
+      GitSignsChange             = { fg = "#3c3cff" },
+      GitSignsDelete             = { fg = "#880000" },
       IndentBlanklineChar        = { fg = "#3b4261" },
       IndentBlanklineContextChar = { fg = "#7aa2f7" },
       IlluminatedWordText        = { bg = "#080811" },
@@ -107,6 +110,9 @@ local config = {
       ["@comment"]               = { fg = "#3e4041" },
       ["Comment"]                = { fg = "#a6accd" },
       ["Visual"]                 = { bg = "#1c1c1c" },
+      GitSignsAdd                = { fg = "#1abc9c" },
+      GitSignsChange             = { fg = "#3c3cff" },
+      GitSignsDelete             = { fg = "#880000" },
       IndentBlanklineChar        = { fg = "#3b4261" },
       IndentBlanklineContextChar = { fg = "#7aa2f7" },
       IlluminatedWordText        = { bg = "#080811" },
@@ -330,6 +336,7 @@ local config = {
       ["<leader>x"] = { function() astronvim.close_buf(0) end, desc = "Close buffer" },
       ["<leader>v"] = { "<Cmd>ToggleTerm direction=vertical   size=70<CR>", desc = "ToggleTerm vertical" },
       ["<leader>V"] = { "<Cmd>ToggleTerm direction=horizontal size=10<CR>", desc = "ToggleTerm horizontal" },
+      ["<leader>gh"] = false, -- disable Reset Git hunk
     },
     t = {
       -- setting a mapping to false will disable it
@@ -338,14 +345,6 @@ local config = {
       ["<M-Down>"] = { "<C-\\><C-n>:resize +2<CR>", desc = "Resize down" },
       ["<M-Left>"] = { "<C-\\><C-n>:vertical resize -2<CR>", desc = "Resize left" },
       ["<M-Right>"] = { "<C-\\><C-n>:vertical resize +2<CR>", desc = "Resize right" }
-    },
-    o = {
-      ["im"] = { "<cmd>normal! `[v`]<Left><cr>", desc = "Last change" },
-      ["gl"] = { "`.", desc = "Jump to Last change" },
-    },
-    x = {
-      ["im"] = { "<cmd>normal! `[v`]<Left><cr>", desc = "last change" },
-      ["gl"] = { "`.", desc = "Jump to Last change" },
     },
     v = {
       ["p"] = { '"_dP', desc = "Paste unaltered" },
@@ -391,7 +390,9 @@ local config = {
       -- UI
       ["folke/tokyonight.nvim"] = { require("tokyonight").setup { transparent = true } }, -- transparent startup
       ["olivercederborg/poimandres.nvim"] = { require('poimandres').setup { disable_background = true } }, -- transparent startup
-      ["DaikyXendo/nvim-material-icon"] = {},
+      ["DaikyXendo/nvim-material-icon"] = {
+        require("nvim-web-devicons").setup({ override = require("nvim-material-icon").get_icons() })
+      },
 
       -- Automation
       ["tzachar/cmp-tabnine"] = {
@@ -632,6 +633,17 @@ local config = {
           ['aK'] = 'textsubjects-container-outer',
           ['iK'] = 'textsubjects-container-inner',
         },
+      },
+    },
+
+    ["gitsigns"] = {
+      signs = {
+        add          = { text = '│' },
+        change       = { text = '│' },
+        delete       = { text = '│' },
+        topdelete    = { text = '契' },
+        changedelete = { text = '~' },
+        untracked    = { text = '┆' },
       },
     },
 
@@ -901,6 +913,11 @@ local config = {
         ["<leader>"] = {
           -- third key is the key to bring up next level and its displayed
           -- group name in which-key top level menu
+          ["g"] = {
+            name = "Git",
+            r = { "<cmd>lua require 'gitsigns'.reset_hunk()<cr>", "Reset Git hunk" },
+            R = { "<cmd>lua require 'gitsigns'.reset_buffer()<cr>", "Reset Git buffer" },
+          },
           ["u"] = {
             name = "UI",
             h = { "<cmd>set cmdheight=1<cr>", "enable cmdheight" },
@@ -961,58 +978,12 @@ local config = {
     --   },
     -- }
 
+    -- ╭─────────╮
+    -- │ Autocmd │
+    -- ╰─────────╯
+
     -- _jump_to_last_position_on_reopen
     vim.cmd [[ au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif ]]
-
-    -- _vim_indent_object_(visualrepeatable_+_vimrepeat)
-    vim.cmd [[
-      let g:indent_object_no_mappings = '1'
-      " onoremap ii = vim-indentobject +    visual-repeatable +    vim-repeat + no-extra-lines-below + cursor-at-the-end
-      " xnoremap ii = vim-indentobject +    visual-repeatable + no-vim-repeat + no-extra-lines-below + cursor-at-the-end
-      " onoremap ai = mini.indentscope +    visual-repeatable +    vim-repeat + no-extra-lines-below + cursor-at-the-end
-      " xnoremap ai = vim-indentobject +    visual-repeatable + no-vim-repeat + no-extra-lines-below + cursor-at-the-end
-      " onoremap iI = various-textobjs + no-visual-repeatable + no-vim-repeat +    extra-lines-below + cursor-at-the-end
-      " xnoremap iI = vim-indentobject + no-visual-repeatable + no-vim-repeat +    extra-lines-below + cursor-at-the-end
-      " onoremap aI = vim-indentobject +    visual-repeatable +    vim-repeat + no-extra-lines-below + cursor-at-the-end
-      " xnoremap aI = vim-indentobject +    visual-repeatable + no-vim-repeat + no-extra-lines-below + cursor-at-the-end
-      onoremap ii <Plug>IndentObject-ii
-      xnoremap ii <Plug>IndentObject-ii
-      onoremap ai <cmd>lua MiniIndentscope.textobject(true)<cr>
-      xnoremap ai <Plug>IndentObject-ii<cmd>normal! oko<cr>
-      onoremap iI <cmd>lua function() require("various-textobjs").indentation(true, true) end<cr>
-      xnoremap iI <Plug>IndentObject-ai<cmd>normal! ojo<cr>
-      onoremap aI <Plug>IndentObject-aI
-      xnoremap aI <Plug>IndentObject-aI
-    ]]
-
-    -- _sneak_keymaps
-    vim.cmd [[
-      map f <Plug>Sneak_f
-      map F <Plug>Sneak_F
-      map t <Plug>Sneak_t
-      map T <Plug>Sneak_T
-      map \ <Plug>SneakLabel_s
-      map \| <Plug>SneakLabel_S
-      nmap <expr> <Tab> sneak#is_sneaking() ? '<Plug>SneakLabel_s<cr>' : ':bnext<cr>'
-      nmap <expr> <S-Tab> sneak#is_sneaking() ? '<Plug>SneakLabel_S<cr>' : ':bprevious<cr>'
-      omap <Tab> <Plug>SneakLabel_s<cr>
-      omap <S-Tab> <Plug>SneakLabel_S<cr>
-      vmap <Tab> <Plug>SneakLabel_s<cr>
-      vmap <S-Tab> <Plug>SneakLabel_S<cr>
-      xmap <Tab> <Plug>SneakLabel_s<cr>
-      xmap <S-Tab> <Plug>SneakLabel_S<cr>
-    ]]
-
-    -- _varios_textobjs
-    vim.keymap.set({ 'o', 'x' }, 'r', 'r', { desc = "Replace" })
-    vim.keymap.set({ 'o', 'x' }, 'R',
-      function() require("various-textobjs").restOfParagraph() end,
-      { desc = "RestOfParagraph textobj" })
-
-    -- _illuminate_text_objects
-    vim.keymap.set({ 'n', 'x', 'o' }, '<a-n>', '<cmd>lua require"illuminate".goto_next_reference(wrap)<cr>')
-    vim.keymap.set({ 'n', 'x', 'o' }, '<a-p>', '<cmd>lua require"illuminate".goto_prev_reference(wrap)<cr>')
-    vim.keymap.set({ 'n', 'x', 'o' }, '<a-i>', '<cmd>lua require"illuminate".textobj_select()<cr>')
 
     -- _disable_autocommented_new_lines
     vim.api.nvim_create_autocmd("FileType", {
@@ -1021,9 +992,6 @@ local config = {
         vim.opt.formatoptions:remove { "c", "r", "o" }
       end,
     })
-
-    -- _material_icons
-    require("nvim-web-devicons").setup({ override = require("nvim-material-icon").get_icons() })
 
     -- _custom_terminal_colors
     vim.api.nvim_create_autocmd("ColorScheme", {
@@ -1083,6 +1051,75 @@ local config = {
     if not status_ok then
       return
     end
+
+    -- ╭──────────────╮
+    -- │ Text Objects │
+    -- ╰──────────────╯
+
+    -- _last_change_text_object
+    vim.keymap.set("o", 'im', "<cmd>normal! `[v`]<Left><cr>", { desc = "last change textobj" })
+    vim.keymap.set("x", 'im', "`[o`]<Left>", { desc = "last-change textobj" })
+
+    -- _git_hunk_(next/prev_autojump_unsupported)
+    vim.keymap.set({ "o", "x" }, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
+
+    -- _jump_to_last_change
+    vim.keymap.set({ "o", "x" }, "gl", "`.", { desc = "Jump to last change" })
+
+    -- _varios_textobjs
+    vim.keymap.set({ 'o', 'x' }, 'r', 'r', { desc = "Replace" })
+    vim.keymap.set({ 'o', 'x' }, 'R',
+      function() require("various-textobjs").restOfParagraph() end,
+      { desc = "RestOfParagraph textobj" })
+
+    -- _illuminate_text_objects
+    vim.keymap.set({ 'n', 'x', 'o' }, '<a-n>', '<cmd>lua require"illuminate".goto_next_reference(wrap)<cr>')
+    vim.keymap.set({ 'n', 'x', 'o' }, '<a-p>', '<cmd>lua require"illuminate".goto_prev_reference(wrap)<cr>')
+    vim.keymap.set({ 'n', 'x', 'o' }, '<a-i>', '<cmd>lua require"illuminate".textobj_select()<cr>')
+
+    -- _vim_indent_object_(visualrepeatable_+_vimrepeat)
+    vim.cmd [[
+      let g:indent_object_no_mappings = '1'
+      " onoremap ii = vim-indentobject +    visual-repeatable +    vim-repeat + no-extra-lines-below + cursor-at-the-end
+      " xnoremap ii = vim-indentobject +    visual-repeatable + no-vim-repeat + no-extra-lines-below + cursor-at-the-end
+      " onoremap ai = mini.indentscope +    visual-repeatable +    vim-repeat + no-extra-lines-below + cursor-at-the-end
+      " xnoremap ai = vim-indentobject +    visual-repeatable + no-vim-repeat + no-extra-lines-below + cursor-at-the-end
+      " onoremap iI = various-textobjs + no-visual-repeatable + no-vim-repeat +    extra-lines-below + cursor-at-the-end
+      " xnoremap iI = vim-indentobject + no-visual-repeatable + no-vim-repeat +    extra-lines-below + cursor-at-the-end
+      " onoremap aI = vim-indentobject +    visual-repeatable +    vim-repeat + no-extra-lines-below + cursor-at-the-end
+      " xnoremap aI = vim-indentobject +    visual-repeatable + no-vim-repeat + no-extra-lines-below + cursor-at-the-end
+      onoremap ii <Plug>IndentObject-ii
+      xnoremap ii <Plug>IndentObject-ii
+      onoremap ai <cmd>lua MiniIndentscope.textobject(true)<cr>
+      xnoremap ai <Plug>IndentObject-ii<cmd>normal! oko<cr>
+      onoremap iI <cmd>lua function() require("various-textobjs").indentation(true, true) end<cr>
+      xnoremap iI <Plug>IndentObject-ai<cmd>normal! ojo<cr>
+      onoremap aI <Plug>IndentObject-aI
+      xnoremap aI <Plug>IndentObject-aI
+    ]]
+
+    -- ╭─────────╮
+    -- │ Motions │
+    -- ╰─────────╯
+
+    -- _sneak_keymaps
+    vim.cmd [[
+      map f <Plug>Sneak_f
+      map F <Plug>Sneak_F
+      map t <Plug>Sneak_t
+      map T <Plug>Sneak_T
+      map \ <Plug>SneakLabel_s
+      map \| <Plug>SneakLabel_S
+      nmap <expr> <Tab> sneak#is_sneaking() ? '<Plug>SneakLabel_s<cr>' : ':bnext<cr>'
+      nmap <expr> <S-Tab> sneak#is_sneaking() ? '<Plug>SneakLabel_S<cr>' : ':bprevious<cr>'
+      omap <Tab> <Plug>SneakLabel_s<cr>
+      omap <S-Tab> <Plug>SneakLabel_S<cr>
+      vmap <Tab> <Plug>SneakLabel_s<cr>
+      vmap <S-Tab> <Plug>SneakLabel_S<cr>
+      xmap <Tab> <Plug>SneakLabel_s<cr>
+      xmap <S-Tab> <Plug>SneakLabel_S<cr>
+    ]]
+
   end
 }
 
