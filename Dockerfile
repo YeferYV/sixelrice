@@ -67,6 +67,7 @@ COPY --chown=drksl init.lua $HOME/.config/nvim/lua/user
 
 # source zsh plugins
 RUN <<"====" >> $HOME/.zprofile
+    export BAT_THEME="base16"
     export DISPLAY=:0
     export EDITOR="nvim"
     export HISTFILE="$HOME/.cache/history"
@@ -75,10 +76,11 @@ RUN <<"====" >> $HOME/.zprofile
     export LF_ICONS=" tw=:or=:ex=:bd=:di=:ow=:ln=:fi="
     export LS_COLORS="tw=30:or=31:ex=32:bd=33:di=34:ow=35:ln=36:fi=37"
     export PAGER="less -r --use-color -Dd+r -Du+b -DPyk -DSyk"
+    export PATH="$PATH:$HOME/.local/bin"
     export PROMPT_COMMAND='echo -ne "\033]0; ${${PWD/#$HOME/~}##*/} \a"'
-    export BAT_THEME="base16"
     export SAVEHIST=10000000
     export SHELL="$(which zsh)"
+    export SPACESHIP_DIR_COLOR="orange"
     export SPACESHIP_PROMPT_ADD_NEWLINE="false"
     export SPACESHIP_PROMPT_SEPARATE_LINE="false"
     export SPACESHIP_VI_MODE_SHOW="false"
@@ -144,6 +146,7 @@ set ratios 1:2
 set shell /bin/bash
 set previewer ~/.config/lf/previewer
 set cleaner ~/.config/lf/cleaner
+set promptfmt "[1;34m%w "
 
 cmd on-cd &{{ printf "\033]0; $(TMP=${PWD/#$HOME/\~};echo ${TMP##*/}) \a" >/dev/tty }}
 
