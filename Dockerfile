@@ -67,6 +67,13 @@ COPY --chown=drksl init.lua $HOME/.config/nvim/lua/user
 
 # source zsh plugins
 RUN <<"====" >> $HOME/.zprofile
+    alias  cp="cp -iv"
+    alias  mv="mv -iv"
+    alias  rm="rm -Iv"
+    alias  mkdir="mkdir -pv"
+    alias  ll="ls -lAhN --hyperlink=auto --color=auto --group-directories-first"
+    alias  ls="ls -a --hyperlink=auto --color=auto --group-directories-first"
+    alias  grep="grep --color=auto"
     export BAT_THEME="base16"
     export DISPLAY=:0
     export EDITOR="nvim"
