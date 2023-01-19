@@ -742,6 +742,7 @@ local config = {
       -- modify the mapping part of the table
       opts.mapping["<A-j>"] = cmp.mapping.select_next_item()
       opts.mapping["<A-k>"] = cmp.mapping.select_prev_item()
+      opts.mapping["<A-l>"] = cmp.mapping.confirm { select = true }
 
       -- modify the formatting part of the table
       opts.formatting = {
@@ -758,6 +759,10 @@ local config = {
           })[entry.source.name]
           return vim_item
         end,
+      }
+
+      opts.completion = {
+        completeopt = 'menu,menuone,noinsert' -- autoselect to show the completion preview
       }
 
       -- return the new table to be used
