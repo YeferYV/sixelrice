@@ -78,11 +78,15 @@ RUN <<"====" >> $HOME/.zprofile
     export PAGER="less -r --use-color -Dd+r -Du+b -DPyk -DSyk"
     export PATH="$PATH:$HOME/.local/bin"
     export PROMPT_COMMAND='echo -ne "\033]0; ${${PWD/#$HOME/~}##*/} \a"'
-    export SAVEHIST=10000000
+    export SAVEHIST=1000000
     export SHELL="$(which zsh)"
-    export SPACESHIP_DIR_COLOR="orange"
+    export SPACESHIP_DIR_COLOR="blue"
+    export SPACESHIP_DIR_PREFIX="\033[34;1min "
+    export SPACESHIP_GIT_PREFIX="\033[35;1mon "
+    export SPACESHIP_DIR_TRUNC=9
     export SPACESHIP_PROMPT_ADD_NEWLINE="false"
     export SPACESHIP_PROMPT_SEPARATE_LINE="false"
+    export SPACESHIP_USER_COLOR_ROOT="blue"
     export SPACESHIP_VI_MODE_SHOW="false"
     export TERM="xterm-256color"
     export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#555555"
