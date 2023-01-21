@@ -261,6 +261,8 @@ RUN <<==== >> $HOME/.tmux.conf
     bind -n  C-M-b                        set -g status
     bind     b                            set -g status
     bind     c                            set -g status on \; new-window
+    bind -n  C-t                          set -g status on \; new-window
+    bind -n  C-w                          kill-pane
     bind     x                            kill-pane
     bind -n  M-S                          swap-window -t -1\; select-window -t -1
     bind -n  M-F                          swap-window -t +1\; select-window -t +1
@@ -284,8 +286,14 @@ RUN <<==== >> $HOME/.tmux.conf
     bind -r  J                            resize-pane -D
     bind -r  K                            resize-pane -U
     bind -r  L                            resize-pane -R
+    bind -n  C-M-Left                     resize-pane -L
+    bind -n  C-M-Down                     resize-pane -D
+    bind -n  C-M-Up                       resize-pane -U
+    bind -n  C-M-Right                    resize-pane -R
     bind     v                            split-window -h
     bind     V                            split-window -v
+    bind -n  C-M-v                        split-window -h
+    bind -n  C-M-h                        split-window -v
 ====
 
 CMD ["/usr/bin/zsh","-l"]
