@@ -226,6 +226,8 @@ RUN <<==== >> $HOME/.tmux.conf
     set  -g  window-status-format         "#[bg=default,fg=#2c2c2c]#{window_index}:#{pane_title}"
     set  -g  window-status-separator      " "
     setw -g  mode-keys                    vi
+    bind -n  Home                         send Escape "OH"
+    bind -n  End                          send Escape "OF"
     bind -T  copy-mode-vi y               send-keys -X copy-pipe-and-cancel "xclip -i -sel clip > /dev/null"
     bind -T  copy-mode-vi v               send-keys -X begin-selection
     bind -T  copy-mode-vi BTab            select-window -p
