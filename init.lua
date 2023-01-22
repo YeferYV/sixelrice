@@ -948,6 +948,9 @@ local config = {
             name = "Git",
             r = { "<cmd>lua require 'gitsigns'.reset_hunk()<cr>", "Reset Git hunk" },
             R = { "<cmd>lua require 'gitsigns'.reset_buffer()<cr>", "Reset Git buffer" },
+            g = { "<cmd>lua require 'toggleterm.terminal'.Terminal:new({ cmd='lazygit', direction='tab', hidden=true }):toggle()<cr>",
+              "Tab lazygit" },
+            G = { function() astronvim.toggle_term_cmd "lazygit" end, "ToggleTerm lazygit" },
           },
           ["u"] = {
             name = "UI",
