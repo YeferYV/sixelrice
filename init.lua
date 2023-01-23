@@ -429,7 +429,7 @@ local config = {
           astronvim.add_cmp_source({ name = "cmp_tabnine", priority = 1000, max_item_count = 7 })
         end
       },
-      ["github/copilot.vim"] = { commit = "5a411d19ce7334ab10ba12516743fc25dad363fa" },
+      ["Exafunction/codeium.vim"] = {},
       ["ahmedkhalf/project.nvim"] = {
         commit = "685bc8e3890d2feb07ccf919522c97f7d33b94e4",
         config = function()
@@ -764,11 +764,61 @@ local config = {
       -- opts parameter is the default options table
       -- the function is lazy loaded so cmp is able to be required
       local cmp = require "cmp"
+      local luasnip = require "luasnip"
 
       -- modify the mapping part of the table
-      opts.mapping["<A-j>"] = cmp.mapping.select_next_item()
-      opts.mapping["<A-k>"] = cmp.mapping.select_prev_item()
-      opts.mapping["<A-l>"] = cmp.mapping.confirm { select = true }
+      opts.mapping = {
+        ["<Up>"] = cmp.mapping(cmp.mapping.select_prev_item(), { "i" }),
+        ["<Down>"] = cmp.mapping(cmp.mapping.select_next_item(), { "i" }),
+        ["<A-j>"] = cmp.mapping.select_next_item(),
+        ["<A-k>"] = cmp.mapping.select_prev_item(),
+        ["<C-d>"] = cmp.mapping(cmp.mapping.scroll_docs(-1), { "i", "c" }),
+        ["<C-f>"] = cmp.mapping(cmp.mapping.scroll_docs(1), { "i", "c" }),
+        ["<C-Space>"] = cmp.mapping({
+          i = function()
+            if cmp.visible() then
+              cmp.abort()
+            else
+              cmp.complete()
+            end
+          end,
+          c = function()
+            if cmp.visible() then
+              cmp.close()
+            else
+              cmp.complete()
+            end
+          end,
+        }),
+        ["<CR>"] = cmp.mapping.confirm { select = true },
+        ["<A-l>"] = cmp.mapping(cmp.mapping.confirm { select = true }, { "i", "c" }),
+        ["<Tab>"] = cmp.mapping(function(fallback)
+          if cmp.visible() then
+            cmp.select_next_item()
+          elseif luasnip.expandable() then
+            luasnip.expand()
+          elseif luasnip.expand_or_jumpable() then
+            luasnip.expand_or_jump()
+          else
+            fallback()
+          end
+        end, {
+          "i",
+          "s",
+        }),
+        ["<S-Tab>"] = cmp.mapping(function(fallback)
+          if cmp.visible() then
+            cmp.select_prev_item()
+          elseif luasnip.jumpable(-1) then
+            luasnip.jump(-1)
+          else
+            fallback()
+          end
+        end, {
+          "i",
+          "s",
+        }),
+      }
 
       -- modify the formatting part of the table
       opts.formatting = {
@@ -868,6 +918,8 @@ local config = {
         end
       end
       local mappings = cmp.mapping.preset.cmdline {
+        ["<C-n>"] = function(fallback) fallback() end,
+        ["<C-p>"] = function(fallback) fallback() end,
         ["<C-j>"] = { c = fallback_func "select_next_item" },
         ["<C-k>"] = { c = fallback_func "select_prev_item" },
         ["<M-j>"] = { c = fallback_func "select_next_item" },
@@ -1085,6 +1137,16 @@ local config = {
     if not status_ok then
       return
     end
+
+    -- ╭────────────╮
+    -- │ Automation │
+    -- ╰────────────╯
+
+    -- _codeium_completion
+    vim.keymap.set('i', '<c-h>', function() return vim.fn['codeium#Clear']() end, { expr = true })
+    vim.keymap.set('i', '<c-j>', function() return vim.fn['codeium#CycleCompletions'](1) end, { expr = true })
+    vim.keymap.set('i', '<c-k>', function() return vim.fn['codeium#CycleCompletions'](-1) end, { expr = true })
+    vim.keymap.set('i', '<c-l>', function() return vim.fn['codeium#Accept']() end, { expr = true })
 
     -- ╭──────────────╮
     -- │ Text Objects │
