@@ -190,7 +190,8 @@ local config = {
       status_diagnostics_enabled = true, -- enable diagnostics in statusline
       icons_enabled = true, -- disable icons in the UI (disable if no nerd font is available, requires :PackerSync after changing)
       ui_notifications_enabled = true, -- disable notifications when toggling UI elements
-      heirline_bufferline = true -- enable new heirline based bufferline (requires :PackerSync after changing)
+      heirline_bufferline = true, -- enable new heirline based bufferline (requires :PackerSync after changing)
+      codeium_no_map_tab = true, -- disable <tab> codeium completion
     }
   },
   -- If you need more control, you can use the function()...end notation
@@ -326,6 +327,15 @@ local config = {
       --     },
       --   },
       -- },
+      jsonls = {
+        settings = {
+          json = {
+            schemas = require("schemastore").json.schemas(),
+            validate = { enable = true },
+            keepLines = { enable = true },
+          },
+        },
+      }
     }
   },
 
@@ -589,6 +599,7 @@ local config = {
               ["<A-S>"] = fb_actions.toggle_all,
             },
             ["n"] = {
+              ["l"] = require("telescope.actions").select_default,
               ["c"] = fb_actions.create,
               ["r"] = fb_actions.rename,
               ["m"] = fb_actions.move,
