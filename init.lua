@@ -3,6 +3,9 @@
 -- You can think of a Lua "table" as a dictionary like data structure the
 -- normal format is "key = value". These also handle array like data structures
 -- where a value with no key simply has an implicit numeric key
+
+local fb_actions = require "telescope._extensions.file_browser.actions"
+
 local config = {
 
   -- Configure AstroNvim updates
@@ -414,10 +417,16 @@ local config = {
       -- },
 
       -- UI
-      ["folke/tokyonight.nvim"] = { require("tokyonight").setup { transparent = true } }, -- transparent startup
-      ["olivercederborg/poimandres.nvim"] = { require('poimandres').setup { disable_background = true } }, -- transparent startup
+      ["folke/tokyonight.nvim"] = {},
+      ["olivercederborg/poimandres.nvim"] = {},
+      ["nvim-telescope/telescope-file-browser.nvim"] = {
+        commit = "304508fb7bea78e3c0eeddd88c4837501e403ae8",
+        config = function() require("telescope").load_extension("file_browser") end
+      },
       ["DaikyXendo/nvim-material-icon"] = {
-        require("nvim-web-devicons").setup({ override = require("nvim-material-icon").get_icons() })
+        config = function()
+          require("nvim-web-devicons").setup({ override = require("nvim-material-icon").get_icons() })
+        end
       },
 
       -- Automation
@@ -549,6 +558,53 @@ local config = {
             disable = { filetypes = { "TelescopePrompt" } },
           })
         end
+      },
+    },
+
+    ["telescope"] = {
+      extensions = {
+        file_browser = {
+          auto_depth = true,
+          display_stat = {},
+          grouped = true,
+          hidden = true,
+          hide_parent_dir = true,
+          path = "%:p:h",
+          respect_gitignore = false,
+          mappings = {
+            ["i"] = {
+              ["<S-CR>"] = fb_actions.create_from_prompt,
+              ["<A-C>"] = fb_actions.create,
+              ["<A-R>"] = fb_actions.rename,
+              ["<A-M>"] = fb_actions.move,
+              ["<A-Y>"] = fb_actions.copy,
+              ["<A-D>"] = fb_actions.remove,
+              ["<A-O>"] = fb_actions.open,
+              ["<A-H>"] = fb_actions.goto_parent_dir,
+              ["<A-E>"] = fb_actions.goto_home_dir,
+              ["<A-W>"] = fb_actions.goto_cwd,
+              ["<A-T>"] = fb_actions.change_cwd,
+              ["<A-F>"] = fb_actions.toggle_browser,
+              ["<c-h>"] = fb_actions.toggle_hidden,
+              ["<A-S>"] = fb_actions.toggle_all,
+            },
+            ["n"] = {
+              ["c"] = fb_actions.create,
+              ["r"] = fb_actions.rename,
+              ["m"] = fb_actions.move,
+              ["y"] = fb_actions.copy,
+              ["d"] = fb_actions.remove,
+              ["o"] = fb_actions.open,
+              ["h"] = fb_actions.goto_parent_dir,
+              ["e"] = fb_actions.goto_home_dir,
+              ["w"] = fb_actions.goto_cwd,
+              ["t"] = fb_actions.change_cwd,
+              ["f"] = fb_actions.toggle_browser,
+              ["H"] = fb_actions.toggle_hidden,
+              ["s"] = fb_actions.toggle_all,
+            },
+          },
+        }
       },
     },
 
@@ -893,7 +949,7 @@ local config = {
   -- false == disabled
   -- true == 1000
 
-  ["cmp"] = {
+  cmp = {
     source_priority = {
       cmp_tabnine = 1000,
       nvim_lsp = 900,
@@ -1032,6 +1088,7 @@ local config = {
             c = { "<cmd>lua require('telescope.builtin').colorscheme({enable_preview = true, initial_mode='normal'})<cr>",
               "Colorscheme" },
             p = { "<cmd>Telescope projects<cr>", "Projects" },
+            o = { "<cmd>Telescope file_browser initial_mode=normal<cr>", "Open File Browser" },
           },
 
           ["v"] = "which_key_ignore",
