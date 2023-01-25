@@ -1351,14 +1351,18 @@ local config = {
     -- ╰──────────────╯
 
     -- _last_change_text_object
-    vim.keymap.set("o", 'im', "<cmd>normal! `[v`]<Left><cr>", { desc = "last change textobj" })
-    vim.keymap.set("x", 'im', "`[o`]<Left>", { desc = "last-change textobj" })
+    vim.keymap.set("o", 'gm', "<cmd>normal! `[v`]<Left><cr>", { desc = "Last change textobj" })
+    vim.keymap.set("x", 'gm', "`[o`]<Left>", { desc = "Last change textobj" })
 
     -- _git_hunk_(next/prev_autojump_unsupported)
-    vim.keymap.set({ "o", "x" }, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
+    vim.keymap.set({ 'o', 'x' }, 'gh', ':<C-U>Gitsigns select_hunk<CR>', { desc = "Git hunk textobj" })
 
     -- _jump_to_last_change
     vim.keymap.set({ "o", "x" }, "gl", "`.", { desc = "Jump to last change" })
+
+    -- _mini_comment_(not_showing_desc)_(next/prev_autojump_unsupported)
+    vim.keymap.set({ "x" }, 'gK', '<Cmd>lua MiniComment.textobject()<cr>', { desc = "RestOfComment textobj" })
+    vim.keymap.set({ "x" }, 'gk', ':<C-u>normal "zygcgv<cr>', { desc = "Comment textobj" })
 
     -- _varios_textobjs
     vim.keymap.set({ 'o', 'x' }, 'r', 'r', { desc = "Replace" })
