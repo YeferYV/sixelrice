@@ -470,6 +470,7 @@ local config = {
       -- Motions
       ["tpope/vim-repeat"] = { commit = "24afe922e6a05891756ecf331f39a1f6743d3d5a" },
       ["justinmk/vim-sneak"] = { commit = "93395f5b56eb203e4c8346766f258ac94ea81702", },
+      ["numToStr/Comment.nvim"] = { disable = true },
 
       -- Text-Objects
       ["baysmith/vim-indent-object"] = { commit = "f8034c3235a3ba4e39503f2af511957bb01530fe" },
@@ -516,6 +517,18 @@ local config = {
             mappings = {
               start = 'ga',
               start_with_preview = 'gA',
+            },
+          })
+
+          require('mini.comment').setup({
+            mappings = {
+              comment = 'gc',
+              comment_line = 'gcc',
+              textobject = 'gc',
+            },
+            hooks = {
+              pre = function() require('ts_context_commentstring.internal').update_commentstring() end,
+              post = function() end,
             },
           })
 
@@ -1180,6 +1193,12 @@ local config = {
             g = { "<cmd>lua require 'toggleterm.terminal'.Terminal:new({ cmd='lazygit', direction='tab', hidden=true }):toggle()<cr>",
               "Tab lazygit" },
             G = { function() astronvim.toggle_term_cmd "lazygit" end, "ToggleTerm lazygit" },
+          },
+          ["p"] = {
+            name = "Packages",
+            C = { "<cmd>PackerClean<cr>", "Packer Clean" },
+            L = { "<cmd>LspInfo<cr>", "Lsp Info" },
+            N = { "<cmd>NullLsInfo<cr>", "NullLs Info" },
           },
           ["u"] = {
             name = "UI",
