@@ -473,7 +473,7 @@ local config = {
       ["numToStr/Comment.nvim"] = { disable = true },
 
       -- Text-Objects
-      ["baysmith/vim-indent-object"] = { commit = "f8034c3235a3ba4e39503f2af511957bb01530fe" },
+      ["paraduxos/vim-indent-object"] = { branch = "new_branch", commit = "2408bf0d2d54f70e6cd9cfcb558bd43283bf5003" },
       ["nvim-treesitter/nvim-treesitter-textobjects"] = { commit = "98476e7364821989ab9b500e4d20d9ae2c5f6564" },
       ["RRethy/nvim-treesitter-textsubjects"] = { commit = "bc047b20768845fd54340eb76272b2cf2f6fa3f3" },
       ["coderifous/textobj-word-column.vim"] = { commit = "cb40e1459817a7fa23741ff6df05e4481bde5a33" },
@@ -538,13 +538,13 @@ local config = {
               animation = nil
             },
             mappings = {
-              object_scope = '', -- default 'iI' empty to disable
-              object_scope_with_border = 'ai', -- empty to disable
+              object_scope = 'iI', -- empty to disable
+              object_scope_with_border = 'aI', -- empty to disable
               goto_top = '[ii',
               goto_bottom = ']ii',
             },
             options = {
-              border = 'top',
+              border = 'both',
               indent_at_cursor = false,
               try_as_border = false,
             },
@@ -1377,23 +1377,13 @@ local config = {
 
     -- _vim_indent_object_(visualrepeatable_+_vimrepeat)
     vim.cmd [[
-      let g:indent_object_no_mappings = '1'
-      " onoremap ii = vim-indentobject +    visual-repeatable +    vim-repeat + no-extra-lines-below + cursor-at-the-end
-      " xnoremap ii = vim-indentobject +    visual-repeatable + no-vim-repeat + no-extra-lines-below + cursor-at-the-end
-      " onoremap ai = mini.indentscope +    visual-repeatable +    vim-repeat + no-extra-lines-below + cursor-at-the-end
-      " xnoremap ai = vim-indentobject +    visual-repeatable + no-vim-repeat + no-extra-lines-below + cursor-at-the-end
-      " onoremap iI = various-textobjs + no-visual-repeatable + no-vim-repeat +    extra-lines-below + cursor-at-the-end
-      " xnoremap iI = vim-indentobject + no-visual-repeatable + no-vim-repeat +    extra-lines-below + cursor-at-the-end
-      " onoremap aI = vim-indentobject +    visual-repeatable +    vim-repeat + no-extra-lines-below + cursor-at-the-end
-      " xnoremap aI = vim-indentobject +    visual-repeatable + no-vim-repeat + no-extra-lines-below + cursor-at-the-end
-      onoremap ii <Plug>IndentObject-ii
-      xnoremap ii <Plug>IndentObject-ii
-      onoremap ai <cmd>lua MiniIndentscope.textobject(true)<cr>
-      xnoremap ai <Plug>IndentObject-ii<cmd>normal! oko<cr>
-      onoremap iI <cmd>lua function() require("various-textobjs").indentation(true, true) end<cr>
-      xnoremap iI <Plug>IndentObject-ai<cmd>normal! ojo<cr>
-      onoremap aI <Plug>IndentObject-aI
-      xnoremap aI <Plug>IndentObject-aI
+      let g:indent_object_ignore_blank_line = 0
+      augroup _mini_indentscope
+      autocmd FileType * omap iI <Cmd>lua MiniIndentscope.textobject(false)<CR>
+      autocmd FileType * xmap iI <Cmd>lua MiniIndentscope.textobject(false)<CR>
+      autocmd FileType * omap aI <Cmd>lua MiniIndentscope.textobject(true)<CR>
+      autocmd FileType * xmap aI <Cmd>lua MiniIndentscope.textobject(true)<CR>
+      augroup end
     ]]
 
     -- ╭─────────╮
