@@ -4,6 +4,8 @@
 -- normal format is "key = value". These also handle array like data structures
 -- where a value with no key simply has an implicit numeric key
 
+local actions = require "telescope.actions"
+local action_set = require "telescope.actions.set"
 local fb_actions = require "telescope._extensions.file_browser.actions"
 
 local config = {
@@ -572,6 +574,115 @@ local config = {
     },
 
     ["telescope"] = {
+      mappings = {
+        i = {
+          -- FIXED: actions.edit_register
+          ["<A-R>"] = function(prompt_bufnr)
+            local selection = require("telescope.actions.state").get_selected_entry()
+            local updated_value = vim.fn.input("Edit [" .. selection.value .. "] ❯ ", selection.content)
+
+            vim.fn.setreg(selection.value:lower(), updated_value)
+            selection.content = updated_value
+
+            require("telescope.actions").close(prompt_bufnr)
+            require("telescope.builtin").resume()
+          end,
+
+          ["<Tab>"] = actions.toggle_selection + actions.move_selection_worse,
+          ["<S-Tab>"] = actions.toggle_selection + actions.move_selection_better,
+
+          ["<C-d>"] = actions.preview_scrolling_down,
+          ["<C-u>"] = actions.preview_scrolling_up,
+
+          ["<Down>"] = actions.move_selection_next,
+          ["<Up>"] = actions.move_selection_previous,
+          ["<C-j>"] = actions.move_selection_next,
+          ["<C-k>"] = actions.move_selection_previous,
+          ["<C-l>"] = actions.select_default,
+          ["<CR>"] = actions.select_default,
+          ["<A-J>"] = function(prompt_bufnr) action_set.shift_selection(prompt_bufnr, 10) end,
+          ["<A-K>"] = function(prompt_bufnr) action_set.shift_selection(prompt_bufnr, -10) end,
+
+          ["<C-n>"] = actions.cycle_history_next,
+          ["<C-p>"] = actions.cycle_history_prev,
+
+          ["<C-g>"] = actions.move_to_top,
+          ["<A-G>"] = actions.move_to_bottom,
+          ["<C-m>"] = actions.move_to_middle,
+
+          ["<C-c>"] = actions.close,
+
+          ["<A-V>"] = actions.select_horizontal,
+          ["<C-v>"] = actions.select_vertical,
+          ["<A-T>"] = actions.select_tab,
+
+          ["<C-x>"] = actions.send_to_qflist + actions.open_qflist,
+          ["<A-X>"] = actions.send_selected_to_qflist + actions.open_qflist,
+
+          ["<A-P>"] = require("telescope.actions.layout").toggle_preview,
+          ["<C-z>"] = require("telescope.actions.layout").cycle_layout_next,
+
+          ["<C-_>"] = actions.complete_tag, -- keys from pressing <C-/>
+          ["<C-?>"] = actions.which_key,
+
+          ["<PageUp>"] = actions.results_scrolling_up,
+          ["<PageDown>"] = actions.results_scrolling_down,
+        },
+        n = {
+          -- FIXED: actions.edit_register
+          ["R"] = function(prompt_bufnr)
+            local selection = require("telescope.actions.state").get_selected_entry()
+            local updated_value = vim.fn.input("Edit [" .. selection.value .. "] ❯ ", selection.content)
+
+            vim.fn.setreg(selection.value:lower(), updated_value)
+            selection.content = updated_value
+
+            require("telescope.actions").close(prompt_bufnr)
+            require("telescope.builtin").resume()
+          end,
+
+          ["<S-Tab>"] = actions.toggle_selection + actions.move_selection_better,
+          ["<Tab>"] = actions.toggle_selection + actions.move_selection_worse,
+
+          ["d"] = actions.preview_scrolling_down,
+          ["u"] = actions.preview_scrolling_up,
+
+          ["<Down>"] = actions.move_selection_next,
+          ["<Up>"] = actions.move_selection_previous,
+          ["j"] = actions.move_selection_next,
+          ["k"] = actions.move_selection_previous,
+          ["l"] = actions.select_default,
+          ["<CR>"] = actions.select_default,
+          ["J"] = function(prompt_bufnr) action_set.shift_selection(prompt_bufnr, 10) end,
+          ["K"] = function(prompt_bufnr) action_set.shift_selection(prompt_bufnr, -10) end,
+
+          ["n"] = actions.cycle_history_next,
+          ["p"] = actions.cycle_history_prev,
+
+          ["g"] = actions.move_to_top,
+          ["G"] = actions.move_to_bottom,
+          ["M"] = actions.move_to_middle,
+
+          ["q"] = actions.close,
+          ["<esc>"] = actions.close,
+
+          ["V"] = actions.select_horizontal,
+          ["v"] = actions.select_vertical,
+          ["t"] = actions.select_tab,
+
+          ["x"] = actions.send_to_qflist + actions.open_qflist,
+          ["X"] = actions.send_selected_to_qflist + actions.open_qflist,
+
+          ["P"] = require("telescope.actions.layout").toggle_preview,
+          ["z"] = require("telescope.actions.layout").cycle_layout_next,
+
+          ["/"] = actions.complete_tag,
+          ["?"] = actions.which_key,
+
+          ["<PageUp>"] = actions.results_scrolling_up,
+          ["<PageDown>"] = actions.results_scrolling_down,
+        },
+      },
       extensions = {
         file_browser = {
           auto_depth = true,
@@ -593,26 +704,25 @@ local config = {
               ["<A-H>"] = fb_actions.goto_parent_dir,
               ["<A-E>"] = fb_actions.goto_home_dir,
               ["<A-W>"] = fb_actions.goto_cwd,
-              ["<A-T>"] = fb_actions.change_cwd,
-              ["<A-F>"] = fb_actions.toggle_browser,
+              ["<A-.>"] = fb_actions.change_cwd,
+              ["<A-B>"] = fb_actions.toggle_browser,
               ["<c-h>"] = fb_actions.toggle_hidden,
               ["<A-S>"] = fb_actions.toggle_all,
             },
             ["n"] = {
-              ["l"] = require("telescope.actions").select_default,
               ["c"] = fb_actions.create,
               ["r"] = fb_actions.rename,
               ["m"] = fb_actions.move,
               ["y"] = fb_actions.copy,
-              ["d"] = fb_actions.remove,
+              ["D"] = fb_actions.remove,
               ["o"] = fb_actions.open,
               ["h"] = fb_actions.goto_parent_dir,
               ["e"] = fb_actions.goto_home_dir,
               ["w"] = fb_actions.goto_cwd,
-              ["t"] = fb_actions.change_cwd,
-              ["f"] = fb_actions.toggle_browser,
+              ["."] = fb_actions.change_cwd,
+              ["B"] = fb_actions.toggle_browser,
               ["H"] = fb_actions.toggle_hidden,
-              ["s"] = fb_actions.toggle_all,
+              ["S"] = fb_actions.toggle_all,
             },
           },
         }
@@ -620,7 +730,7 @@ local config = {
     },
 
     ["treesitter"] = {
-      ensure_installed = { "python", "bash", "javascript", "html", "css", "c", "lua" },
+      ensure_installed = { "python", "bash", "javascript", "json", "html", "css", "c", "lua" },
       textobjects = {
         move = {
           enable = true,
@@ -1100,16 +1210,17 @@ local config = {
               "Colorscheme" },
             p = { "<cmd>Telescope projects<cr>", "Projects" },
             o = { "<cmd>Telescope file_browser initial_mode=normal<cr>", "Open File Browser" },
+            ["'"] = { "<cmd>Telescope marks theme=ivy initial_mode=normal<cr>", "Marks" },
+            ["+"] = { "<cmd>Telescope builtin previewer=false initial_mode=normal<cr>", "More" },
           },
 
           ["v"] = "which_key_ignore",
           ["V"] = "which_key_ignore",
           ["q"] = "which_key_ignore",
           ["w"] = "which_key_ignore",
-          ["X"] = "which_key_ignore",
           ["<Tab>"] = { "which_key_ignore" },
           ["<S-Tab>"] = { "which_key_ignore" },
-
+          ["'"] = { "<Cmd>Telescope marks initial_mode=normal<CR>", "Marks" },
         }
       }
     }
