@@ -1408,6 +1408,29 @@ local config = {
       xmap <S-Tab> <Plug>SneakLabel_S<cr>
     ]]
 
+    -- _bufpos.vim
+    vim.cmd [[
+      function! BufPos_ActivateBuffer(num)
+        let l:count = 1
+        for i in range(1, bufnr("$"))
+          if buflisted(i) && getbufvar(i, "&modifiable")
+            if l:count == a:num
+              exe "buffer " . i
+              return
+            endif
+            let l:count = l:count + 1
+          endif
+        endfor
+      endfunction
+
+      function! BufPos_Initialize()
+        for i in range(1, 9)
+          exe "map <Space>" . i . " :call BufPos_ActivateBuffer(" . i . ")<CR>"
+        endfor
+      endfunction
+
+      autocmd VimEnter * call BufPos_Initialize()
+    ]]
   end
 }
 
