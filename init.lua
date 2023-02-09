@@ -470,6 +470,38 @@ local config = {
         commit = "304508fb7bea78e3c0eeddd88c4837501e403ae8",
         config = function() require("telescope").load_extension("file_browser") end
       },
+      ["AckslD/nvim-neoclip.lua"] = {
+        commit = "5b9286a40ea2020352280caeb713515badb03d99",
+        config = function()
+          require('neoclip').setup({
+            on_select = { move_to_front = true },
+            on_paste = { move_to_front = false, },
+            keys = {
+              telescope = {
+                i = {
+                  select = '<cr>',
+                  paste = '<c-p>',
+                  paste_behind = '<c-k>',
+                  replay = '<c-q>', -- replay a macro
+                  delete = '<c-d>', -- delete an entry
+                  edit = '<c-e>', -- edit an entry
+                  custom = {},
+                },
+                n = {
+                  select = '<cr>',
+                  paste = 'p',
+                  paste_behind = 'P',
+                  replay = 'Q',
+                  delete = 'd',
+                  edit = 'e',
+                  custom = {},
+                },
+              },
+            },
+          })
+          require("telescope").load_extension("neoclip")
+        end
+      },
       ["DaikyXendo/nvim-material-icon"] = {
         config = function()
           require("nvim-web-devicons").setup({ override = require("nvim-material-icon").get_icons() })
@@ -1263,6 +1295,8 @@ local config = {
             name = "Search",
             c = { "<cmd>lua require('telescope.builtin').colorscheme({enable_preview = true, initial_mode='normal'})<cr>",
               "Colorscheme" },
+            n = { "<cmd>Telescope neoclip initial_mode=normal<cr>", "NeoClip" },
+            N = { "<cmd>Telescope notify initial_mode=normal<cr>", "Search notifications" },
             p = { "<cmd>Telescope projects<cr>", "Projects" },
             o = { "<cmd>Telescope file_browser initial_mode=normal<cr>", "Open File Browser" },
             ["'"] = { "<cmd>Telescope marks theme=ivy initial_mode=normal<cr>", "Marks" },
