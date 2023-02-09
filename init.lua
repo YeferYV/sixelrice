@@ -8,6 +8,17 @@ local actions = require "telescope.actions"
 local action_set = require "telescope.actions.set"
 local fb_actions = require "telescope._extensions.file_browser.actions"
 
+local function edit_register(prompt_bufnr)
+  local selection = require("telescope.actions.state").get_selected_entry()
+  local updated_value = vim.fn.input("Edit [" .. selection.value .. "] ❯ ", selection.content)
+
+  vim.fn.setreg(selection.value:lower(), updated_value)
+  selection.content = updated_value
+
+  require("telescope.actions").close(prompt_bufnr)
+  require("telescope.builtin").resume()
+end
+
 local config = {
 
   -- Configure AstroNvim updates
@@ -589,30 +600,23 @@ local config = {
     ["telescope"] = {
       mappings = {
         i = {
-          -- FIXED: actions.edit_register
-          ["<A-R>"] = function(prompt_bufnr)
-            local selection = require("telescope.actions.state").get_selected_entry()
-            local updated_value = vim.fn.input("Edit [" .. selection.value .. "] ❯ ", selection.content)
+          ["<A-R>"] = edit_register,
 
-            vim.fn.setreg(selection.value:lower(), updated_value)
-            selection.content = updated_value
+          ["<Tab>"] = function(prompt_bufnr) actions.toggle_selection(prompt_bufnr) actions.move_selection_next(prompt_bufnr) end,
+          ["<S-Tab>"] = function(prompt_bufnr) actions.toggle_selection(prompt_bufnr) actions.move_selection_previous(prompt_bufnr) end,
 
-            require("telescope.actions").close(prompt_bufnr)
-            require("telescope.builtin").resume()
-          end,
-
-          ["<Tab>"] = actions.toggle_selection + actions.move_selection_worse,
-          ["<S-Tab>"] = actions.toggle_selection + actions.move_selection_better,
+          ["<C-a>"] = function(prompt_bufnr) actions.add_selected_to_qflist(prompt_bufnr) actions.open_qflist(prompt_bufnr) end,
+          ["<A-A>"] = function(prompt_bufnr) actions.add_selected_to_loclist(prompt_bufnr) actions.open_loclist(prompt_bufnr) end,
 
           ["<C-d>"] = actions.preview_scrolling_down,
           ["<C-u>"] = actions.preview_scrolling_up,
 
           ["<Down>"] = actions.move_selection_next,
           ["<Up>"] = actions.move_selection_previous,
+          ["<CR>"] = actions.select_default,
           ["<C-j>"] = actions.move_selection_next,
           ["<C-k>"] = actions.move_selection_previous,
           ["<C-l>"] = actions.select_default,
-          ["<CR>"] = actions.select_default,
           ["<A-J>"] = function(prompt_bufnr) action_set.shift_selection(prompt_bufnr, 10) end,
           ["<A-K>"] = function(prompt_bufnr) action_set.shift_selection(prompt_bufnr, -10) end,
 
@@ -621,19 +625,20 @@ local config = {
 
           ["<C-g>"] = actions.move_to_top,
           ["<A-G>"] = actions.move_to_bottom,
-          ["<C-m>"] = actions.move_to_middle,
+          ["<C-;>"] = actions.move_to_middle,
 
           ["<C-c>"] = actions.close,
 
-          ["<A-V>"] = actions.select_horizontal,
+          ["<C-s>"] = function(prompt_bufnr) actions.send_selected_to_qflist(prompt_bufnr) actions.open_qflist(prompt_bufnr) end,
+          ["<A-S>"] = function(prompt_bufnr) actions.send_selected_to_loclist(prompt_bufnr) actions.open_loclist(prompt_bufnr) end,
+
           ["<C-v>"] = actions.select_vertical,
+          ["<A-V>"] = actions.select_horizontal,
           ["<A-T>"] = actions.select_tab,
 
-          ["<C-x>"] = actions.send_to_qflist + actions.open_qflist,
-          ["<A-X>"] = actions.send_selected_to_qflist + actions.open_qflist,
-
           ["<A-P>"] = require("telescope.actions.layout").toggle_preview,
-          ["<C-z>"] = require("telescope.actions.layout").cycle_layout_next,
+          ["<A-Z>"] = require("telescope.actions.layout").cycle_layout_next,
+          ["<C-z>"] = actions.toggle_all,
 
           ["<C-_>"] = actions.complete_tag, -- keys from pressing <C-/>
           ["<C-?>"] = actions.which_key,
@@ -642,30 +647,23 @@ local config = {
           ["<PageDown>"] = actions.results_scrolling_down,
         },
         n = {
-          -- FIXED: actions.edit_register
-          ["R"] = function(prompt_bufnr)
-            local selection = require("telescope.actions.state").get_selected_entry()
-            local updated_value = vim.fn.input("Edit [" .. selection.value .. "] ❯ ", selection.content)
+          ["R"] = edit_register,
 
-            vim.fn.setreg(selection.value:lower(), updated_value)
-            selection.content = updated_value
+          ["<Tab>"] = function(prompt_bufnr) actions.toggle_selection(prompt_bufnr) actions.move_selection_next(prompt_bufnr) end,
+          ["<S-Tab>"] = function(prompt_bufnr) actions.toggle_selection(prompt_bufnr) actions.move_selection_previous(prompt_bufnr) end,
 
-            require("telescope.actions").close(prompt_bufnr)
-            require("telescope.builtin").resume()
-          end,
-
-          ["<S-Tab>"] = actions.toggle_selection + actions.move_selection_better,
-          ["<Tab>"] = actions.toggle_selection + actions.move_selection_worse,
+          ["a"] = function(prompt_bufnr) actions.add_selected_to_qflist(prompt_bufnr) actions.open_qflist(prompt_bufnr) end,
+          ["A"] = function(prompt_bufnr) actions.add_selected_to_loclist(prompt_bufnr) actions.open_loclist(prompt_bufnr) end,
 
           ["d"] = actions.preview_scrolling_down,
           ["u"] = actions.preview_scrolling_up,
 
           ["<Down>"] = actions.move_selection_next,
           ["<Up>"] = actions.move_selection_previous,
+          ["<CR>"] = actions.select_default,
           ["j"] = actions.move_selection_next,
           ["k"] = actions.move_selection_previous,
           ["l"] = actions.select_default,
-          ["<CR>"] = actions.select_default,
           ["J"] = function(prompt_bufnr) action_set.shift_selection(prompt_bufnr, 10) end,
           ["K"] = function(prompt_bufnr) action_set.shift_selection(prompt_bufnr, -10) end,
 
@@ -674,20 +672,21 @@ local config = {
 
           ["g"] = actions.move_to_top,
           ["G"] = actions.move_to_bottom,
-          ["M"] = actions.move_to_middle,
+          [";"] = actions.move_to_middle,
 
           ["q"] = actions.close,
           ["<esc>"] = actions.close,
 
-          ["V"] = actions.select_horizontal,
-          ["v"] = actions.select_vertical,
-          ["t"] = actions.select_tab,
+          ["s"] = function(prompt_bufnr) actions.send_selected_to_qflist(prompt_bufnr) actions.open_qflist(prompt_bufnr) end,
+          ["S"] = function(prompt_bufnr) actions.send_selected_to_loclist(prompt_bufnr) actions.open_loclist(prompt_bufnr) end,
 
-          ["x"] = actions.send_to_qflist + actions.open_qflist,
-          ["X"] = actions.send_selected_to_qflist + actions.open_qflist,
+          ["t"] = actions.select_tab,
+          ["v"] = actions.select_vertical,
+          ["V"] = actions.select_horizontal,
 
           ["P"] = require("telescope.actions.layout").toggle_preview,
-          ["z"] = require("telescope.actions.layout").cycle_layout_next,
+          ["Z"] = require("telescope.actions.layout").cycle_layout_next,
+          ["z"] = actions.toggle_all,
 
           ["/"] = actions.complete_tag,
           ["?"] = actions.which_key,
@@ -707,35 +706,35 @@ local config = {
           respect_gitignore = false,
           mappings = {
             ["i"] = {
-              ["<S-CR>"] = fb_actions.create_from_prompt,
-              ["<A-C>"] = fb_actions.create,
-              ["<A-R>"] = fb_actions.rename,
-              ["<A-M>"] = fb_actions.move,
-              ["<A-Y>"] = fb_actions.copy,
-              ["<A-D>"] = fb_actions.remove,
-              ["<A-O>"] = fb_actions.open,
-              ["<A-H>"] = fb_actions.goto_parent_dir,
-              ["<A-E>"] = fb_actions.goto_home_dir,
-              ["<A-W>"] = fb_actions.goto_cwd,
-              ["<A-.>"] = fb_actions.change_cwd,
               ["<A-B>"] = fb_actions.toggle_browser,
+              ["<A-C>"] = fb_actions.create,
+              ["<A-D>"] = fb_actions.remove,
+              ["<A-E>"] = fb_actions.goto_home_dir,
               ["<c-h>"] = fb_actions.toggle_hidden,
-              ["<A-S>"] = fb_actions.toggle_all,
+              ["<A-H>"] = fb_actions.goto_parent_dir,
+              ["<A-M>"] = fb_actions.move,
+              ["<A-O>"] = fb_actions.open,
+              ["<A-R>"] = fb_actions.rename,
+              ["<A-W>"] = fb_actions.goto_cwd,
+              ["<A-Y>"] = fb_actions.copy,
+              ["<A-Z>"] = fb_actions.toggle_all,
+              ["<A-.>"] = fb_actions.change_cwd,
+              ["<S-CR>"] = fb_actions.create_from_prompt,
             },
             ["n"] = {
-              ["c"] = fb_actions.create,
-              ["r"] = fb_actions.rename,
-              ["m"] = fb_actions.move,
-              ["y"] = fb_actions.copy,
-              ["D"] = fb_actions.remove,
-              ["o"] = fb_actions.open,
-              ["h"] = fb_actions.goto_parent_dir,
-              ["e"] = fb_actions.goto_home_dir,
-              ["w"] = fb_actions.goto_cwd,
-              ["."] = fb_actions.change_cwd,
               ["B"] = fb_actions.toggle_browser,
+              ["c"] = fb_actions.create,
+              ["D"] = fb_actions.remove,
+              ["e"] = fb_actions.goto_home_dir,
+              ["h"] = fb_actions.goto_parent_dir,
               ["H"] = fb_actions.toggle_hidden,
-              ["S"] = fb_actions.toggle_all,
+              ["m"] = fb_actions.move,
+              ["o"] = fb_actions.open,
+              ["r"] = fb_actions.rename,
+              ["w"] = fb_actions.goto_cwd,
+              ["y"] = fb_actions.copy,
+              ["z"] = fb_actions.toggle_all,
+              ["."] = fb_actions.change_cwd,
             },
           },
         }
@@ -1233,6 +1232,15 @@ local config = {
             ["+"] = { "<cmd>Telescope builtin previewer=false initial_mode=normal<cr>", "More" },
           },
 
+          ["1"] = "which_key_ignore",
+          ["2"] = "which_key_ignore",
+          ["3"] = "which_key_ignore",
+          ["4"] = "which_key_ignore",
+          ["5"] = "which_key_ignore",
+          ["6"] = "which_key_ignore",
+          ["7"] = "which_key_ignore",
+          ["8"] = "which_key_ignore",
+          ["9"] = "which_key_ignore",
           ["v"] = "which_key_ignore",
           ["V"] = "which_key_ignore",
           ["q"] = "which_key_ignore",
