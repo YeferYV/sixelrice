@@ -7,6 +7,7 @@
 local actions = require "telescope.actions"
 local action_set = require "telescope.actions.set"
 local fb_actions = require "telescope._extensions.file_browser.actions"
+local map = vim.keymap.set
 
 local function edit_register(prompt_bufnr)
   local selection = require("telescope.actions.state").get_selected_entry()
@@ -396,7 +397,6 @@ local config = {
       ["<M-Down>"] = { "<cmd>resize +2<cr>", desc = "Resize down" },
       ["<M-Left>"] = { "<cmd>vertical resize -2<cr>", desc = "Resize left" },
       ["<M-Right>"] = { "<cmd>vertical resize +2<cr>", desc = "Resize right" },
-      ["<C-s>"] = { ":%s//g<Left><Left>", desc = "Replace" },
       ["<C-y>"] = { "<C-i>", desc = "Prev cursor position" },
       ["<Tab>"] = { "<cmd>bnext<cr>", desc = "Buffer next" },
       ["<S-Tab>"] = { "<cmd>bprevious<cr>", desc = "Buffer prev" },
@@ -1386,39 +1386,50 @@ local config = {
     -- ╰────────────╯
 
     -- _codeium_completion
-    vim.keymap.set('i', '<c-h>', function() return vim.fn['codeium#Clear']() end, { expr = true })
-    vim.keymap.set('i', '<c-j>', function() return vim.fn['codeium#CycleCompletions'](1) end, { expr = true })
-    vim.keymap.set('i', '<c-k>', function() return vim.fn['codeium#CycleCompletions'](-1) end, { expr = true })
-    vim.keymap.set('i', '<c-l>', function() return vim.fn['codeium#Accept']() end, { expr = true })
+    map('i', '<c-h>', function() return vim.fn['codeium#Clear']() end, { expr = true })
+    map('i', '<c-j>', function() return vim.fn['codeium#CycleCompletions'](1) end, { expr = true })
+    map('i', '<c-k>', function() return vim.fn['codeium#CycleCompletions'](-1) end, { expr = true })
+    map('i', '<c-l>', function() return vim.fn['codeium#Accept']() end, { expr = true })
+
+    -- Replace all/visual_selected
+    map({ "n" }, "<C-s>", ":%s//g<Left><Left>", { desc = "Replace in Buffer" })
+    map({ "x" }, "<C-s>", ":s//g<Left><Left>", { desc = "Replace in Visual_selected" })
 
     -- ╭──────────────╮
     -- │ Text Objects │
     -- ╰──────────────╯
 
     -- _last_change_text_object
-    vim.keymap.set("o", 'gm', "<cmd>normal! `[v`]<Left><cr>", { desc = "Last change textobj" })
-    vim.keymap.set("x", 'gm', "`[o`]<Left>", { desc = "Last change textobj" })
+    map("o", 'gm', "<cmd>normal! `[v`]<Left><cr>", { desc = "Last change textobj" })
+    map("x", 'gm', "`[o`]<Left>", { desc = "Last change textobj" })
 
     -- _git_hunk_(next/prev_autojump_unsupported)
-    vim.keymap.set({ 'o', 'x' }, 'gh', ':<C-U>Gitsigns select_hunk<CR>', { desc = "Git hunk textobj" })
+    map({ 'o', 'x' }, 'gh', ':<C-U>Gitsigns select_hunk<CR>', { desc = "Git hunk textobj" })
 
     -- _jump_to_last_change
-    vim.keymap.set({ "o", "x" }, "gl", "`.", { desc = "Jump to last change" })
+    map({ "o", "x" }, "gl", "`.", { desc = "Jump to last change" })
 
     -- _mini_comment_(not_showing_desc)_(next/prev_autojump_unsupported)
-    vim.keymap.set({ "x" }, 'gK', '<Cmd>lua MiniComment.textobject()<cr>', { desc = "RestOfComment textobj" })
-    vim.keymap.set({ "x" }, 'gk', ':<C-u>normal "zygcgv<cr>', { desc = "Comment textobj" })
+    map({ "x" }, 'gK', '<Cmd>lua MiniComment.textobject()<cr>', { desc = "RestOfComment textobj" })
+    map({ "x" }, 'gk', ':<C-u>normal "zygcgv<cr>', { desc = "Comment textobj" })
 
-    -- _varios_textobjs
-    vim.keymap.set({ 'o', 'x' }, 'r', 'r', { desc = "Replace" })
-    vim.keymap.set({ 'o', 'x' }, 'R',
+    -- _search_textobj_(dot-repeat_supported)
+    map({ "o", "x" }, "gs", "gn", { noremap = true, desc = "Next search textobj" })
+    map({ "o", "x" }, "gS", "gN", { noremap = true, desc = "Prev search textobj" })
+
+    -- _replace_textobj_(repeable_with_cgs_+_dotrepeat_supported)
+    map({ 'x' }, 'g/', '"zy:s/<C-r>z//g<Left><Left>', { desc = "Replace textobj" })
+
+    -- _nvim_varios_textobjs
+    map({ 'o', 'x' }, 'r', 'r', { desc = "Replace" })
+    map({ 'o', 'x' }, 'R',
       function() require("various-textobjs").restOfParagraph() end,
       { desc = "RestOfParagraph textobj" })
 
     -- _illuminate_text_objects
-    vim.keymap.set({ 'n', 'x', 'o' }, '<a-n>', '<cmd>lua require"illuminate".goto_next_reference(wrap)<cr>')
-    vim.keymap.set({ 'n', 'x', 'o' }, '<a-p>', '<cmd>lua require"illuminate".goto_prev_reference(wrap)<cr>')
-    vim.keymap.set({ 'n', 'x', 'o' }, '<a-i>', '<cmd>lua require"illuminate".textobj_select()<cr>')
+    map({ 'n', 'x', 'o' }, '<a-n>', '<cmd>lua require"illuminate".goto_next_reference(wrap)<cr>')
+    map({ 'n', 'x', 'o' }, '<a-p>', '<cmd>lua require"illuminate".goto_prev_reference(wrap)<cr>')
+    map({ 'n', 'x', 'o' }, '<a-i>', '<cmd>lua require"illuminate".textobj_select()<cr>')
 
     -- _vim_indent_object_(visualrepeatable_+_vimrepeat)
     vim.cmd [[
