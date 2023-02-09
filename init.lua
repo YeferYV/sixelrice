@@ -1378,17 +1378,49 @@ local config = {
             w = { "<cmd>set winbar=%@<cr>", "enable winbar" },
             W = { "<cmd>set winbar=  <cr>", "disable winbar" },
           },
-
           ["s"] = {
             name = "Search",
-            c = { "<cmd>lua require('telescope.builtin').colorscheme({enable_preview = true, initial_mode='normal'})<cr>",
-              "Colorscheme" },
+            b = { "<cmd>Telescope buffers initial_mode=normal<cr>", "Buffers" },
+            B = { "<cmd>Telescope current_buffer_fuzzy_find theme=ivy<cr>", "Ripgrep" },
+            c = {
+              function()
+                require('telescope.builtin').colorscheme({ enable_preview = true, initial_mode = 'normal' })
+              end,
+              "Colorscheme"
+            },
+            C = { "<cmd>Telescope commands<cr>", "Commands" },
+            k = { "<cmd>Telescope keymaps<cr>", "Keymaps" },
+            f = { "<cmd>Telescope grep_string search= theme=ivy<cr>", "Grep string" },
+            F = { "<cmd>Telescope live_grep theme=ivy<cr>", "Live Grep" },
+            g = { "<cmd>Telescope git_files theme=ivy<cr>", "Git Files (hidden included)" },
+            h = { "<cmd>Telescope help_tags<cr>", "Find Help" },
+            H = { "<cmd>Telescope highlights<cr>", "Find Highlights" },
+            m = { "<cmd>Telescope man_pages<cr>", "Man Pages" },
             n = { "<cmd>Telescope neoclip initial_mode=normal<cr>", "NeoClip" },
             N = { "<cmd>Telescope notify initial_mode=normal<cr>", "Search notifications" },
-            p = { "<cmd>Telescope projects<cr>", "Projects" },
+            O = { "<cmd>lua require('notify').history()<cr>", "History notifications" },
             o = { "<cmd>Telescope file_browser initial_mode=normal<cr>", "Open File Browser" },
-            ["'"] = { "<cmd>Telescope marks theme=ivy initial_mode=normal<cr>", "Marks" },
+            p = { "<cmd>Telescope projects<cr>", "Projects" },
+            q = { "<cmd>Telescope quickfixhistory initial_mode=normal<cr>", "Telescope QuickFix History" },
+            Q = { "<cmd>Telescope quickfix initial_mode=normal<cr>", "Telescope QuickFix" },
+            r = { "<cmd>Telescope oldfiles initial_mode=normal<cr>", "Open Recent File" },
+            R = { "<cmd>Telescope registers initial_mode=normal<cr>", "Registers" },
+            s = { "<cmd>Telescope grep_string<cr>", "Grep string under cursor" },
+            z = {
+              function()
+                local aerial_avail, _ = pcall(require, "aerial")
+                if aerial_avail then
+                  require("telescope").extensions.aerial.aerial()
+                else
+                  require("telescope.builtin").lsp_document_symbols()
+                end
+              end,
+              "Search symbols",
+            },
             ["+"] = { "<cmd>Telescope builtin previewer=false initial_mode=normal<cr>", "More" },
+            ["/"] = { "<cmd>Telescope find_files theme=ivy hidden=true<cr>", "Find files" },
+            [";"] = { "<cmd>Telescope jumplist theme=ivy initial_mode=normal<cr>", "Jump List" },
+            ["'"] = { "<cmd>Telescope marks theme=ivy initial_mode=normal<cr>", "Marks" },
           },
           w = {
             name = "Window",
