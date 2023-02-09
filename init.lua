@@ -7,6 +7,7 @@
 local actions = require "telescope.actions"
 local action_set = require "telescope.actions.set"
 local fb_actions = require "telescope._extensions.file_browser.actions"
+local cmd = vim.api.nvim_create_autocmd
 local map = vim.keymap.set
 
 local function edit_register(prompt_bufnr)
@@ -19,6 +20,19 @@ local function edit_register(prompt_bufnr)
   require("telescope.actions").close(prompt_bufnr)
   require("telescope.builtin").resume()
 end
+
+cmd({ "TermClose" }, {
+  callback = function()
+    local type = vim.bo.filetype
+    if type == "sp-terminal" or type == "vs-terminal" or type == "buf-terminal" or type == "tab-terminal" then
+      if #vim.fn.getbufinfo({ buflisted = 1 }) == 1 then
+        vim.cmd [[ call feedkeys("\<Esc>\<Esc>:close\<CR>") ]]
+      end
+      vim.cmd [[ call feedkeys("") ]]
+    end
+  end,
+})
+
 
 function EnableAutoNoHighlightSearch()
   vim.on_key(function(char)
@@ -1252,6 +1266,48 @@ local config = {
         ["<leader>"] = {
           -- third key is the key to bring up next level and its displayed
           -- group name in which-key top level menu
+          [";"] = {
+            name = "Tabs",
+            C = { "<cmd>tabonly<cr>", "Close others Tabs" },
+            n = { "<cmd>tabnext<cr>", "Next Tab" },
+            p = { "<cmd>tabprevious<cr>", "Previous Tab" },
+            N = { "<cmd>+tabmove<cr>", "move tab to next tab" },
+            P = { "<cmd>-tabmove<cr>", "move tab to previous tab" },
+            t = { "<cmd>tabnew<cr>", "New Tab" },
+            x = { "<cmd>tabclose<cr>", "Close Tab" },
+            [";"] = { "<cmd>tabnext #<cr>", "Recent Tab" },
+            ["<Tab>"] = { "<cmd>tabprevious<cr>", "Previous Tab" },
+            ["<S-Tab>"] = { "<cmd>tabnext<cr>", "Next Tab" },
+          },
+          ["b"] = {
+            name = "Buffers",
+            b = {
+              function()
+                require('telescope.builtin').buffers(
+                  require('telescope.themes').get_cursor {
+                    previewer = false,
+                    initial_mode = 'normal'
+                  })
+              end,
+              "Telescope Buffer cursor-theme"
+            },
+            C = { "<cmd>%bd|e#|bd#<cr>", "Close others Buffers" },
+            s = { "<cmd>bprev<cr>", "Previous Buffer" },
+            f = { "<cmd>bnext<cr>", "Next Buffer" },
+            t = { function() vim.cmd [[enew]] end, "New buffer" },
+            T = {
+              function()
+                vim.cmd [[setlocal nobuflisted]]
+                vim.cdm [[bprevious]]
+                vim.cmd [[tabe #]]
+              end,
+              "buffer to Tab"
+            },
+            v = { "<cmd>vertical ball<cr>", "Buffers to vertical windows" },
+            V = { "<cmd>belowright ball<cr>", "Buffers to horizontal windows" },
+            x = { "<cmd>:bp | bd #<cr>", "Close Buffer" },
+            [";"] = { "<cmd>buffer #<cr>", "Recent buffer" },
+          },
           ["g"] = {
             name = "Git",
             r = { "<cmd>lua require 'gitsigns'.reset_hunk()<cr>", "Reset Git hunk" },
@@ -1265,6 +1321,38 @@ local config = {
             C = { "<cmd>PackerClean<cr>", "Packer Clean" },
             L = { "<cmd>LspInfo<cr>", "Lsp Info" },
             N = { "<cmd>NullLsInfo<cr>", "NullLs Info" },
+          },
+          t = {
+            name = "Terminal",
+            ["<TAB>"] = { function() vim.cmd [[ wincmd T ]] end, "Terminal to Tab" },
+            b = {
+              function()
+                vim.cmd [[terminal]]
+                vim.cmd [[startinsert | set ft=buf-terminal nonumber]]
+              end,
+              "Buffer terminal"
+            },
+            B = {
+              function()
+                vim.cmd [[tabnew|terminal]]
+                vim.cmd [[startinsert | set ft=tab-terminal nonumber ]]
+              end,
+              "Buffer Terminal (Tab)"
+            },
+            f = { "<cmd>ToggleTerm direction=float<cr>", "Float ToggleTerm" },
+            l = { "<cmd>lua _LF_TOGGLE(vim.api.nvim_buf_get_name(0),'vsplit')<cr>", "lf" },
+            t = { "<cmd>ToggleTerm <cr>", "Toggle ToggleTerm" },
+            T = { "<cmd>ToggleTerm direction=tab <cr>", "Tab ToggleTerm" },
+            H = { "<cmd>split +te | resize 10 | setlocal ft=sp-terminal<cr>", "Horizontal terminal" },
+            V = { "<cmd>vsplit +te | vertical resize 80 | setlocal ft=vs-terminal<cr>", "Vertical terminal" },
+            h = { "<cmd>ToggleTerm direction=horizontal size=10<cr>", "Horizontal ToggleTerm" },
+            v = { "<cmd>ToggleTerm direction=vertical   size=80<cr>", "Vertical ToggleTerm" },
+            ["2h"] = { "<cmd>2ToggleTerm direction=vertical   <cr>", "Toggle second horizontal ToggleTerm" },
+            ["2v"] = { "<cmd>2ToggleTerm direction=horizontal <cr>", "Toggle second vertical ToggleTerm" },
+            ["3h"] = { "<cmd>3ToggleTerm direction=vertical   <cr>", "Toggle third horizontal ToggleTerm" },
+            ["3v"] = { "<cmd>3ToggleTerm direction=horizontal <cr>", "Toggle third vertical ToggleTerm" },
+            ["4h"] = { "<cmd>4ToggleTerm direction=vertical   <cr>", "Toggle fourth horizontal ToggleTerm" },
+            ["4v"] = { "<cmd>4ToggleTerm direction=horizontal <cr>", "Toggle fourth vertical ToggleTerm" },
           },
           ["u"] = {
             name = "UI",
@@ -1302,6 +1390,37 @@ local config = {
             ["'"] = { "<cmd>Telescope marks theme=ivy initial_mode=normal<cr>", "Marks" },
             ["+"] = { "<cmd>Telescope builtin previewer=false initial_mode=normal<cr>", "More" },
           },
+          w = {
+            name = "Window",
+            B = { "<cmd>all<cr>", "Windows to buffers" },
+            C = { "<C-w>o", "Close Other windows" },
+            h = { "<C-w>H", "Move window to Leftmost" },
+            j = { "<C-w>J", "Move window to Downmost" },
+            k = { "<C-w>K", "Move window to Upmost" },
+            l = { "<C-w>L", "Move window to Rightmost" },
+            m = { "<C-w>_ | <c-w>|", "Maximize window" },
+            n = { "<C-w>w", "Switch to next window CW " },
+            p = { "<C-w>W", "Switch to previous window CCW" },
+            q = { "<cmd>qa<cr>", "Quit all" },
+            s = { "<cmd>wincmd x<cr>", "window Swap CW (same parent node)" },
+            S = { "<cmd>-wincmd x<cr>", "window Swap CCW (same parent node)" },
+            r = { "<C-w>r", "Rotate CW (same parent node)" },
+            R = { "<C-w>R", "Rotate CCW (same parent node)" },
+            T = {
+              function()
+                vim.cmd [[ setlocal nobuflisted ]]
+                vim.cmd [[ wincmd T ]]
+              end,
+              "window to Tab"
+            },
+            v = { "<cmd>vsplit<cr>", "split vertical" },
+            V = { "<cmd>split<cr>", "split horizontal" },
+            w = { "<cmd>new<cr>", "New horizontal window" },
+            W = { "<cmd>vnew<cr>", "New vertical window" },
+            x = { "<cmd>wincmd q<cr>", "Close window" },
+            [";"] = { "<C-w>p", "recent window" },
+            ["="] = { "<C-w>=", "Reset windows sizes" },
+          },
 
           ["1"] = "which_key_ignore",
           ["2"] = "which_key_ignore",
@@ -1315,7 +1434,6 @@ local config = {
           ["v"] = "which_key_ignore",
           ["V"] = "which_key_ignore",
           ["q"] = "which_key_ignore",
-          ["w"] = "which_key_ignore",
           ["<Tab>"] = { "which_key_ignore" },
           ["<S-Tab>"] = { "which_key_ignore" },
           ["'"] = { "<Cmd>Telescope marks initial_mode=normal<CR>", "Marks" },
