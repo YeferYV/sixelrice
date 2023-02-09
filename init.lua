@@ -1322,62 +1322,6 @@ local config = {
             L = { "<cmd>LspInfo<cr>", "Lsp Info" },
             N = { "<cmd>NullLsInfo<cr>", "NullLs Info" },
           },
-          t = {
-            name = "Terminal",
-            ["<TAB>"] = { function() vim.cmd [[ wincmd T ]] end, "Terminal to Tab" },
-            b = {
-              function()
-                vim.cmd [[terminal]]
-                vim.cmd [[startinsert | set ft=buf-terminal nonumber]]
-              end,
-              "Buffer terminal"
-            },
-            B = {
-              function()
-                vim.cmd [[tabnew|terminal]]
-                vim.cmd [[startinsert | set ft=tab-terminal nonumber ]]
-              end,
-              "Buffer Terminal (Tab)"
-            },
-            f = { "<cmd>ToggleTerm direction=float<cr>", "Float ToggleTerm" },
-            l = { "<cmd>lua _LF_TOGGLE(vim.api.nvim_buf_get_name(0),'vsplit')<cr>", "lf" },
-            t = { "<cmd>ToggleTerm <cr>", "Toggle ToggleTerm" },
-            T = { "<cmd>ToggleTerm direction=tab <cr>", "Tab ToggleTerm" },
-            H = { "<cmd>split +te | resize 10 | setlocal ft=sp-terminal<cr>", "Horizontal terminal" },
-            V = { "<cmd>vsplit +te | vertical resize 80 | setlocal ft=vs-terminal<cr>", "Vertical terminal" },
-            h = { "<cmd>ToggleTerm direction=horizontal size=10<cr>", "Horizontal ToggleTerm" },
-            v = { "<cmd>ToggleTerm direction=vertical   size=80<cr>", "Vertical ToggleTerm" },
-            ["2h"] = { "<cmd>2ToggleTerm direction=vertical   <cr>", "Toggle second horizontal ToggleTerm" },
-            ["2v"] = { "<cmd>2ToggleTerm direction=horizontal <cr>", "Toggle second vertical ToggleTerm" },
-            ["3h"] = { "<cmd>3ToggleTerm direction=vertical   <cr>", "Toggle third horizontal ToggleTerm" },
-            ["3v"] = { "<cmd>3ToggleTerm direction=horizontal <cr>", "Toggle third vertical ToggleTerm" },
-            ["4h"] = { "<cmd>4ToggleTerm direction=vertical   <cr>", "Toggle fourth horizontal ToggleTerm" },
-            ["4v"] = { "<cmd>4ToggleTerm direction=horizontal <cr>", "Toggle fourth vertical ToggleTerm" },
-          },
-          ["u"] = {
-            name = "UI",
-            z = { "<cmd>set cmdheight=1<cr>", "enable cmdheight" },
-            Z = { "<cmd>set cmdheight=0<cr>", "disable cmdheight" },
-            h = { function() EnableAutoNoHighlightSearch() end, "Disable AutoNoHighlightSearch" },
-            H = { function() DisableAutoNoHighlightSearch() end, "Enable AutoNoHighlightSearch" },
-            u = {
-              function()
-                local ok, start = require("indent_blankline.utils").get_current_context(
-                  vim.g.indent_blankline_context_patterns,
-                  vim.g.indent_blankline_use_treesitter_scope
-                )
-                if ok then
-                  vim.api.nvim_win_set_cursor(vim.api.nvim_get_current_win(), { start, 0 })
-                  vim.cmd [[normal! _]]
-                end
-              end,
-              "Jump to current_context",
-            },
-            U = { function() astronvim.ui.toggle_url_match() end,
-              "Toggle URL highlight" },
-            w = { "<cmd>set winbar=%@<cr>", "enable winbar" },
-            W = { "<cmd>set winbar=  <cr>", "disable winbar" },
-          },
           ["s"] = {
             name = "Search",
             b = { "<cmd>Telescope buffers initial_mode=normal<cr>", "Buffers" },
@@ -1421,6 +1365,96 @@ local config = {
             ["/"] = { "<cmd>Telescope find_files theme=ivy hidden=true<cr>", "Find files" },
             [";"] = { "<cmd>Telescope jumplist theme=ivy initial_mode=normal<cr>", "Jump List" },
             ["'"] = { "<cmd>Telescope marks theme=ivy initial_mode=normal<cr>", "Marks" },
+          },
+          t = {
+            name = "Terminal",
+            ["<TAB>"] = { function() vim.cmd [[ wincmd T ]] end, "Terminal to Tab" },
+            b = {
+              function()
+                vim.cmd [[terminal]]
+                vim.cmd [[startinsert | set ft=buf-terminal nonumber]]
+              end,
+              "Buffer terminal"
+            },
+            B = {
+              function()
+                vim.cmd [[tabnew|terminal]]
+                vim.cmd [[startinsert | set ft=tab-terminal nonumber ]]
+              end,
+              "Buffer Terminal (Tab)"
+            },
+            f = { "<cmd>ToggleTerm direction=float<cr>", "Float ToggleTerm" },
+            l = { "<cmd>lua _LF_TOGGLE(vim.api.nvim_buf_get_name(0),'vsplit')<cr>", "lf" },
+            t = { "<cmd>ToggleTerm <cr>", "Toggle ToggleTerm" },
+            T = { "<cmd>ToggleTerm direction=tab <cr>", "Tab ToggleTerm" },
+            H = { "<cmd>split +te | resize 10 | setlocal ft=sp-terminal<cr>", "Horizontal terminal" },
+            V = { "<cmd>vsplit +te | vertical resize 80 | setlocal ft=vs-terminal<cr>", "Vertical terminal" },
+            h = { "<cmd>ToggleTerm direction=horizontal size=10<cr>", "Horizontal ToggleTerm" },
+            v = { "<cmd>ToggleTerm direction=vertical   size=80<cr>", "Vertical ToggleTerm" },
+            ["2h"] = { "<cmd>2ToggleTerm direction=vertical   <cr>", "Toggle second horizontal ToggleTerm" },
+            ["2v"] = { "<cmd>2ToggleTerm direction=horizontal <cr>", "Toggle second vertical ToggleTerm" },
+            ["3h"] = { "<cmd>3ToggleTerm direction=vertical   <cr>", "Toggle third horizontal ToggleTerm" },
+            ["3v"] = { "<cmd>3ToggleTerm direction=horizontal <cr>", "Toggle third vertical ToggleTerm" },
+            ["4h"] = { "<cmd>4ToggleTerm direction=vertical   <cr>", "Toggle fourth horizontal ToggleTerm" },
+            ["4v"] = { "<cmd>4ToggleTerm direction=horizontal <cr>", "Toggle fourth vertical ToggleTerm" },
+          },
+          ["u"] = {
+            name = "UI",
+            u = {
+              function()
+                local ok, start = require("indent_blankline.utils").get_current_context(
+                  vim.g.indent_blankline_context_patterns,
+                  vim.g.indent_blankline_use_treesitter_scope
+                )
+                if ok then
+                  vim.api.nvim_win_set_cursor(vim.api.nvim_get_current_win(), { start, 0 })
+                  vim.cmd [[normal! _]]
+                end
+              end,
+              "Jump to current_context",
+            },
+            ["U"] = { function() astronvim.ui.toggle_url_match() end, "Toggle URL highlight" },
+            [";"] = { ":clearjumps<cr>:normal m'<cr>", "Clear and Add jump" }, -- Reset JumpList
+          },
+          ["U"] = {
+            name = "TUI",
+            ["0"] = { "<cmd>set showtabline=0<cr>", "Hide Buffer" },
+            ["1"] = { "<cmd>set showtabline=2<cr>", "Show Buffer" },
+            a = { "<cmd>Alpha<cr>", "Open Alpha" },
+            c = {
+              function()
+                local cmdheight = vim.opt.cmdheight:get()
+                if cmdheight == 0 then
+                  vim.opt.cmdheight = 1
+                else
+                  vim.opt.cmdheight = 0
+                end
+              end
+              , "Toggle cmdheight"
+            },
+            G = {
+              function()
+                if vim.g.ToggleNormal == nil then
+                  vim.api.nvim_set_hl(0, "Normal", { bg = "#0b0b0b" })
+                  vim.g.ToggleNormal = true
+                else
+                  vim.api.nvim_set_hl(0, "Normal", { bg = "NONE" })
+                  vim.g.ToggleNormal = nil
+                end
+              end
+              , "Toggle Background"
+            },
+            h = { function() EnableAutoNoHighlightSearch() end, "Disable AutoNoHighlightSearch" },
+            H = { function() DisableAutoNoHighlightSearch() end, "Enable AutoNoHighlightSearch" },
+            I = { "<cmd>IndentBlanklineToggle<cr>", "Toggle IndentBlankline" },
+            l = { "<cmd>set cursorline!<cr>", "Toggle Cursorline" },
+            L = { "<cmd>setlocal cursorline!<cr>", "Toggle Local Cursorline" },
+            r = {
+              function()
+                require("toggleterm.terminal").Terminal:new({ cmd = "resto", direction = "tab", hidden = true }):toggle()
+              end,
+              "Rest Client"
+            },
           },
           w = {
             name = "Window",
