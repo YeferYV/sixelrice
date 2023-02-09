@@ -768,6 +768,16 @@ local config = {
 
     ["treesitter"] = {
       ensure_installed = { "python", "bash", "javascript", "json", "html", "css", "c", "lua" },
+      incremental_selection = {
+        enable = true,
+        disable = { "yaml" },
+        keymaps = {
+          init_selection = '<c-space>', -- maps in normal mode to init the node/scope selection
+          node_incremental = '<c-space>', -- increment to the upper named parent
+          scope_incremental = '<c-i>', -- increment to the upper scope (as defined in locals.scm)
+          node_decremental = '<c-h>', -- decrement to the previous node
+        }
+      },
       textobjects = {
         move = {
           enable = true,
