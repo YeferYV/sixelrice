@@ -19,6 +19,20 @@ local function edit_register(prompt_bufnr)
   require("telescope.builtin").resume()
 end
 
+function EnableAutoNoHighlightSearch()
+  vim.on_key(function(char)
+    if vim.fn.mode() == "n" then
+      local new_hlsearch = vim.tbl_contains({ "<CR>", "n", "N", "*", "#", "?", "/" }, vim.fn.keytrans(char))
+      if vim.opt.hlsearch:get() ~= new_hlsearch then vim.cmd [[ noh ]] end
+    end
+  end, vim.api.nvim_create_namespace "auto_hlsearch")
+end
+
+function DisableAutoNoHighlightSearch()
+  vim.on_key(nil, vim.api.nvim_get_namespaces()["auto_hlsearch"])
+  vim.cmd [[ set hlsearch ]]
+end
+
 local config = {
 
   -- Configure AstroNvim updates
@@ -1212,8 +1226,10 @@ local config = {
           },
           ["u"] = {
             name = "UI",
-            h = { "<cmd>set cmdheight=1<cr>", "enable cmdheight" },
-            H = { "<cmd>set cmdheight=0<cr>", "disable cmdheight" },
+            z = { "<cmd>set cmdheight=1<cr>", "enable cmdheight" },
+            Z = { "<cmd>set cmdheight=0<cr>", "disable cmdheight" },
+            h = { function() EnableAutoNoHighlightSearch() end, "Disable AutoNoHighlightSearch" },
+            H = { function() DisableAutoNoHighlightSearch() end, "Enable AutoNoHighlightSearch" },
             u = {
               function()
                 local ok, start = require("indent_blankline.utils").get_current_context(
