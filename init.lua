@@ -4,11 +4,12 @@
 -- normal format is "key = value". These also handle array like data structures
 -- where a value with no key simply has an implicit numeric key
 
+local cmd = vim.api.nvim_create_autocmd
+local map = vim.keymap.set
 local actions = require "telescope.actions"
 local action_set = require "telescope.actions.set"
 local fb_actions = require "telescope._extensions.file_browser.actions"
-local cmd = vim.api.nvim_create_autocmd
-local map = vim.keymap.set
+local Terminal = require("toggleterm.terminal").Terminal
 
 local function edit_register(prompt_bufnr)
   local selection = require("telescope.actions.state").get_selected_entry()
@@ -33,6 +34,25 @@ cmd({ "TermClose" }, {
   end,
 })
 
+local temp_path = "/tmp/lfpickerpath"
+function _LF_TOGGLE(dir, openmode)
+  Terminal:new({
+    cmd = "lf -selection-path " .. temp_path .. " " .. dir,
+    on_close = function()
+      local file = io.open(temp_path, "r")
+      if file ~= nil then
+        vim.opt.number = true
+        if openmode == 'tabnew' then
+          vim.cmd("tabnew " .. file:read("*a") .. " | tabclose #")
+        else
+          vim.cmd(openmode .. file:read("*a"))
+        end
+        file:close()
+        os.remove(temp_path)
+      end
+    end
+  }):toggle()
+end
 
 function EnableAutoNoHighlightSearch()
   vim.on_key(function(char)
