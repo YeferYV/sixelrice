@@ -649,9 +649,9 @@ local config = {
 
           require('mini.comment').setup({
             mappings = {
-              comment = 'gc',
-              comment_line = 'gcc',
-              textobject = 'gc',
+              comment = '',
+              comment_line = '',
+              textobject = '',
             },
             hooks = {
               pre = function() require('ts_context_commentstring.internal').update_commentstring() end,
@@ -1029,6 +1029,7 @@ local config = {
           ["fx"] = function() vim.cmd [[normal 0]] vim.cmd [[/ x]] vim.cmd [[normal n]] end,
           ["fy"] = function() vim.cmd [[normal 0]] vim.cmd [[/ y]] vim.cmd [[normal n]] end,
           ["fz"] = function() vim.cmd [[normal 0]] vim.cmd [[/ z]] vim.cmd [[normal n]] end,
+          ["f/"] = function() vim.cmd [[normal 0]] vim.cmd [[/\v( | )]] vim.cmd [[normal n]] end,
         },
       },
       filesystem = {
@@ -1114,16 +1115,16 @@ local config = {
       },
     },
 
-    ["cmp"] = function(opts)
-      -- opts parameter is the default options table
+    ["cmp"] = function(config)
+      -- options parameter is the default options table
       -- the function is lazy loaded so cmp is able to be required
       local cmp = require "cmp"
       local luasnip = require "luasnip"
 
       -- modify the mapping part of the table
-      opts.mapping = {
-        ["<Up>"] = cmp.mapping(cmp.mapping.select_prev_item(), { "i" }),
-        ["<Down>"] = cmp.mapping(cmp.mapping.select_next_item(), { "i" }),
+      config.mapping = {
+        ["<Up>"] = cmp.mapping(cmp.mapping.select_prev_item(), { "i", "c" }),
+        ["<Down>"] = cmp.mapping(cmp.mapping.select_next_item(), { "i", "c" }),
         ["<A-j>"] = cmp.mapping.select_next_item(),
         ["<A-k>"] = cmp.mapping.select_prev_item(),
         ["<C-d>"] = cmp.mapping(cmp.mapping.scroll_docs(-1), { "i", "c" }),
@@ -1175,7 +1176,7 @@ local config = {
       }
 
       -- modify the formatting part of the table
-      opts.formatting = {
+      config.formatting = {
         fields = { "kind", "abbr", "menu" },
         format = function(entry, vim_item)
           vim_item.kind = require("lspkind").symbolic(vim_item.kind, { mode = "symbol" })
@@ -1191,12 +1192,12 @@ local config = {
         end,
       }
 
-      opts.completion = {
+      config.completion = {
         completeopt = 'menu,menuone,noinsert' -- autoselect to show the completion preview
       }
 
       -- return the new table to be used
-      return opts
+      return config
     end,
 
     -- All other entries override the require("<key>").setup({...}) call for default plugins
