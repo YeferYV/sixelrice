@@ -4,7 +4,9 @@
 -- normal format is "key = value". These also handle array like data structures
 -- where a value with no key simply has an implicit numeric key
 
+local M = {}
 local cmd = vim.api.nvim_create_autocmd
+local create_command = vim.api.nvim_create_user_command
 local map = vim.keymap.set
 local actions = require "telescope.actions"
 local action_set = require "telescope.actions.set"
@@ -55,7 +57,7 @@ function _LF_TOGGLE(dir, openmode)
   }):toggle()
 end
 
-function EnableAutoNoHighlightSearch()
+M.EnableAutoNoHighlightSearch = function()
   vim.on_key(function(char)
     if vim.fn.mode() == "n" then
       local new_hlsearch = vim.tbl_contains({ "<CR>", "n", "N", "*", "#", "?", "/" }, vim.fn.keytrans(char))
@@ -64,10 +66,60 @@ function EnableAutoNoHighlightSearch()
   end, vim.api.nvim_create_namespace "auto_hlsearch")
 end
 
-function DisableAutoNoHighlightSearch()
+M.DisableAutoNoHighlightSearch = function()
   vim.on_key(nil, vim.api.nvim_get_namespaces()["auto_hlsearch"])
   vim.cmd [[ set hlsearch ]]
 end
+
+M.GoToParentIndent = function()
+  local ok, start = require("indent_blankline.utils").get_current_context(
+    vim.g.indent_blankline_context_patterns,
+    vim.g.indent_blankline_use_treesitter_scope
+  )
+  if ok then
+    vim.api.nvim_win_set_cursor(vim.api.nvim_get_current_win(), { start, 0 })
+    vim.cmd [[normal! _]]
+  end
+end
+
+local My_count = 0
+
+M.GoToParentIndent_Repeat = function()
+  My_count = 0
+  vim.go.operatorfunc = "v:lua.GoToParentIndent_Callback"
+  return "g@l"
+end
+
+function GoToParentIndent_Callback()
+  My_count = My_count + 1
+  if My_count >= 2 then
+    vim.cmd [[ normal 0 ]]
+  end
+  M.GoToParentIndent()
+  -- print("Count: " .. My_count)
+end
+
+M.FeedKeysCorrectly = function(keys)
+  local feedableKeys = vim.api.nvim_replace_termcodes(keys, true, false, true)
+  vim.api.nvim_feedkeys(feedableKeys, "n", true)
+end
+
+function HorzIncrement()
+  vim.cmd [[ normal "zyan ]]
+  vim.cmd [[ execute "normal \<Plug>(textobj-numeral-N)" ]]
+  vim.cmd [[ normal van"zp ]]
+  M.FeedKeysCorrectly('<C-a>')
+end
+
+function HorzDecrement()
+  vim.cmd [[ normal "zyan ]]
+  vim.cmd [[ execute "normal \<Plug>(textobj-numeral-N)" ]]
+  vim.cmd [[ normal van"zp ]]
+  M.FeedKeysCorrectly('<C-x>')
+end
+
+create_command("IncrementHorz", HorzIncrement, {})
+create_command("DecrementHorz", HorzDecrement, {})
 
 local config = {
 
@@ -555,14 +607,16 @@ local config = {
       },
 
       -- Motions
+      ["machakann/vim-columnmove"] = { commit = "21a43d809a03ff9bf9946d983d17b3a316bf7a64" },
       ["tpope/vim-repeat"] = { commit = "24afe922e6a05891756ecf331f39a1f6743d3d5a" },
       ["justinmk/vim-sneak"] = { commit = "93395f5b56eb203e4c8346766f258ac94ea81702", },
       ["numToStr/Comment.nvim"] = { disable = true },
 
       -- Text-Objects
-      ["paraduxos/vim-indent-object"] = { branch = "new_branch",
-        commit = "2408bf0d2d54f70e6cd9cfcb558bd43283bf5003" },
-      ["nvim-treesitter/nvim-treesitter-textobjects"] = { commit = "98476e7364821989ab9b500e4d20d9ae2c5f6564" },
+      ["paraduxos/vim-indent-object"] = { branch = "new_branch", commit = "2408bf0d2d54f70e6cd9cfcb558bd43283bf5003" },
+      ["nvim-treesitter/nvim-treesitter-textobjects"] = { commit = "249d90a84df63f3ffff65fcc06a45d58415672de" },
+      ["kana/vim-textobj-user"] = { commit = "41a675ddbeefd6a93664a4dc52f302fe3086a933" },
+      ["tkhren/vim-textobj-numeral"] = { commit = "264883112b4a34fdd81b29d880f04f3f6437814d" },
       ["RRethy/nvim-treesitter-textsubjects"] = { commit = "bc047b20768845fd54340eb76272b2cf2f6fa3f3" },
       ["coderifous/textobj-word-column.vim"] = { commit = "cb40e1459817a7fa23741ff6df05e4481bde5a33" },
       ["chrisgrieser/nvim-various-textobjs"] = {
@@ -588,6 +642,8 @@ local config = {
               F = spec_treesitter({ a = '@function.outer', i = '@function.inner', }),
               L = spec_treesitter({ a = '@loop.outer', i = '@loop.inner', }),
               P = spec_treesitter({ a = '@parameter.outer', i = '@parameter.inner', }),
+              a = require('mini.ai').gen_spec.argument({ brackets = { '%b()' } }),
+              u = { { "%b''", '%b""', '%b``' }, '^.().*().$' },
             },
             mappings = {
               around = 'a',
@@ -1445,20 +1501,8 @@ local config = {
           },
           ["u"] = {
             name = "UI",
-            u = {
-              function()
-                local ok, start = require("indent_blankline.utils").get_current_context(
-                  vim.g.indent_blankline_context_patterns,
-                  vim.g.indent_blankline_use_treesitter_scope
-                )
-                if ok then
-                  vim.api.nvim_win_set_cursor(vim.api.nvim_get_current_win(), { start, 0 })
-                  vim.cmd [[normal! _]]
-                end
-              end,
-              "Jump to current_context",
-            },
-            ["U"] = { function() astronvim.ui.toggle_url_match() end, "Toggle URL highlight" },
+            u = { M.GoToParentIndent_Repeat, "Jump to current_context", expr = true },
+            U = { function() astronvim.ui.toggle_url_match() end, "Toggle URL highlight" },
             [";"] = { ":clearjumps<cr>:normal m'<cr>", "Clear and Add jump" }, -- Reset JumpList
           },
           ["U"] = {
@@ -1489,8 +1533,8 @@ local config = {
               end
               , "Toggle Background"
             },
-            h = { function() EnableAutoNoHighlightSearch() end, "Disable AutoNoHighlightSearch" },
-            H = { function() DisableAutoNoHighlightSearch() end, "Enable AutoNoHighlightSearch" },
+            h = { function() M.EnableAutoNoHighlightSearch() end, "Disable AutoNoHighlightSearch" },
+            H = { function() M.DisableAutoNoHighlightSearch() end, "Enable AutoNoHighlightSearch" },
             I = { "<cmd>IndentBlanklineToggle<cr>", "Toggle IndentBlankline" },
             l = { "<cmd>set cursorline!<cr>", "Toggle Cursorline" },
             L = { "<cmd>setlocal cursorline!<cr>", "Toggle Local Cursorline" },
@@ -1711,14 +1755,15 @@ local config = {
 
     -- _sneak_keymaps
     vim.cmd [[
+      let g:sneak#prompt = ''
       map f <Plug>Sneak_f
       map F <Plug>Sneak_F
       map t <Plug>Sneak_t
       map T <Plug>Sneak_T
-      map \ <Plug>SneakLabel_s
-      map \| <Plug>SneakLabel_S
-      nmap <expr> <Tab> sneak#is_sneaking() ? '<Plug>SneakLabel_s<cr>' : ':bnext<cr>'
-      nmap <expr> <S-Tab> sneak#is_sneaking() ? '<Plug>SneakLabel_S<cr>' : ':bprevious<cr>'
+      map <space><space>s <Plug>SneakLabel_s
+      map <space><space>S <Plug>SneakLabel_S
+      nmap <silent><expr> <Tab> sneak#is_sneaking() ? '<Plug>SneakLabel_s<cr>' : ':bnext<cr>'
+      nmap <silent><expr> <S-Tab> sneak#is_sneaking() ? '<Plug>SneakLabel_S<cr>' : ':bprevious<cr>'
       omap <Tab> <Plug>SneakLabel_s<cr>
       omap <S-Tab> <Plug>SneakLabel_S<cr>
       vmap <Tab> <Plug>SneakLabel_s<cr>
@@ -1750,6 +1795,169 @@ local config = {
 
       autocmd VimEnter * call BufPos_Initialize()
     ]]
+
+    -- ╭────────────╮
+    -- │ Repeatable │
+    -- ╰────────────╯
+
+    -- _nvim-treesitter-textobjs_repeatable
+    -- ensure ; goes forward and , goes backward regardless of the last direction
+    local ts_repeat_move = require "nvim-treesitter.textobjects.repeatable_move"
+    map({ "n", "x", "o" }, ";", ts_repeat_move.repeat_last_move_next, { desc = "Next TS textobj" })
+    map({ "n", "x", "o" }, ",", ts_repeat_move.repeat_last_move_previous, { desc = "Prev TS textobj" })
+
+    -- _sneak_repeatable
+    vim.cmd [[ command SneakForward execute "normal \<Plug>Sneak_;" ]]
+    vim.cmd [[ command SneakBackward execute "normal \<Plug>Sneak_," ]]
+    local next_sneak, prev_sneak = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ SneakForward ]] end,
+      function() vim.cmd [[ SneakBackward ]] end
+    )
+    map({ "n", "x", "o" }, "<BS>", next_sneak, { desc = "Next SneakForward" })
+    map({ "n", "x", "o" }, "<S-BS>", prev_sneak, { desc = "Prev SneakForward" })
+
+    -- _gitsigns_chunck_repeatable
+    -- make sure forward function comes first
+    -- Or, use `make_repeatable_move` or `set_last_move` functions for more control. See the code for instructions.
+    local gs = require("gitsigns")
+    local next_hunk_repeat, prev_hunk_repeat = ts_repeat_move.make_repeatable_move_pair(gs.next_hunk, gs.prev_hunk)
+    map({ "n", "x", "o" }, "gnh", next_hunk_repeat, { desc = "Next GitHunk" })
+    map({ "n", "x", "o" }, "gph", prev_hunk_repeat, { desc = "Prev GitHunk" })
+
+    -- _goto_quotes_repeatable
+    local next_quote, prev_quote = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ normal viNu ]] vim.cmd [[ call feedkeys("") ]] end,
+      function() vim.cmd [[ normal vilu ]] vim.cmd [[ call feedkeys("") ]] end
+    )
+    map({ "n", "x", "o" }, "gnu", next_quote, { desc = "Next Quote" })
+    map({ "n", "x", "o" }, "gpu", prev_quote, { desc = "Prev Quote" })
+
+    -- _goto_function_definition_repeatable
+    local next_funcdefinition, prev_funcdefinition = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ normal vaNf ]] vim.cmd [[ call feedkeys("") ]] end,
+      function() vim.cmd [[ normal valf ]] vim.cmd [[ call feedkeys("") ]] end
+    )
+    map({ "n", "x", "o" }, "gnf", next_funcdefinition, { desc = "Next FuncDefinition" })
+    map({ "n", "x", "o" }, "gpf", prev_funcdefinition, { desc = "Prev FuncDefinition" })
+
+    -- _columnmove_repeatable
+    vim.g.columnmove_strict_wbege = 0 -- skips inner-paragraph whitespaces for wbege
+    vim.g.columnmove_no_default_key_mappings = true
+    map({ "n", "o", "x" }, "<leader><leader>f", "<Plug>(columnmove-f)", { silent = true })
+    map({ "n", "o", "x" }, "<leader><leader>t", "<Plug>(columnmove-t)", { silent = true })
+    map({ "n", "o", "x" }, "<leader><leader>F", "<Plug>(columnmove-F)", { silent = true })
+    map({ "n", "o", "x" }, "<leader><leader>T", "<Plug>(columnmove-T)", { silent = true })
+
+    local next_columnmove, prev_columnmove = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ execute "normal \<Plug>(columnmove-;)" ]] end,
+      function() vim.cmd [[ execute "normal \<Plug>(columnmove-,)" ]] end
+    )
+    map({ "n", "x", "o" }, "<leader><leader>;", next_columnmove, { desc = "Next ColumnMove_;" })
+    map({ "n", "x", "o" }, "<leader><leader>,", prev_columnmove, { desc = "Prev ColumnMove_," })
+
+    local next_columnmove_w, prev_columnmove_b = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ execute "normal \<Plug>(columnmove-w)" ]] end,
+      function() vim.cmd [[ execute "normal \<Plug>(columnmove-b)" ]] end
+    )
+    map({ "n", "x", "o" }, "<leader><leader>w", next_columnmove_w, { desc = "Next ColumnMove_w" })
+    map({ "n", "x", "o" }, "<leader><leader>b", prev_columnmove_b, { desc = "Prev ColumnMove_b" })
+
+    local next_columnmove_e, prev_columnmove_ge = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ execute "normal \<Plug>(columnmove-e)" ]] end,
+      function() vim.cmd [[ execute "normal \<Plug>(columnmove-ge)" ]] end
+    )
+    map({ "n", "x", "o" }, "<leader><leader>e", next_columnmove_e, { desc = "Next ColumnMove_e" })
+    map({ "n", "x", "o" }, "<leader><leader>ge", prev_columnmove_ge, { desc = "Prev ColumnMove_ge" })
+
+    local next_columnmove_W, prev_columnmove_B = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ execute "normal \<Plug>(columnmove-W)" ]] end,
+      function() vim.cmd [[ execute "normal \<Plug>(columnmove-B)" ]] end
+    )
+    map({ "n", "x", "o" }, "<leader><leader>W", next_columnmove_W, { desc = "Next ColumnMove_W" })
+    map({ "n", "x", "o" }, "<leader><leader>B", prev_columnmove_B, { desc = "Prev ColumnMove_B" })
+
+    local next_columnmove_E, prev_columnmove_gE = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ execute "normal \<Plug>(columnmove-E)" ]] end,
+      function() vim.cmd [[ execute "normal \<Plug>(columnmove-gE)" ]] end
+    )
+    map({ "n", "x", "o" }, "<leader><leader>E", next_columnmove_E, { desc = "Next ColumnMove_E" })
+    map({ "n", "x", "o" }, "<leader><leader>gE", prev_columnmove_gE, { desc = "Prev ColumnMove_gE" })
+
+    -- _jump_blankline_repeatable
+    local next_blankline, prev_blankline = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ normal } ]] end,
+      function() vim.cmd [[ normal { ]] end
+    )
+    map({ "n", "x", "o" }, "<leader><leader>}", next_blankline, { desc = "Next Blankline" })
+    map({ "n", "x", "o" }, "<leader><leader>{", prev_blankline, { desc = "Prev Blankline" })
+
+    -- _jump_indent_repeatable
+    local next_indent, prev_indent = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ normal vii_ ]] vim.cmd [[ call feedkeys("") ]] end,
+      function() vim.cmd [[ normal viio_ ]] vim.cmd [[ call feedkeys("") ]] end
+    )
+    map({ "n", "x", "o" }, "<leader><leader>]", next_indent, { desc = "Next Indent" })
+    map({ "n", "x", "o" }, "<leader><leader>[", prev_indent, { desc = "Prev Indent" })
+
+    -- _jump_paragraph_repeatable
+    local next_paragraph, prev_paragraph = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ normal ) ]] end,
+      function() vim.cmd [[ normal ( ]] end
+    )
+    map({ "n", "x", "o" }, "<leader><leader>)", next_paragraph, { desc = "Next Paragraph" })
+    map({ "n", "x", "o" }, "<leader><leader>(", prev_paragraph, { desc = "Prev Paragraph" })
+
+    -- _jump_startofline_repeatable
+    local next_startline, prev_startline = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ normal + ]] end,
+      function() vim.cmd [[ normal - ]] end
+    )
+    map({ "n", "x", "o" }, "<leader><leader>+", next_startline, { desc = "Next StartLine" })
+    map({ "n", "x", "o" }, "<leader><leader>-", prev_startline, { desc = "Prev StartLine" })
+
+    -- _vim-textobj-numeral_(goto_repeatable)
+    local next_inner_hex, prev_inner_hex = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-hex-n)" ]] end,
+      function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-hex-p)" ]] end
+    )
+    map({ "n", "x", "o" }, "gnx", next_inner_hex, { desc = "Next Inner Hex" })
+    map({ "n", "x", "o" }, "gpx", prev_inner_hex, { desc = "Prev Inner Hex" })
+
+    local next_inner_numeral, prev_inner_numeral = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-n)" ]] end,
+      function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-p)" ]] end
+    )
+    map({ "n", "x", "o" }, "gnn", next_inner_numeral, { desc = "Next Inner Number" })
+    map({ "n", "x", "o" }, "gpn", prev_inner_numeral, { desc = "Prev Inner Number" })
+
+    local next_around_hex, prev_around_hex = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-hex-N)" ]] end,
+      function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-hex-P)" ]] end
+    )
+    map({ "n", "x", "o" }, "gNx", next_around_hex, { desc = "Next Around Hex" })
+    map({ "n", "x", "o" }, "gPx", prev_around_hex, { desc = "Prev Around Hex" })
+
+    local next_around_numeral, prev_around_numeral = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-N)" ]] end,
+      function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-P)" ]] end
+    )
+    map({ "n", "x", "o" }, "gNn", next_around_numeral, { desc = "Next Around Number" })
+    map({ "n", "x", "o" }, "gPn", prev_around_numeral, { desc = "Prev Around Number" })
+
+    local vert_increment, vert_decrement = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ normal "zyanjvan"zp ]] require("user.autocommands").FeedKeysCorrectly('<C-a>') end,
+      function() vim.cmd [[ normal "zyanjvan"zp ]] require("user.autocommands").FeedKeysCorrectly('<C-x>') end
+    )
+    map({ "n" }, "g+", vert_increment, { desc = "Vert Increment" })
+    map({ "n" }, "g-", vert_decrement, { desc = "Vert Decrement" })
+
+    local horz_increment, horz_decrement = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ IncrementHorz ]] end,
+      function() vim.cmd [[ DecrementHorz ]] end
+    )
+    map({ "n" }, "gn+", horz_increment, { desc = "Horz increment" })
+    map({ "n" }, "gn-", horz_decrement, { desc = "Horz Decrement" })
+
   end
 }
 
