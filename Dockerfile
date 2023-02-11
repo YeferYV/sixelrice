@@ -95,6 +95,7 @@ RUN <<"====" >> $HOME/.zprofile
     export SPACESHIP_USER_COLOR_ROOT="blue"
     export SPACESHIP_VI_MODE_SHOW="false"
     export TERM="xterm-256color"
+    export VIM="/usr/share/nvim"
     export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#555555"
     source $HOME/.nix-profile/share/fzf/completion.zsh
     source $HOME/.nix-profile/share/fzf/key-bindings.zsh
