@@ -9,6 +9,7 @@ local map = vim.keymap.set
 local actions = require "telescope.actions"
 local action_set = require "telescope.actions.set"
 local fb_actions = require "telescope._extensions.file_browser.actions"
+local dashboard = require "alpha.themes.dashboard"
 local Terminal = require("toggleterm.terminal").Terminal
 
 local function edit_register(prompt_bufnr)
@@ -275,21 +276,6 @@ local config = {
   --
   --   return local_vim
   -- end,
-
-  -- Set dashboard header
-  header = {
-    "██████  ███████ ████████ ██████   ██████",
-    "██   ██ ██         ██    ██   ██ ██    ██",
-    "██████  ███████    ██    ██████  ██    ██",
-    "██   ██ ██         ██    ██   ██ ██    ██",
-    "██   ██ ███████    ██    ██   ██  ██████",
-    " ",
-    "    ███    ██ ██    ██ ██ ███    ███",
-    "    ████   ██ ██    ██ ██ ████  ████",
-    "    ██ ██  ██ ██    ██ ██ ██ ████ ██",
-    "    ██  ██ ██  ██  ██  ██ ██  ██  ██",
-    "    ██   ████   ████   ██ ██      ██"
-  },
 
   -- Default theme configuration
   default_theme = {
@@ -1046,6 +1032,45 @@ local config = {
             ["l"] = "quit_on_open",
             ["L"] = "open_unfocus",
           },
+        },
+      },
+    },
+
+    ["alpha"] = {
+      layout = {
+        { type = "padding", val = vim.fn.max { 2, vim.fn.floor(vim.fn.winheight(0) * 0.12) } },
+        {
+          type = "text",
+          val = {
+            "██████  ███████ ████████ ██████   ██████",
+            "██   ██ ██         ██    ██   ██ ██    ██",
+            "██████  ███████    ██    ██████  ██    ██",
+            "██   ██ ██         ██    ██   ██ ██    ██",
+            "██   ██ ███████    ██    ██   ██  ██████",
+            " ",
+            "    ███    ██ ██    ██ ██ ███    ███",
+            "    ████   ██ ██    ██ ██ ████  ████",
+            "    ██ ██  ██ ██    ██ ██ ██ ████ ██",
+            "    ██  ██ ██  ██  ██  ██ ██  ██  ██",
+            "    ██   ████   ████   ██ ██      ██",
+          },
+          opts = { position = "center", hl = "DashboardHeader" },
+        },
+        { type = "padding", val = 5 },
+        {
+          type = "group",
+          val = {
+            dashboard.button("p", " " .. " Find Project", ":Telescope projects initial_mode=normal<cr>"),
+            dashboard.button("f", " " .. " Find File", ":Telescope find_files initial_mode=normal<cr>"),
+            dashboard.button("o", " " .. " Recents", ":Telescope oldfiles initial_mode=normal<cr>"),
+            dashboard.button("w", " " .. " Find Word", ":Telescope live_grep  initial_mode=normal<cr>"),
+            dashboard.button("n", " " .. " New File", ":enew<cr>"),
+            dashboard.button("m", " " .. " Bookmarks", ":Telescope marks initial_mode=normal<cr>"),
+            dashboard.button("b", " " .. " File Browser", ":Telescope file_browser initial_mode=normal<cr>"),
+            dashboard.button("l", " " .. " Explorer", ":lua _LF_TOGGLE(vim.api.nvim_buf_get_name(0),'tabnew')<cr>"),
+            dashboard.button("s", " " .. " Last Session", ":SessionManager load_last_session<cr>"),
+          },
+          opts = { spacing = 1 },
         },
       },
     },
