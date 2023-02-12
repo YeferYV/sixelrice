@@ -47,7 +47,7 @@ function _LF_TOGGLE(dir, openmode)
       local file = io.open(temp_path, "r")
       if file ~= nil then
         vim.opt.number = true
-        if openmode == 'tabnew' then
+        if openmode == 'tabreplace' then
           vim.cmd("tabnew " .. file:read("*a") .. " | tabclose #")
         else
           vim.cmd(openmode .. file:read("*a"))
@@ -406,8 +406,7 @@ local config = {
     -- easily add or disable built in mappings added during LSP attaching
     mappings = {
       n = {
-        ["<leader>lF"] = { function() vim.lsp.buf.format(astronvim.lsp.format_opts) end,
-          desc = "Format buffer" },
+        ["<leader>lF"] = { function() vim.lsp.buf.format(astronvim.lsp.format_opts) end, desc = "Format buffer" },
         -- ["H"] = false, -- disable prev buffer
         -- ["L"] = false, -- disable next buffer
         ["K"] = false, -- disable Hover symbol
@@ -599,7 +598,7 @@ local config = {
       ["kana/vim-textobj-user"] = { commit = "41a675ddbeefd6a93664a4dc52f302fe3086a933" },
       ["saihoooooooo/vim-textobj-space"] = { commit = "d4dc141aad3ad973a0509956ce753dfd0fc87114" },
       ["tkhren/vim-textobj-numeral"] = { commit = "264883112b4a34fdd81b29d880f04f3f6437814d" },
-      ["nvim-treesitter/nvim-treesitter-textobjects"] = { commit = "249d90a84df63f3ffff65fcc06a45d58415672de" },
+      ["nvim-treesitter/nvim-treesitter-textobjects"] = { commit = "13edf91f47c91b390bb00e1df2f7cc1ca250af3a" },
       ["RRethy/nvim-treesitter-textsubjects"] = { commit = "bc047b20768845fd54340eb76272b2cf2f6fa3f3" },
       ["coderifous/textobj-word-column.vim"] = { commit = "cb40e1459817a7fa23741ff6df05e4481bde5a33" },
       ["chrisgrieser/nvim-various-textobjs"] = {
@@ -1107,7 +1106,7 @@ local config = {
             dashboard.button("n", " " .. " New File", ":enew<cr>"),
             dashboard.button("m", " " .. " Bookmarks", ":Telescope marks initial_mode=normal<cr>"),
             dashboard.button("b", " " .. " File Browser", ":Telescope file_browser initial_mode=normal<cr>"),
-            dashboard.button("l", " " .. " Explorer", ":lua _LF_TOGGLE(vim.api.nvim_buf_get_name(0),'tabnew')<cr>"),
+            dashboard.button("l", " " .. " Explorer", ":lua _LF_TOGGLE(vim.api.nvim_buf_get_name(0),'tabreplace')<cr>"),
             dashboard.button("s", " " .. " Last Session", ":SessionManager load_last_session<cr>"),
           },
           opts = { spacing = 1 },
@@ -1379,12 +1378,12 @@ local config = {
             C = { "<cmd>%bd|e#|bd#<cr>", "Close others Buffers" },
             s = { "<cmd>bprev<cr>", "Previous Buffer" },
             f = { "<cmd>bnext<cr>", "Next Buffer" },
-            t = { function() vim.cmd [[enew]] end, "New buffer" },
-            T = {
+            t = { function() vim.cmd [[ enew ]] end, "New buffer" },
+            ["<TAB>"] = {
               function()
-                vim.cmd [[setlocal nobuflisted]]
-                vim.cdm [[bprevious]]
-                vim.cmd [[tabe #]]
+                vim.cmd [[ setlocal nobuflisted ]]
+                vim.cdm [[ bprevious ]]
+                vim.cmd [[ tabe # ]]
               end,
               "buffer to Tab"
             },
@@ -1456,20 +1455,38 @@ local config = {
             ["<TAB>"] = { function() vim.cmd [[ wincmd T ]] end, "Terminal to Tab" },
             b = {
               function()
-                vim.cmd [[terminal]]
-                vim.cmd [[startinsert | set ft=buf-terminal nonumber]]
+                vim.cmd [[ terminal ]]
+                vim.cmd [[ startinsert | set ft=buf-terminal nonumber ]]
               end,
               "Buffer terminal"
             },
             B = {
               function()
-                vim.cmd [[tabnew|terminal]]
-                vim.cmd [[startinsert | set ft=tab-terminal nonumber ]]
+                vim.cmd [[ tabnew|terminal ]]
+                vim.cmd [[ startinsert | set ft=tab-terminal nonumber ]]
               end,
               "Buffer Terminal (Tab)"
             },
             f = { "<cmd>ToggleTerm direction=float<cr>", "Float ToggleTerm" },
-            l = { "<cmd>lua _LF_TOGGLE(vim.api.nvim_buf_get_name(0),'vsplit')<cr>", "lf" },
+            l = {
+              function()
+                _LF_TOGGLE(vim.api.nvim_buf_get_name(0), 'vsplit')
+              end,
+              "lf (TabSame)"
+            },
+            L = {
+              function()
+                _LF_TOGGLE(vim.api.nvim_buf_get_name(0), 'tabnew')
+                vim.cmd [[ BufferlineShow ]]
+              end,
+              "lf (TabNew)"
+            },
+            r = {
+              function()
+                _LF_TOGGLE(vim.api.nvim_buf_get_name(0), 'tabreplace')
+              end,
+              "lf (TabReplace)"
+            },
             t = { "<cmd>ToggleTerm <cr>", "Toggle ToggleTerm" },
             T = { "<cmd>ToggleTerm direction=tab <cr>", "Tab ToggleTerm" },
             H = { "<cmd>split +te | resize 10 | setlocal ft=sp-terminal<cr>", "Horizontal terminal" },
@@ -1493,7 +1510,8 @@ local config = {
             name = "TUI",
             ["0"] = { "<cmd>set showtabline=0<cr>", "Hide Buffer" },
             ["1"] = { "<cmd>set showtabline=2<cr>", "Show Buffer" },
-            a = { "<cmd>Alpha<cr>", "Open Alpha" },
+            a = { "<cmd>Alpha<cr>", "Alpha (TabSame)" },
+            A = { "<cmd>tabnew | Alpha<cr>", "Alpha (TabNew)" },
             c = {
               function()
                 local cmdheight = vim.opt.cmdheight:get()
