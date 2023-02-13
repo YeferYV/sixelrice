@@ -518,6 +518,10 @@ local config = {
       -- UI
       ["folke/tokyonight.nvim"] = {},
       ["olivercederborg/poimandres.nvim"] = {},
+      ["mrjones2014/legendary.nvim"] = {
+        commit = "3008ed68c8f309ced07587684c8af53884791d35",
+        config = require('legendary').setup({ which_key = { auto_register = true } })
+      },
       ["nvim-telescope/telescope-file-browser.nvim"] = {
         commit = "304508fb7bea78e3c0eeddd88c4837501e403ae8",
         config = function() require("telescope").load_extension("file_browser") end
@@ -1540,6 +1544,7 @@ local config = {
             I = { "<cmd>IndentBlanklineToggle<cr>", "Toggle IndentBlankline" },
             l = { "<cmd>set cursorline!<cr>", "Toggle Cursorline" },
             L = { "<cmd>setlocal cursorline!<cr>", "Toggle Local Cursorline" },
+            o = { "<cmd>Legendary<cr>", "Open Legendary" },
             r = {
               function()
                 require("toggleterm.terminal").Terminal:new({ cmd = "resto", direction = "tab", hidden = true }):toggle()
@@ -1563,7 +1568,7 @@ local config = {
             S = { "<cmd>-wincmd x<cr>", "window Swap CCW (same parent node)" },
             r = { "<C-w>r", "Rotate CW (same parent node)" },
             R = { "<C-w>R", "Rotate CCW (same parent node)" },
-            T = {
+            ["<TAB>"] = {
               function()
                 vim.cmd [[ setlocal nobuflisted ]]
                 vim.cmd [[ wincmd T ]]
