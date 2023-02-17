@@ -13,7 +13,7 @@ local opts = { noremap = true, silent = true }
 local actions = require "telescope.actions"
 local action_set = require "telescope.actions.set"
 local _ , dashboard = pcall(require, "alpha.themes.dashboard")
-local _ , Terminal = pcall(require, "toggleterm.terminal")
+local _ , terminal = pcall(require, "toggleterm.terminal")
 
 local function fb_actions(action,prompt_bufnr)
   return require "telescope._extensions.file_browser.actions"[action](prompt_bufnr)
@@ -34,8 +34,13 @@ cmd({ "TermClose" }, {
   callback = function()
     local type = vim.bo.filetype
     if type == "sp-terminal" or type == "vs-terminal" or type == "buf-terminal" or type == "tab-terminal" then
-      if #vim.fn.getbufinfo({ buflisted = 1 }) == 1 then
-        vim.cmd [[ call feedkeys("\<Esc>\<Esc>:close\<CR>") ]]
+      if #vim.api.nvim_list_tabpages() == 1 then
+        vim.cmd [[ Alpha ]]
+        vim.cmd [[ bd # ]]
+      else
+        if #vim.fn.getbufinfo({ buflisted = 1 }) == 1 then
+          vim.cmd [[ call feedkeys("\<Esc>\<Esc>:close\<CR>") ]]
+        end
       end
       vim.cmd [[ call feedkeys("") ]]
     end
@@ -44,7 +49,7 @@ cmd({ "TermClose" }, {
 
 local temp_path = "/tmp/lfpickerpath"
 function _LF_TOGGLE(dir, openmode)
-  Terminal:new({
+  terminal.Terminal:new({
     cmd = "lf -selection-path " .. temp_path .. " " .. dir,
     on_close = function()
       local file = io.open(temp_path, "r")
@@ -65,7 +70,7 @@ end
 M.EnableAutoNoHighlightSearch = function()
   vim.on_key(function(char)
     if vim.fn.mode() == "n" then
-      local new_hlsearch = vim.tbl_contains({ "<CR>", "n", "N", "*", "#", "?", "/" }, vim.fn.keytrans(char))
+      local new_hlsearch = vim.tbl_contains({ "<Up>", "<Down>", "<CR>", "n", "N", "*", "#", "?", "/" }, vim.fn.keytrans(char))
       if vim.opt.hlsearch:get() ~= new_hlsearch then vim.cmd [[ noh ]] end
     end
   end, vim.api.nvim_create_namespace "auto_hlsearch")
@@ -1084,7 +1089,7 @@ local config = {
 
     ["alpha"] = {
       layout = {
-        { type = "padding", val = vim.fn.max { 2, vim.fn.floor(vim.fn.winheight(0) * 0.12) } },
+        { type = "padding", val = vim.fn.max { 2, vim.fn.floor(vim.fn.winheight(0) * 0.08) } },
         {
           type = "text",
           val = {
@@ -1102,7 +1107,7 @@ local config = {
           },
           opts = { position = "center", hl = "DashboardHeader" },
         },
-        { type = "padding", val = 5 },
+        { type = "padding", val = 3 },
         {
           type = "group",
           val = {
@@ -1114,6 +1119,10 @@ local config = {
             dashboard.button("m", " " .. " Bookmarks", ":Telescope marks initial_mode=normal<cr>"),
             dashboard.button("b", " " .. " File Browser", ":Telescope file_browser initial_mode=normal<cr>"),
             dashboard.button("l", " " .. " Explorer", ":lua _LF_TOGGLE(vim.api.nvim_buf_get_name(0),'tabreplace')<cr>"),
+            dashboard.button("t", " " .. " Terminal",
+              ":lua vim.cmd[[ tabedit | terminal ]] vim.cmd[[ tabclose # ]] vim.cmd[[ set ft=tab-terminal nonumber norelativenumber laststatus=0 | startinsert ]]<cr>"),
+            dashboard.button("T", " " .. " Tmux",
+              ":lua vim.cmd[[ tabnew | terminal tmux ]] vim.cmd[[ tabclose # ]] vim.cmd[[ set ft=tab-terminal nonumber norelativenumber laststatus=0 | startinsert ]]<cr>"),
             dashboard.button("s", " " .. " Last Session", ":SessionManager load_last_session<cr>"),
           },
           opts = { spacing = 1 },
@@ -1484,7 +1493,6 @@ local config = {
             L = {
               function()
                 _LF_TOGGLE(vim.api.nvim_buf_get_name(0), 'tabnew')
-                vim.cmd [[ BufferlineShow ]]
               end,
               "lf (TabNew)"
             },
