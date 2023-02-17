@@ -12,9 +12,12 @@ local map = vim.keymap.set
 local opts = { noremap = true, silent = true }
 local actions = require "telescope.actions"
 local action_set = require "telescope.actions.set"
-local fb_actions = require "telescope._extensions.file_browser.actions"
-local dashboard = require "alpha.themes.dashboard"
-local Terminal = require("toggleterm.terminal").Terminal
+local _ , dashboard = pcall(require, "alpha.themes.dashboard")
+local _ , Terminal = pcall(require, "toggleterm.terminal")
+
+local function fb_actions(action,prompt_bufnr)
+  return require "telescope._extensions.file_browser.actions"[action](prompt_bufnr)
+end
 
 local function edit_register(prompt_bufnr)
   local selection = require("telescope.actions.state").get_selected_entry()
@@ -441,7 +444,7 @@ local config = {
       jsonls = {
         settings = {
           json = {
-            schemas = require("schemastore").json.schemas(),
+            schemas = function() require("schemastore").json.schemas() end, 
             validate = { enable = true },
             keepLines = { enable = true },
           },
@@ -520,7 +523,7 @@ local config = {
       ["olivercederborg/poimandres.nvim"] = {},
       ["mrjones2014/legendary.nvim"] = {
         commit = "3008ed68c8f309ced07587684c8af53884791d35",
-        config = require('legendary').setup({ which_key = { auto_register = true } })
+        config = function() require('legendary').setup({ which_key = { auto_register = true } }) end
       },
       ["nvim-telescope/telescope-file-browser.nvim"] = {
         commit = "304508fb7bea78e3c0eeddd88c4837501e403ae8",
@@ -825,35 +828,35 @@ local config = {
           respect_gitignore = false,
           mappings = {
             ["i"] = {
-              ["<A-B>"] = fb_actions.toggle_browser,
-              ["<A-C>"] = fb_actions.create,
-              ["<A-D>"] = fb_actions.remove,
-              ["<A-E>"] = fb_actions.goto_home_dir,
-              ["<c-h>"] = fb_actions.toggle_hidden,
-              ["<A-H>"] = fb_actions.goto_parent_dir,
-              ["<A-M>"] = fb_actions.move,
-              ["<A-O>"] = fb_actions.open,
-              ["<A-R>"] = fb_actions.rename,
-              ["<A-W>"] = fb_actions.goto_cwd,
-              ["<A-Y>"] = fb_actions.copy,
-              ["<A-Z>"] = fb_actions.toggle_all,
-              ["<A-.>"] = fb_actions.change_cwd,
-              ["<S-CR>"] = fb_actions.create_from_prompt,
+              ["<A-B>"] = function(prompt_bufnr) fb_actions("toggle_browser",prompt_bufnr) end,
+              ["<A-C>"] = function(prompt_bufnr) fb_actions("create",prompt_bufnr) end,
+              ["<A-D>"] = function(prompt_bufnr) fb_actions("remove",prompt_bufnr) end,
+              ["<A-E>"] = function(prompt_bufnr) fb_actions("goto_home_dir",prompt_bufnr) end,
+              ["<c-h>"] = function(prompt_bufnr) fb_actions("toggle_hidden",prompt_bufnr) end,
+              ["<A-H>"] = function(prompt_bufnr) fb_actions("goto_parent_dir",prompt_bufnr) end,
+              ["<A-M>"] = function(prompt_bufnr) fb_actions("move",prompt_bufnr) end,
+              ["<A-O>"] = function(prompt_bufnr) fb_actions("open",prompt_bufnr) end,
+              ["<A-R>"] = function(prompt_bufnr) fb_actions("rename",prompt_bufnr) end,
+              ["<A-W>"] = function(prompt_bufnr) fb_actions("goto_cwd",prompt_bufnr) end,
+              ["<A-Y>"] = function(prompt_bufnr) fb_actions("copy",prompt_bufnr) end,
+              ["<A-Z>"] = function(prompt_bufnr) fb_actions("toggle_all",prompt_bufnr) end,
+              ["<A-.>"] = function(prompt_bufnr) fb_actions("change_cwd",prompt_bufnr) end,
+              ["<S-CR>"] = function(prompt_bufnr) fb_actions("create_from_prompt",prompt_bufnr) end,
             },
             ["n"] = {
-              ["B"] = fb_actions.toggle_browser,
-              ["c"] = fb_actions.create,
-              ["D"] = fb_actions.remove,
-              ["e"] = fb_actions.goto_home_dir,
-              ["h"] = fb_actions.goto_parent_dir,
-              ["H"] = fb_actions.toggle_hidden,
-              ["m"] = fb_actions.move,
-              ["o"] = fb_actions.open,
-              ["r"] = fb_actions.rename,
-              ["w"] = fb_actions.goto_cwd,
-              ["y"] = fb_actions.copy,
-              ["z"] = fb_actions.toggle_all,
-              ["."] = fb_actions.change_cwd,
+              ["B"] = function(prompt_bufnr) fb_actions("toggle_browser",prompt_bufnr) end,
+              ["c"] = function(prompt_bufnr) fb_actions("create",prompt_bufnr) end,
+              ["D"] = function(prompt_bufnr) fb_actions("remove",prompt_bufnr) end,
+              ["e"] = function(prompt_bufnr) fb_actions("goto_home_dir",prompt_bufnr) end,
+              ["h"] = function(prompt_bufnr) fb_actions("goto_parent_dir",prompt_bufnr) end,
+              ["H"] = function(prompt_bufnr) fb_actions("toggle_hidden",prompt_bufnr) end,
+              ["m"] = function(prompt_bufnr) fb_actions("move",prompt_bufnr) end,
+              ["o"] = function(prompt_bufnr) fb_actions("open",prompt_bufnr) end,
+              ["r"] = function(prompt_bufnr) fb_actions("rename",prompt_bufnr) end,
+              ["w"] = function(prompt_bufnr) fb_actions("goto_cwd",prompt_bufnr) end,
+              ["y"] = function(prompt_bufnr) fb_actions("copy",prompt_bufnr) end,
+              ["z"] = function(prompt_bufnr) fb_actions("toggle_all",prompt_bufnr) end,
+              ["."] = function(prompt_bufnr) fb_actions("change_cwd",prompt_bufnr) end,
             },
           },
         }
@@ -1873,168 +1876,169 @@ local config = {
 
     -- _nvim-treesitter-textobjs_repeatable
     -- ensure ; goes forward and , goes backward regardless of the last direction
-    local ts_repeat_move = require "nvim-treesitter.textobjects.repeatable_move"
-    map({ "n", "x", "o" }, ";", ts_repeat_move.repeat_last_move_next, { desc = "Next TS textobj" })
-    map({ "n", "x", "o" }, ",", ts_repeat_move.repeat_last_move_previous, { desc = "Prev TS textobj" })
+    local ts_repeat_move_status_ok , ts_repeat_move = pcall(require, "nvim-treesitter.textobjects.repeatable_move")
+    if ts_repeat_move_status_ok then
+      map({ "n", "x", "o" }, ";", ts_repeat_move.repeat_last_move_next, { desc = "Next TS textobj" })
+      map({ "n", "x", "o" }, ",", ts_repeat_move.repeat_last_move_previous, { desc = "Prev TS textobj" })
 
-    -- _sneak_repeatable
-    vim.cmd [[ command SneakForward execute "normal \<Plug>Sneak_;" ]]
-    vim.cmd [[ command SneakBackward execute "normal \<Plug>Sneak_," ]]
-    local next_sneak, prev_sneak = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.cmd [[ SneakForward ]] end,
-      function() vim.cmd [[ SneakBackward ]] end
-    )
-    map({ "n", "x", "o" }, "<BS>", next_sneak, { desc = "Next SneakForward" })
-    map({ "n", "x", "o" }, "<S-BS>", prev_sneak, { desc = "Prev SneakForward" })
+      -- _sneak_repeatable
+      vim.cmd [[ command SneakForward execute "normal \<Plug>Sneak_;" ]]
+      vim.cmd [[ command SneakBackward execute "normal \<Plug>Sneak_," ]]
+      local next_sneak, prev_sneak = ts_repeat_move.make_repeatable_move_pair(
+        function() vim.cmd [[ SneakForward ]] end,
+        function() vim.cmd [[ SneakBackward ]] end
+      )
+      map({ "n", "x", "o" }, "<BS>", next_sneak, { desc = "Next SneakForward" })
+      map({ "n", "x", "o" }, "<S-BS>", prev_sneak, { desc = "Prev SneakForward" })
 
-    -- _goto_diagnostic_repeatable
-    local next_diagnostic, prev_diagnostic = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.diagnostic.goto_next({ border = "rounded" }) end,
-      function() vim.diagnostic.goto_prev({ border = "rounded" }) end
-    )
-    map({ "n", "x", "o" }, "gnd", next_diagnostic, { desc = "Next Diagnostic" })
-    map({ "n", "x", "o" }, "gpd", prev_diagnostic, { desc = "Prev Diagnostic" })
+      -- _goto_diagnostic_repeatable
+      local next_diagnostic, prev_diagnostic = ts_repeat_move.make_repeatable_move_pair(
+        function() vim.diagnostic.goto_next({ border = "rounded" }) end,
+        function() vim.diagnostic.goto_prev({ border = "rounded" }) end
+      )
+      map({ "n", "x", "o" }, "gnd", next_diagnostic, { desc = "Next Diagnostic" })
+      map({ "n", "x", "o" }, "gpd", prev_diagnostic, { desc = "Prev Diagnostic" })
 
-    -- _goto_function_definition_repeatable
-    local next_funcdefinition, prev_funcdefinition = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.cmd [[ normal vaNf ]] vim.cmd [[ call feedkeys("") ]] end,
-      function() vim.cmd [[ normal valf ]] vim.cmd [[ call feedkeys("") ]] end
-    )
-    map({ "n", "x", "o" }, "gnf", next_funcdefinition, { desc = "Next FuncDefinition" })
-    map({ "n", "x", "o" }, "gpf", prev_funcdefinition, { desc = "Prev FuncDefinition" })
+      -- _goto_function_definition_repeatable
+      local next_funcdefinition, prev_funcdefinition = ts_repeat_move.make_repeatable_move_pair(
+        function() vim.cmd [[ normal vaNf ]] vim.cmd [[ call feedkeys("") ]] end,
+        function() vim.cmd [[ normal valf ]] vim.cmd [[ call feedkeys("") ]] end
+      )
+      map({ "n", "x", "o" }, "gnf", next_funcdefinition, { desc = "Next FuncDefinition" })
+      map({ "n", "x", "o" }, "gpf", prev_funcdefinition, { desc = "Prev FuncDefinition" })
 
-    -- _gitsigns_chunck_repeatable
-    local gs = require("gitsigns")
-    local next_hunk_repeat, prev_hunk_repeat = ts_repeat_move.make_repeatable_move_pair(gs.next_hunk, gs.prev_hunk)
-    map({ "n", "x", "o" }, "gnh", next_hunk_repeat, { desc = "Next GitHunk" })
-    map({ "n", "x", "o" }, "gph", prev_hunk_repeat, { desc = "Prev GitHunk" })
+      -- _gitsigns_chunck_repeatable
+      local gs = require("gitsigns")
+      local next_hunk_repeat, prev_hunk_repeat = ts_repeat_move.make_repeatable_move_pair(gs.next_hunk, gs.prev_hunk)
+      map({ "n", "x", "o" }, "gnh", next_hunk_repeat, { desc = "Next GitHunk" })
+      map({ "n", "x", "o" }, "gph", prev_hunk_repeat, { desc = "Prev GitHunk" })
 
-    -- _goto_quotes_repeatable
-    local next_quote, prev_quote = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.cmd [[ normal viNu ]] vim.cmd [[ call feedkeys("") ]] end,
-      function() vim.cmd [[ normal vilu ]] vim.cmd [[ call feedkeys("") ]] end
-    )
-    map({ "n", "x", "o" }, "gnu", next_quote, { desc = "Next Quote" })
-    map({ "n", "x", "o" }, "gpu", prev_quote, { desc = "Prev Quote" })
+      -- _goto_quotes_repeatable
+      local next_quote, prev_quote = ts_repeat_move.make_repeatable_move_pair(
+        function() vim.cmd [[ normal viNu ]] vim.cmd [[ call feedkeys("") ]] end,
+        function() vim.cmd [[ normal vilu ]] vim.cmd [[ call feedkeys("") ]] end
+      )
+      map({ "n", "x", "o" }, "gnu", next_quote, { desc = "Next Quote" })
+      map({ "n", "x", "o" }, "gpu", prev_quote, { desc = "Prev Quote" })
 
-    -- _columnmove_repeatable
-    vim.g.columnmove_strict_wbege = 0 -- skips inner-paragraph whitespaces for wbege
-    vim.g.columnmove_no_default_key_mappings = true
-    map({ "n", "o", "x" }, "<leader><leader>f", "<Plug>(columnmove-f)", { silent = true })
-    map({ "n", "o", "x" }, "<leader><leader>t", "<Plug>(columnmove-t)", { silent = true })
-    map({ "n", "o", "x" }, "<leader><leader>F", "<Plug>(columnmove-F)", { silent = true })
-    map({ "n", "o", "x" }, "<leader><leader>T", "<Plug>(columnmove-T)", { silent = true })
+      -- _columnmove_repeatable
+      vim.g.columnmove_strict_wbege = 0 -- skips inner-paragraph whitespaces for wbege
+      vim.g.columnmove_no_default_key_mappings = true
+      map({ "n", "o", "x" }, "<leader><leader>f", "<Plug>(columnmove-f)", { silent = true })
+      map({ "n", "o", "x" }, "<leader><leader>t", "<Plug>(columnmove-t)", { silent = true })
+      map({ "n", "o", "x" }, "<leader><leader>F", "<Plug>(columnmove-F)", { silent = true })
+      map({ "n", "o", "x" }, "<leader><leader>T", "<Plug>(columnmove-T)", { silent = true })
 
-    local next_columnmove, prev_columnmove = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.cmd [[ execute "normal \<Plug>(columnmove-;)" ]] end,
-      function() vim.cmd [[ execute "normal \<Plug>(columnmove-,)" ]] end
-    )
-    map({ "n", "x", "o" }, "<leader><leader>;", next_columnmove, { desc = "Next ColumnMove_;" })
-    map({ "n", "x", "o" }, "<leader><leader>,", prev_columnmove, { desc = "Prev ColumnMove_," })
+      local next_columnmove, prev_columnmove = ts_repeat_move.make_repeatable_move_pair(
+        function() vim.cmd [[ execute "normal \<Plug>(columnmove-;)" ]] end,
+        function() vim.cmd [[ execute "normal \<Plug>(columnmove-,)" ]] end
+      )
+      map({ "n", "x", "o" }, "<leader><leader>;", next_columnmove, { desc = "Next ColumnMove_;" })
+      map({ "n", "x", "o" }, "<leader><leader>,", prev_columnmove, { desc = "Prev ColumnMove_," })
 
-    local next_columnmove_w, prev_columnmove_b = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.cmd [[ execute "normal \<Plug>(columnmove-w)" ]] end,
-      function() vim.cmd [[ execute "normal \<Plug>(columnmove-b)" ]] end
-    )
-    map({ "n", "x", "o" }, "<leader><leader>w", next_columnmove_w, { desc = "Next ColumnMove_w" })
-    map({ "n", "x", "o" }, "<leader><leader>b", prev_columnmove_b, { desc = "Prev ColumnMove_b" })
+      local next_columnmove_w, prev_columnmove_b = ts_repeat_move.make_repeatable_move_pair(
+        function() vim.cmd [[ execute "normal \<Plug>(columnmove-w)" ]] end,
+        function() vim.cmd [[ execute "normal \<Plug>(columnmove-b)" ]] end
+      )
+      map({ "n", "x", "o" }, "<leader><leader>w", next_columnmove_w, { desc = "Next ColumnMove_w" })
+      map({ "n", "x", "o" }, "<leader><leader>b", prev_columnmove_b, { desc = "Prev ColumnMove_b" })
 
-    local next_columnmove_e, prev_columnmove_ge = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.cmd [[ execute "normal \<Plug>(columnmove-e)" ]] end,
-      function() vim.cmd [[ execute "normal \<Plug>(columnmove-ge)" ]] end
-    )
-    map({ "n", "x", "o" }, "<leader><leader>e", next_columnmove_e, { desc = "Next ColumnMove_e" })
-    map({ "n", "x", "o" }, "<leader><leader>ge", prev_columnmove_ge, { desc = "Prev ColumnMove_ge" })
+      local next_columnmove_e, prev_columnmove_ge = ts_repeat_move.make_repeatable_move_pair(
+        function() vim.cmd [[ execute "normal \<Plug>(columnmove-e)" ]] end,
+        function() vim.cmd [[ execute "normal \<Plug>(columnmove-ge)" ]] end
+      )
+      map({ "n", "x", "o" }, "<leader><leader>e", next_columnmove_e, { desc = "Next ColumnMove_e" })
+      map({ "n", "x", "o" }, "<leader><leader>ge", prev_columnmove_ge, { desc = "Prev ColumnMove_ge" })
 
-    local next_columnmove_W, prev_columnmove_B = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.cmd [[ execute "normal \<Plug>(columnmove-W)" ]] end,
-      function() vim.cmd [[ execute "normal \<Plug>(columnmove-B)" ]] end
-    )
-    map({ "n", "x", "o" }, "<leader><leader>W", next_columnmove_W, { desc = "Next ColumnMove_W" })
-    map({ "n", "x", "o" }, "<leader><leader>B", prev_columnmove_B, { desc = "Prev ColumnMove_B" })
+      local next_columnmove_W, prev_columnmove_B = ts_repeat_move.make_repeatable_move_pair(
+        function() vim.cmd [[ execute "normal \<Plug>(columnmove-W)" ]] end,
+        function() vim.cmd [[ execute "normal \<Plug>(columnmove-B)" ]] end
+      )
+      map({ "n", "x", "o" }, "<leader><leader>W", next_columnmove_W, { desc = "Next ColumnMove_W" })
+      map({ "n", "x", "o" }, "<leader><leader>B", prev_columnmove_B, { desc = "Prev ColumnMove_B" })
 
-    local next_columnmove_E, prev_columnmove_gE = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.cmd [[ execute "normal \<Plug>(columnmove-E)" ]] end,
-      function() vim.cmd [[ execute "normal \<Plug>(columnmove-gE)" ]] end
-    )
-    map({ "n", "x", "o" }, "<leader><leader>E", next_columnmove_E, { desc = "Next ColumnMove_E" })
-    map({ "n", "x", "o" }, "<leader><leader>gE", prev_columnmove_gE, { desc = "Prev ColumnMove_gE" })
+      local next_columnmove_E, prev_columnmove_gE = ts_repeat_move.make_repeatable_move_pair(
+        function() vim.cmd [[ execute "normal \<Plug>(columnmove-E)" ]] end,
+        function() vim.cmd [[ execute "normal \<Plug>(columnmove-gE)" ]] end
+      )
+      map({ "n", "x", "o" }, "<leader><leader>E", next_columnmove_E, { desc = "Next ColumnMove_E" })
+      map({ "n", "x", "o" }, "<leader><leader>gE", prev_columnmove_gE, { desc = "Prev ColumnMove_gE" })
 
-    -- _jump_blankline_repeatable
-    local next_blankline, prev_blankline = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.cmd [[ normal } ]] end,
-      function() vim.cmd [[ normal { ]] end
-    )
-    map({ "n", "x", "o" }, "<leader><leader>}", next_blankline, { desc = "Next Blankline" })
-    map({ "n", "x", "o" }, "<leader><leader>{", prev_blankline, { desc = "Prev Blankline" })
+      -- _jump_blankline_repeatable
+      local next_blankline, prev_blankline = ts_repeat_move.make_repeatable_move_pair(
+        function() vim.cmd [[ normal } ]] end,
+        function() vim.cmd [[ normal { ]] end
+      )
+      map({ "n", "x", "o" }, "<leader><leader>}", next_blankline, { desc = "Next Blankline" })
+      map({ "n", "x", "o" }, "<leader><leader>{", prev_blankline, { desc = "Prev Blankline" })
 
-    -- _jump_indent_repeatable
-    local next_indent, prev_indent = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.cmd [[ normal vii_ ]] vim.cmd [[ call feedkeys("") ]] end,
-      function() vim.cmd [[ normal viio_ ]] vim.cmd [[ call feedkeys("") ]] end
-    )
-    map({ "n", "x", "o" }, "<leader><leader>]", next_indent, { desc = "Next Indent" })
-    map({ "n", "x", "o" }, "<leader><leader>[", prev_indent, { desc = "Prev Indent" })
+      -- _jump_indent_repeatable
+      local next_indent, prev_indent = ts_repeat_move.make_repeatable_move_pair(
+        function() vim.cmd [[ normal vii_ ]] vim.cmd [[ call feedkeys("") ]] end,
+        function() vim.cmd [[ normal viio_ ]] vim.cmd [[ call feedkeys("") ]] end
+      )
+      map({ "n", "x", "o" }, "<leader><leader>]", next_indent, { desc = "Next Indent" })
+      map({ "n", "x", "o" }, "<leader><leader>[", prev_indent, { desc = "Prev Indent" })
 
-    -- _jump_paragraph_repeatable
-    local next_paragraph, prev_paragraph = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.cmd [[ normal ) ]] end,
-      function() vim.cmd [[ normal ( ]] end
-    )
-    map({ "n", "x", "o" }, "<leader><leader>)", next_paragraph, { desc = "Next Paragraph" })
-    map({ "n", "x", "o" }, "<leader><leader>(", prev_paragraph, { desc = "Prev Paragraph" })
+      -- _jump_paragraph_repeatable
+      local next_paragraph, prev_paragraph = ts_repeat_move.make_repeatable_move_pair(
+        function() vim.cmd [[ normal ) ]] end,
+        function() vim.cmd [[ normal ( ]] end
+      )
+      map({ "n", "x", "o" }, "<leader><leader>)", next_paragraph, { desc = "Next Paragraph" })
+      map({ "n", "x", "o" }, "<leader><leader>(", prev_paragraph, { desc = "Prev Paragraph" })
 
-    -- _jump_startofline_repeatable
-    local next_startline, prev_startline = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.cmd [[ normal + ]] end,
-      function() vim.cmd [[ normal - ]] end
-    )
-    map({ "n", "x", "o" }, "<leader><leader>+", next_startline, { desc = "Next StartLine" })
-    map({ "n", "x", "o" }, "<leader><leader>-", prev_startline, { desc = "Prev StartLine" })
+      -- _jump_startofline_repeatable
+      local next_startline, prev_startline = ts_repeat_move.make_repeatable_move_pair(
+        function() vim.cmd [[ normal + ]] end,
+        function() vim.cmd [[ normal - ]] end
+      )
+      map({ "n", "x", "o" }, "<leader><leader>+", next_startline, { desc = "Next StartLine" })
+      map({ "n", "x", "o" }, "<leader><leader>-", prev_startline, { desc = "Prev StartLine" })
 
-    -- _vim-textobj-numeral_(goto_repeatable)
-    local next_inner_hex, prev_inner_hex = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-hex-n)" ]] end,
-      function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-hex-p)" ]] end
-    )
-    map({ "n", "x", "o" }, "gnx", next_inner_hex, { desc = "Next Inner Hex" })
-    map({ "n", "x", "o" }, "gpx", prev_inner_hex, { desc = "Prev Inner Hex" })
+      -- _vim-textobj-numeral_(goto_repeatable)
+      local next_inner_hex, prev_inner_hex = ts_repeat_move.make_repeatable_move_pair(
+        function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-hex-n)" ]] end,
+        function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-hex-p)" ]] end
+      )
+      map({ "n", "x", "o" }, "gnx", next_inner_hex, { desc = "Next Inner Hex" })
+      map({ "n", "x", "o" }, "gpx", prev_inner_hex, { desc = "Prev Inner Hex" })
 
-    local next_inner_numeral, prev_inner_numeral = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-n)" ]] end,
-      function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-p)" ]] end
-    )
-    map({ "n", "x", "o" }, "gnn", next_inner_numeral, { desc = "Next Inner Number" })
-    map({ "n", "x", "o" }, "gpn", prev_inner_numeral, { desc = "Prev Inner Number" })
+      local next_inner_numeral, prev_inner_numeral = ts_repeat_move.make_repeatable_move_pair(
+        function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-n)" ]] end,
+        function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-p)" ]] end
+      )
+      map({ "n", "x", "o" }, "gnn", next_inner_numeral, { desc = "Next Inner Number" })
+      map({ "n", "x", "o" }, "gpn", prev_inner_numeral, { desc = "Prev Inner Number" })
 
-    local next_around_hex, prev_around_hex = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-hex-N)" ]] end,
-      function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-hex-P)" ]] end
-    )
-    map({ "n", "x", "o" }, "gNx", next_around_hex, { desc = "Next Around Hex" })
-    map({ "n", "x", "o" }, "gPx", prev_around_hex, { desc = "Prev Around Hex" })
+      local next_around_hex, prev_around_hex = ts_repeat_move.make_repeatable_move_pair(
+        function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-hex-N)" ]] end,
+        function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-hex-P)" ]] end
+      )
+      map({ "n", "x", "o" }, "gNx", next_around_hex, { desc = "Next Around Hex" })
+      map({ "n", "x", "o" }, "gPx", prev_around_hex, { desc = "Prev Around Hex" })
 
-    local next_around_numeral, prev_around_numeral = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-N)" ]] end,
-      function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-P)" ]] end
-    )
-    map({ "n", "x", "o" }, "gNn", next_around_numeral, { desc = "Next Around Number" })
-    map({ "n", "x", "o" }, "gPn", prev_around_numeral, { desc = "Prev Around Number" })
+      local next_around_numeral, prev_around_numeral = ts_repeat_move.make_repeatable_move_pair(
+        function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-N)" ]] end,
+        function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-P)" ]] end
+      )
+      map({ "n", "x", "o" }, "gNn", next_around_numeral, { desc = "Next Around Number" })
+      map({ "n", "x", "o" }, "gPn", prev_around_numeral, { desc = "Prev Around Number" })
 
-    local vert_increment, vert_decrement = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.cmd [[ normal "zyanjvan"zp ]] require("user.autocommands").FeedKeysCorrectly('<C-a>') end,
-      function() vim.cmd [[ normal "zyanjvan"zp ]] require("user.autocommands").FeedKeysCorrectly('<C-x>') end
-    )
-    map({ "n" }, "g+", vert_increment, { desc = "Vert Increment" })
-    map({ "n" }, "g-", vert_decrement, { desc = "Vert Decrement" })
+      local vert_increment, vert_decrement = ts_repeat_move.make_repeatable_move_pair(
+        function() vim.cmd [[ normal "zyanjvan"zp ]] require("user.autocommands").FeedKeysCorrectly('<C-a>') end,
+        function() vim.cmd [[ normal "zyanjvan"zp ]] require("user.autocommands").FeedKeysCorrectly('<C-x>') end
+      )
+      map({ "n" }, "g+", vert_increment, { desc = "Vert Increment" })
+      map({ "n" }, "g-", vert_decrement, { desc = "Vert Decrement" })
 
-    local horz_increment, horz_decrement = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.cmd [[ IncrementHorz ]] end,
-      function() vim.cmd [[ DecrementHorz ]] end
-    )
-    map({ "n" }, "gn+", horz_increment, { desc = "Horz increment" })
-    map({ "n" }, "gn-", horz_decrement, { desc = "Horz Decrement" })
-
+      local horz_increment, horz_decrement = ts_repeat_move.make_repeatable_move_pair(
+        function() vim.cmd [[ IncrementHorz ]] end,
+        function() vim.cmd [[ DecrementHorz ]] end
+      )
+      map({ "n" }, "gn+", horz_increment, { desc = "Horz increment" })
+      map({ "n" }, "gn-", horz_decrement, { desc = "Horz Decrement" })
+    end
   end
 }
 
