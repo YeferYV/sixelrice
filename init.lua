@@ -5,6 +5,7 @@
 -- where a value with no key simply has an implicit numeric key
 
 local M = {}
+local null_sources = {}
 local cmd = vim.api.nvim_create_autocmd
 local create_command = vim.api.nvim_create_user_command
 local keymap = vim.api.nvim_set_keymap
@@ -12,8 +13,28 @@ local map = vim.keymap.set
 local opts = { noremap = true, silent = true }
 local actions = require "telescope.actions"
 local action_set = require "telescope.actions.set"
+local formatting = require("null-ls").builtins.formatting
 local _ , dashboard = pcall(require, "alpha.themes.dashboard")
 local _ , terminal = pcall(require, "toggleterm.terminal")
+
+local function stylua_config()
+  for _, package in ipairs(require("mason-registry").get_installed_packages()) do
+    if package.name == "stylua" then
+      table.insert(
+        null_sources,
+        formatting[package.name].with {
+          extra_args = {
+            "--indent-width=2",
+            "--indent-type=Spaces",
+            "--call-parentheses=None",
+            "--collapse-simple-statement=Never",
+          },
+        }
+      )
+    end
+  end
+end
+stylua_config()
 
 local function fb_actions(action,prompt_bufnr)
   return require "telescope._extensions.file_browser.actions"[action](prompt_bufnr)
@@ -395,7 +416,7 @@ local config = {
     formatting = {
       -- control auto formatting on save
       format_on_save = {
-        enabled = true, -- enable or disable format on save globally
+        enabled = false, -- enable or disable format on save globally
         allow_filetypes = { -- enable format on save for specified filetypes only
           -- "go",
         },
@@ -449,13 +470,30 @@ local config = {
       jsonls = {
         settings = {
           json = {
-            schemas = function() require("schemastore").json.schemas() end, 
+            schemas = function() require("schemastore").json.schemas() end,
             validate = { enable = true },
             keepLines = { enable = true },
           },
         },
-      }
-    }
+      },
+      sumneko_lua = {
+        settings = {
+          Lua = {
+            telemetry = { enable = false },
+            runtime = { version = "LuaJIT" },
+            diagnostics = { globals = { "vim", "astronvim", "astronvim_installation", "packer_plugins", "bit" } },
+            workspace = {
+              library = {
+                vim.fn.expand "$VIMRUNTIME/lua",
+                astronvim.install.home .. "/lua",
+                astronvim.install.config .. "/lua",
+              },
+            },
+            format = { enable = false }
+          },
+        },
+      },
+    },
   },
 
   -- Mapping data with "desc" stored directly by vim.keymap.set().
@@ -468,8 +506,8 @@ local config = {
     n = {
       -- second key is the lefthand side of the map
       -- mappings seen under group name "Buffer"
-      ["R"] = { "<cmd>w<cr>", desc = "Save" },
-      ["Q"] = { "<cmd>q<cr>", desc = "Quit" },
+      ["Q"] = { "<cmd>quit<cr>", desc = "Quit" },
+      ["R"] = { "<cmd>lua vim.lsp.buf.format()<cr><cmd>write<cr>", desc = "Save" },
       ["Y"] = { "yg_", desc = "Forward yank" },
       ["<leader>v"] = { "<Cmd>ToggleTerm direction=vertical   size=70<CR>", desc = "ToggleTerm vertical" },
       ["<leader>V"] = { "<Cmd>ToggleTerm direction=horizontal size=10<CR>", desc = "ToggleTerm horizontal" },
@@ -1223,11 +1261,12 @@ local config = {
       -- Check supported formatters and linters
       -- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/formatting
       -- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/diagnostics
-      config.sources = {
-        -- Set a formatter
-        -- null_ls.builtins.formatting.stylua,
-        -- null_ls.builtins.formatting.prettier,
-      }
+      -- config.sources = {
+      --   -- Set a formatter
+      --   -- null_ls.builtins.formatting.stylua,
+      --   -- null_ls.builtins.formatting.prettier,
+      -- }
+      config.sources = null_sources
       return config -- return final config table
     end,
     -- use mason-lspconfig to configure LSP installations
