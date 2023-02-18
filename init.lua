@@ -27,7 +27,7 @@ local function stylua_config()
             "--indent-width=2",
             "--indent-type=Spaces",
             "--call-parentheses=None",
-            "--collapse-simple-statement=Never",
+            "--collapse-simple-statement=Always",
           },
         }
       )
@@ -457,23 +457,6 @@ local config = {
             schemas = function() require("schemastore").json.schemas() end,
             validate = { enable = true },
             keepLines = { enable = true },
-          },
-        },
-      },
-      sumneko_lua = {
-        settings = {
-          Lua = {
-            telemetry = { enable = false },
-            runtime = { version = "LuaJIT" },
-            diagnostics = { globals = { "vim", "astronvim", "astronvim_installation", "packer_plugins", "bit" } },
-            workspace = {
-              library = {
-                vim.fn.expand "$VIMRUNTIME/lua",
-                astronvim.install.home .. "/lua",
-                astronvim.install.config .. "/lua",
-              },
-            },
-            format = { enable = false }
           },
         },
       },
@@ -2107,6 +2090,30 @@ local config = {
       map({ "n" }, "gn-", horz_decrement, { desc = "Horz Decrement" })
     end
 
+    -- ╭───────────╮
+    -- │ Lspconfig │
+    -- ╰───────────╯
+
+    -- _manually_lspconfig_setup_using_nix/system_package_manager
+    local handle = io.popen("lua-language-server --version 2>/dev/null")
+    if handle then --handles "Need check nil" warning
+      local output = handle:read("*a")
+      if output:match("^3.*") then
+        require('lspconfig')['sumneko_lua'].setup {
+          on_attach = astronvim.lsp.on_attach,
+          capabilities = astronvim.lsp.capabilities,
+          settings = {
+            Lua = {
+              telemetry = { enable = false },
+              runtime = { version = "LuaJIT" },
+              diagnostics = { globals = { "vim" } },
+              format = { enable = true, }
+            }
+          }
+        }
+      end
+      handle:close()
+    end
   end
 }
 
