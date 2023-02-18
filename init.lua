@@ -51,23 +51,6 @@ local function edit_register(prompt_bufnr)
   require("telescope.builtin").resume()
 end
 
-cmd({ "TermClose" }, {
-  callback = function()
-    local type = vim.bo.filetype
-    if type == "sp-terminal" or type == "vs-terminal" or type == "buf-terminal" or type == "tab-terminal" then
-      if #vim.api.nvim_list_tabpages() == 1 then
-        vim.cmd [[ Alpha ]]
-        vim.cmd [[ bd # ]]
-      else
-        if #vim.fn.getbufinfo({ buflisted = 1 }) == 1 then
-          vim.cmd [[ call feedkeys("\<Esc>\<Esc>:close\<CR>") ]]
-        end
-      end
-      vim.cmd [[ call feedkeys("") ]]
-    end
-  end,
-})
-
 local temp_path = "/tmp/lfpickerpath"
 function _LF_TOGGLE(dir, openmode)
   terminal.Terminal:new({
@@ -317,13 +300,14 @@ local config = {
   options = {
     opt = {
       -- set to true or false etc.
+      completeopt = { "menu", "menuone", "noinsert" }, -- mostly just for cmp
+      cursorline = false, -- sets vim.opt.cursorline
       number = true, -- sets vim.opt.number
       relativenumber = true, -- sets vim.opt.relativenumber
-      cursorline = false, -- sets vim.opt.cursorline
-      completeopt = { "menu", "menuone", "noinsert" }, -- mostly just for cmp
       scrolloff = 8, -- vertical scrolloff
       sidescrolloff = 8, -- horizontal scrolloff
       signcolumn = "auto", -- sets vim.opt.signcolumn to auto
+      showtabline = 0, -- 0) never show; 1) show tabs if more than 2; 2) always show
       spell = false, -- sets vim.opt.spell
       undofile = false, -- disable persistent undo
       virtualedit = "all", -- allow cursor bypass end of line
@@ -338,16 +322,16 @@ local config = {
 
     },
     g = {
-      mapleader = " ", -- sets vim.g.mapleader
       autoformat_enabled = true, -- enable or disable auto formatting at start (lsp.formatting.format_on_save must be enabled)
-      cmp_enabled = true, -- enable completion at start
       autopairs_enabled = true, -- enable autopairs at start
-      diagnostics_enabled = true, -- enable diagnostics at start
-      status_diagnostics_enabled = true, -- enable diagnostics in statusline
-      icons_enabled = true, -- disable icons in the UI (disable if no nerd font is available, requires :PackerSync after changing)
-      ui_notifications_enabled = true, -- disable notifications when toggling UI elements
-      heirline_bufferline = true, -- enable new heirline based bufferline (requires :PackerSync after changing)
+      cmp_enabled = true, -- enable completion at start
       codeium_no_map_tab = true, -- disable <tab> codeium completion
+      diagnostics_enabled = true, -- enable diagnostics at start
+      heirline_bufferline = true, -- enable new heirline based bufferline (requires :PackerSync after changing)
+      icons_enabled = true, -- disable icons in the UI (disable if no nerd font is available, requires :PackerSync after changing)
+      mapleader = " ", -- sets vim.g.mapleader
+      status_diagnostics_enabled = true, -- enable diagnostics in statusline
+      ui_notifications_enabled = true, -- disable notifications when toggling UI elements
     }
   },
   -- If you need more control, you can use the function()...end notation
@@ -1675,6 +1659,9 @@ local config = {
     -- │ Autocmd │
     -- ╰─────────╯
 
+    -- _autostart_EnableAutoNoHighlightSearch
+    M.EnableAutoNoHighlightSearch()
+
     -- _jump_to_last_position_on_reopen
     vim.cmd [[ au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif ]]
 
@@ -1683,6 +1670,39 @@ local config = {
       pattern = "*",
       callback = function()
         vim.opt.formatoptions:remove { "c", "r", "o" }
+      end,
+    })
+
+    -- _show_bufferline_if_more_than_two
+    cmd({ "BufAdd" }, { command = "set showtabline=2" })
+
+    -- _hide_bufferline_if_last_buffer
+    cmd({ "BufDelete" }, {
+      callback = function()
+        if #vim.fn.getbufinfo({ buflisted = true }) == 2 then
+        vim.o.showtabline = 0
+        end
+      end,
+    })
+
+    -- _show_tabs_if_more_than_two
+    cmd({ "TabNew" }, { command = "set showtabline=2" })
+
+    -- _show_alpha_if_close_last_tab-terminal
+    cmd({ "TermClose" }, {
+      callback = function()
+        local type = vim.bo.filetype
+        if type == "sp-terminal" or type == "vs-terminal" or type == "buf-terminal" or type == "tab-terminal" then
+          if #vim.api.nvim_list_tabpages() == 1 then
+            vim.cmd [[ Alpha ]]
+            vim.cmd [[ bd # ]]
+          else
+            if #vim.fn.getbufinfo({ buflisted = 1 }) == 1 then
+              vim.cmd [[ call feedkeys("\<Esc>\<Esc>:close\<CR>") ]]
+            end
+          end
+          vim.cmd [[ call feedkeys("") ]]
+        end
       end,
     })
 
@@ -2086,6 +2106,7 @@ local config = {
       map({ "n" }, "gn+", horz_increment, { desc = "Horz increment" })
       map({ "n" }, "gn-", horz_decrement, { desc = "Horz Decrement" })
     end
+
   end
 }
 
