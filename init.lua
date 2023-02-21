@@ -14,8 +14,10 @@ local opts = { noremap = true, silent = true }
 local actions = require "telescope.actions"
 local action_set = require "telescope.actions.set"
 local formatting = require("null-ls").builtins.formatting
-local _ , dashboard = pcall(require, "alpha.themes.dashboard")
-local _ , terminal = pcall(require, "toggleterm.terminal")
+local _, dashboard = pcall(require, "alpha.themes.dashboard")
+local _, terminal = pcall(require, "toggleterm.terminal")
+
+------------------------------------------------------------------------------------------------------------------------
 
 local function stylua_config()
   for _, package in ipairs(require("mason-registry").get_installed_packages()) do
@@ -34,9 +36,12 @@ local function stylua_config()
     end
   end
 end
+
 stylua_config()
 
-local function fb_actions(action,prompt_bufnr)
+------------------------------------------------------------------------------------------------------------------------
+
+local function fb_actions(action, prompt_bufnr)
   return require "telescope._extensions.file_browser.actions"[action](prompt_bufnr)
 end
 
@@ -50,6 +55,8 @@ local function edit_register(prompt_bufnr)
   require("telescope.actions").close(prompt_bufnr)
   require("telescope.builtin").resume()
 end
+
+------------------------------------------------------------------------------------------------------------------------
 
 local temp_path = "/tmp/lfpickerpath"
 function _LF_TOGGLE(dir, openmode)
@@ -71,10 +78,13 @@ function _LF_TOGGLE(dir, openmode)
   }):toggle()
 end
 
+------------------------------------------------------------------------------------------------------------------------
+
 M.EnableAutoNoHighlightSearch = function()
   vim.on_key(function(char)
     if vim.fn.mode() == "n" then
-      local new_hlsearch = vim.tbl_contains({ "<Up>", "<Down>", "<CR>", "n", "N", "*", "#", "?", "/" }, vim.fn.keytrans(char))
+      local new_hlsearch = vim.tbl_contains({ "<Up>", "<Down>", "<CR>", "n", "N", "*", "#", "?", "/" },
+        vim.fn.keytrans(char))
       if vim.opt.hlsearch:get() ~= new_hlsearch then vim.cmd [[ noh ]] end
     end
   end, vim.api.nvim_create_namespace "auto_hlsearch")
@@ -85,7 +95,16 @@ M.DisableAutoNoHighlightSearch = function()
   vim.cmd [[ set hlsearch ]]
 end
 
-M.GoToParentIndent = function()
+------------------------------------------------------------------------------------------------------------------------
+
+_G.FeedKeysCorrectly = function(keys)
+  local feedableKeys = vim.api.nvim_replace_termcodes(keys, true, false, true)
+  vim.api.nvim_feedkeys(feedableKeys, "n", true)
+end
+
+------------------------------------------------------------------------------------------------------------------------
+
+_G.GoToParentIndent = function()
   local ok, start = require("indent_blankline.utils").get_current_context(
     vim.g.indent_blankline_context_patterns,
     vim.g.indent_blankline_use_treesitter_scope
@@ -96,44 +115,54 @@ M.GoToParentIndent = function()
   end
 end
 
-local My_count = 0
+------------------------------------------------------------------------------------------------------------------------
 
-M.GoToParentIndent_Repeat = function()
-  My_count = 0
-  vim.go.operatorfunc = "v:lua.GoToParentIndent_Callback"
-  return "g@l"
+function GotoTextObj_Callback()
+  FeedKeysCorrectly(vim.g.dotargs)
 end
 
-function GoToParentIndent_Callback()
-  My_count = My_count + 1
-  if My_count >= 2 then
-    vim.cmd [[ normal 0 ]]
-  end
-  M.GoToParentIndent()
-  -- print("Count: " .. My_count)
+_G.GotoTextObj = function(action)
+  vim.g.dotargs = action
+  vim.o.operatorfunc = 'v:lua.GotoTextObj_Callback'
+  return "g@"
 end
 
-M.FeedKeysCorrectly = function(keys)
-  local feedableKeys = vim.api.nvim_replace_termcodes(keys, true, false, true)
-  vim.api.nvim_feedkeys(feedableKeys, "n", true)
+------------------------------------------------------------------------------------------------------------------------
+
+function WhichKeyRepeat_Callback()
+  if vim.g.dotfirstcmd ~= nil then vim.cmd(vim.g.dotfirstcmd) end
+  if vim.g.dotsecondcmd ~= nil then vim.cmd(vim.g.dotsecondcmd) end
+  if vim.g.dotthirdcmd ~= nil then vim.cmd(vim.g.dotthirdcmd) end
 end
+
+_G.WhichkeyRepeat = function(firstcmd, secondcmd, thirdcmd)
+  vim.g.dotfirstcmd = firstcmd
+  vim.g.dotsecondcmd = secondcmd
+  vim.g.dotthirdcmd = thirdcmd
+  vim.o.operatorfunc = 'v:lua.WhichKeyRepeat_Callback'
+  vim.cmd.normal { "g@l", bang = true }
+end
+
+------------------------------------------------------------------------------------------------------------------------
 
 function HorzIncrement()
   vim.cmd [[ normal "zyan ]]
   vim.cmd [[ execute "normal \<Plug>(textobj-numeral-N)" ]]
   vim.cmd [[ normal van"zp ]]
-  M.FeedKeysCorrectly('<C-a>')
+  FeedKeysCorrectly('<C-a>')
 end
 
 function HorzDecrement()
   vim.cmd [[ normal "zyan ]]
   vim.cmd [[ execute "normal \<Plug>(textobj-numeral-N)" ]]
   vim.cmd [[ normal van"zp ]]
-  M.FeedKeysCorrectly('<C-x>')
+  FeedKeysCorrectly('<C-x>')
 end
 
 create_command("IncrementHorz", HorzIncrement, {})
 create_command("DecrementHorz", HorzDecrement, {})
+
+------------------------------------------------------------------------------------------------------------------------
 
 local config = {
 
@@ -838,35 +867,35 @@ local config = {
           respect_gitignore = false,
           mappings = {
             ["i"] = {
-              ["<A-B>"] = function(prompt_bufnr) fb_actions("toggle_browser",prompt_bufnr) end,
-              ["<A-C>"] = function(prompt_bufnr) fb_actions("create",prompt_bufnr) end,
-              ["<A-D>"] = function(prompt_bufnr) fb_actions("remove",prompt_bufnr) end,
-              ["<A-E>"] = function(prompt_bufnr) fb_actions("goto_home_dir",prompt_bufnr) end,
-              ["<c-h>"] = function(prompt_bufnr) fb_actions("toggle_hidden",prompt_bufnr) end,
-              ["<A-H>"] = function(prompt_bufnr) fb_actions("goto_parent_dir",prompt_bufnr) end,
-              ["<A-M>"] = function(prompt_bufnr) fb_actions("move",prompt_bufnr) end,
-              ["<A-O>"] = function(prompt_bufnr) fb_actions("open",prompt_bufnr) end,
-              ["<A-R>"] = function(prompt_bufnr) fb_actions("rename",prompt_bufnr) end,
-              ["<A-W>"] = function(prompt_bufnr) fb_actions("goto_cwd",prompt_bufnr) end,
-              ["<A-Y>"] = function(prompt_bufnr) fb_actions("copy",prompt_bufnr) end,
-              ["<A-Z>"] = function(prompt_bufnr) fb_actions("toggle_all",prompt_bufnr) end,
-              ["<A-.>"] = function(prompt_bufnr) fb_actions("change_cwd",prompt_bufnr) end,
-              ["<S-CR>"] = function(prompt_bufnr) fb_actions("create_from_prompt",prompt_bufnr) end,
+              ["<A-B>"] = function(prompt_bufnr) fb_actions("toggle_browser", prompt_bufnr) end,
+              ["<A-C>"] = function(prompt_bufnr) fb_actions("create", prompt_bufnr) end,
+              ["<A-D>"] = function(prompt_bufnr) fb_actions("remove", prompt_bufnr) end,
+              ["<A-E>"] = function(prompt_bufnr) fb_actions("goto_home_dir", prompt_bufnr) end,
+              ["<c-h>"] = function(prompt_bufnr) fb_actions("toggle_hidden", prompt_bufnr) end,
+              ["<A-H>"] = function(prompt_bufnr) fb_actions("goto_parent_dir", prompt_bufnr) end,
+              ["<A-M>"] = function(prompt_bufnr) fb_actions("move", prompt_bufnr) end,
+              ["<A-O>"] = function(prompt_bufnr) fb_actions("open", prompt_bufnr) end,
+              ["<A-R>"] = function(prompt_bufnr) fb_actions("rename", prompt_bufnr) end,
+              ["<A-W>"] = function(prompt_bufnr) fb_actions("goto_cwd", prompt_bufnr) end,
+              ["<A-Y>"] = function(prompt_bufnr) fb_actions("copy", prompt_bufnr) end,
+              ["<A-Z>"] = function(prompt_bufnr) fb_actions("toggle_all", prompt_bufnr) end,
+              ["<A-.>"] = function(prompt_bufnr) fb_actions("change_cwd", prompt_bufnr) end,
+              ["<S-CR>"] = function(prompt_bufnr) fb_actions("create_from_prompt", prompt_bufnr) end,
             },
             ["n"] = {
-              ["B"] = function(prompt_bufnr) fb_actions("toggle_browser",prompt_bufnr) end,
-              ["c"] = function(prompt_bufnr) fb_actions("create",prompt_bufnr) end,
-              ["D"] = function(prompt_bufnr) fb_actions("remove",prompt_bufnr) end,
-              ["e"] = function(prompt_bufnr) fb_actions("goto_home_dir",prompt_bufnr) end,
-              ["h"] = function(prompt_bufnr) fb_actions("goto_parent_dir",prompt_bufnr) end,
-              ["H"] = function(prompt_bufnr) fb_actions("toggle_hidden",prompt_bufnr) end,
-              ["m"] = function(prompt_bufnr) fb_actions("move",prompt_bufnr) end,
-              ["o"] = function(prompt_bufnr) fb_actions("open",prompt_bufnr) end,
-              ["r"] = function(prompt_bufnr) fb_actions("rename",prompt_bufnr) end,
-              ["w"] = function(prompt_bufnr) fb_actions("goto_cwd",prompt_bufnr) end,
-              ["y"] = function(prompt_bufnr) fb_actions("copy",prompt_bufnr) end,
-              ["z"] = function(prompt_bufnr) fb_actions("toggle_all",prompt_bufnr) end,
-              ["."] = function(prompt_bufnr) fb_actions("change_cwd",prompt_bufnr) end,
+              ["B"] = function(prompt_bufnr) fb_actions("toggle_browser", prompt_bufnr) end,
+              ["c"] = function(prompt_bufnr) fb_actions("create", prompt_bufnr) end,
+              ["D"] = function(prompt_bufnr) fb_actions("remove", prompt_bufnr) end,
+              ["e"] = function(prompt_bufnr) fb_actions("goto_home_dir", prompt_bufnr) end,
+              ["h"] = function(prompt_bufnr) fb_actions("goto_parent_dir", prompt_bufnr) end,
+              ["H"] = function(prompt_bufnr) fb_actions("toggle_hidden", prompt_bufnr) end,
+              ["m"] = function(prompt_bufnr) fb_actions("move", prompt_bufnr) end,
+              ["o"] = function(prompt_bufnr) fb_actions("open", prompt_bufnr) end,
+              ["r"] = function(prompt_bufnr) fb_actions("rename", prompt_bufnr) end,
+              ["w"] = function(prompt_bufnr) fb_actions("goto_cwd", prompt_bufnr) end,
+              ["y"] = function(prompt_bufnr) fb_actions("copy", prompt_bufnr) end,
+              ["z"] = function(prompt_bufnr) fb_actions("toggle_all", prompt_bufnr) end,
+              ["."] = function(prompt_bufnr) fb_actions("change_cwd", prompt_bufnr) end,
             },
           },
         }
@@ -1523,7 +1552,7 @@ local config = {
           },
           ["u"] = {
             name = "UI",
-            u = { M.GoToParentIndent_Repeat, "Jump to current_context", expr = true },
+            u = { function() WhichkeyRepeat("normal! 0", "lua GoToParentIndent()") end, "Jump to current_context", },
             U = { function() astronvim.ui.toggle_url_match() end, "Toggle URL highlight" },
             [";"] = { ":clearjumps<cr>:normal m'<cr>", "Clear and Add jump" }, -- Reset JumpList
           },
@@ -1663,7 +1692,7 @@ local config = {
     cmd({ "BufDelete" }, {
       callback = function()
         if #vim.fn.getbufinfo({ buflisted = true }) == 2 then
-        vim.o.showtabline = 0
+          vim.o.showtabline = 0
         end
       end,
     })
@@ -1792,6 +1821,10 @@ local config = {
     -- │ Text Objects │
     -- ╰──────────────╯
 
+    -- _goto_textobj_(dotrepeat)
+    map('n', "g.", function() return GotoTextObj("") end, { expr = true, desc = "StartOf TextObj" })
+    map('n', "g:", function() return GotoTextObj(":normal `[v`]<cr><esc>") end, { expr = true, desc = "EndOf TextObj" })
+
     -- _last_change_text_object
     map("o", 'gm', "<cmd>normal! `[v`]<Left><cr>", { desc = "Last change textobj" })
     map("x", 'gm', "`[o`]<Left>", { desc = "Last change textobj" })
@@ -1843,7 +1876,7 @@ local config = {
     map({ "o", "x" }, "an", function() require("various-textobjs").number(false) vim.call("repeat#set", "van") end,
       { desc = "outer number textobj" })
     map({ "o", "x" }, "in", function() require("various-textobjs").number(true) vim.call("repeat#set", "vin") end,
-      { desc = "outer number textobj" })
+      { desc = "inner number textobj" })
     map({ "o", "x" }, "aS", function() require("various-textobjs").subword(false) vim.call("repeat#set", "vaS") end,
       { desc = "outer Subword textobj" })
     map({ "o", "x" }, "iS", function() require("various-textobjs").subword(true) vim.call("repeat#set", "vaS") end,
@@ -1926,7 +1959,7 @@ local config = {
 
     -- _nvim-treesitter-textobjs_repeatable
     -- ensure ; goes forward and , goes backward regardless of the last direction
-    local ts_repeat_move_status_ok , ts_repeat_move = pcall(require, "nvim-treesitter.textobjects.repeatable_move")
+    local ts_repeat_move_status_ok, ts_repeat_move = pcall(require, "nvim-treesitter.textobjects.repeatable_move")
     if ts_repeat_move_status_ok then
       map({ "n", "x", "o" }, ";", ts_repeat_move.repeat_last_move_next, { desc = "Next TS textobj" })
       map({ "n", "x", "o" }, ",", ts_repeat_move.repeat_last_move_previous, { desc = "Prev TS textobj" })
@@ -2076,8 +2109,8 @@ local config = {
       map({ "n", "x", "o" }, "gPn", prev_around_numeral, { desc = "Prev Around Number" })
 
       local vert_increment, vert_decrement = ts_repeat_move.make_repeatable_move_pair(
-        function() vim.cmd [[ normal "zyanjvan"zp ]] require("user.autocommands").FeedKeysCorrectly('<C-a>') end,
-        function() vim.cmd [[ normal "zyanjvan"zp ]] require("user.autocommands").FeedKeysCorrectly('<C-x>') end
+        function() vim.cmd [[ normal "zyanjvan"zp ]] FeedKeysCorrectly('<C-a>') end,
+        function() vim.cmd [[ normal "zyanjvan"zp ]] FeedKeysCorrectly('<C-x>') end
       )
       map({ "n" }, "g+", vert_increment, { desc = "Vert Increment" })
       map({ "n" }, "g-", vert_decrement, { desc = "Vert Decrement" })
