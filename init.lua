@@ -7,7 +7,6 @@
 local M = {}
 local null_sources = {}
 local cmd = vim.api.nvim_create_autocmd
-local create_command = vim.api.nvim_create_user_command
 local keymap = vim.api.nvim_set_keymap
 local map = vim.keymap.set
 local opts = { noremap = true, silent = true }
@@ -142,25 +141,6 @@ _G.WhichkeyRepeat = function(firstcmd, secondcmd, thirdcmd)
   vim.o.operatorfunc = 'v:lua.WhichKeyRepeat_Callback'
   vim.cmd.normal { "g@l", bang = true }
 end
-
-------------------------------------------------------------------------------------------------------------------------
-
-function HorzIncrement()
-  vim.cmd [[ normal "zyan ]]
-  vim.cmd [[ execute "normal \<Plug>(textobj-numeral-N)" ]]
-  vim.cmd [[ normal van"zp ]]
-  FeedKeysCorrectly('<C-a>')
-end
-
-function HorzDecrement()
-  vim.cmd [[ normal "zyan ]]
-  vim.cmd [[ execute "normal \<Plug>(textobj-numeral-N)" ]]
-  vim.cmd [[ normal van"zp ]]
-  FeedKeysCorrectly('<C-x>')
-end
-
-create_command("IncrementHorz", HorzIncrement, {})
-create_command("DecrementHorz", HorzDecrement, {})
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -515,7 +495,7 @@ local config = {
       ["<esc><esc>"] = { [[<C-\><C-n>]], desc = "Normal Mode" },
     },
     v = {
-      ["p"] = { '"_dP', desc = "Paste unaltered" },
+      ["p"] = { '"_c<c-r>+<esc>', desc = "Paste unaltered" },
       ["P"] = { 'g_P', desc = "Forward Paste" },
       ["<leader>p"] = { '"*p', desc = "Paste unaltered (second_clip)" },
       ["<leader>P"] = { 'g_"*P', desc = "Forward Paste (second_clip)" },
@@ -643,10 +623,12 @@ local config = {
       ["paraduxos/vim-indent-object"] = { branch = "new_branch", commit = "2408bf0d2d54f70e6cd9cfcb558bd43283bf5003" },
       ["kana/vim-textobj-user"] = { commit = "41a675ddbeefd6a93664a4dc52f302fe3086a933" },
       ["saihoooooooo/vim-textobj-space"] = { commit = "d4dc141aad3ad973a0509956ce753dfd0fc87114" },
-      ["tkhren/vim-textobj-numeral"] = { commit = "264883112b4a34fdd81b29d880f04f3f6437814d" },
-      ["nvim-treesitter/nvim-treesitter-textobjects"] = { commit = "13edf91f47c91b390bb00e1df2f7cc1ca250af3a" },
+      ["nvim-treesitter/nvim-treesitter-textobjects"] = { commit = "4b30081d2736e09f90c890a8a7adfe4df36f5b36" },
       ["RRethy/nvim-treesitter-textsubjects"] = { commit = "bc047b20768845fd54340eb76272b2cf2f6fa3f3" },
       ["coderifous/textobj-word-column.vim"] = { commit = "cb40e1459817a7fa23741ff6df05e4481bde5a33" },
+      ["mg979/vim-visual-multi"] = { commit = "724bd53adfbaf32e129b001658b45d4c5c29ca1a" },
+      ["svermeulen/vim-easyclip"] = { commit = "f1a3b95463402b30dd1e22dae7d0b6ea858db2df" },
+      ["vim-easyclip"] = { commit = "f1a3b95463402b30dd1e22dae7d0b6ea858db2df" },
       ["chrisgrieser/nvim-various-textobjs"] = {
         commit = "2fddc521bd8172dc157c89d2c182983caa898164",
         config = function() require("various-textobjs").setup { useDefaultKeymaps = false, lookForwardLines = 30 } end,
@@ -670,8 +652,16 @@ local config = {
               F = spec_treesitter({ a = '@function.outer', i = '@function.inner', }),
               L = spec_treesitter({ a = '@loop.outer', i = '@loop.inner', }),
               P = spec_treesitter({ a = '@parameter.outer', i = '@parameter.inner', }),
+              R = spec_treesitter({ a = '@return.outer', i = '@return.inner', }),
+              ["="] = spec_treesitter({ a = '@assignment.rhs', i = '@assignment.lhs', }),
+              ["+"] = spec_treesitter({ a = '@assignment.outer', i = '@assignment.inner', }),
+              ["z"] = spec_treesitter({ a = '@number.outer', i = '@number.inner', }),
               a = require('mini.ai').gen_spec.argument({ brackets = { '%b()' } }),
+              k = { { '\n.-[=:]', '^.-[=:]' }, '^%s*()().-()%s-()=?[!=<>\\+-\\*]?[=:]' }, -- .- -> don't be greedy let %s- to exist
+              v = { { '[=:]()%s*().-%s*()[;,]()', '[=:]=?()%s*().*()().$' } }, -- Pattern in double curly bracket equals fallback
               u = { { "%b''", '%b""', '%b``' }, '^.().*().$' },
+              n = { '[-+]?()%f[%d]%d+()%.?%d*' }, -- %f[%d] to make jumping to next group of number instead of next digit
+              x = { '#()%x%x%x%x%x%x()' },
             },
             mappings = {
               around = 'a',
@@ -910,8 +900,8 @@ local config = {
         keymaps = {
           init_selection = '<c-space>', -- maps in normal mode to init the node/scope selection
           node_incremental = '<c-space>', -- increment to the upper named parent
-          scope_incremental = '<c-i>', -- increment to the upper scope (as defined in locals.scm)
-          node_decremental = '<c-h>', -- decrement to the previous node
+          scope_incremental = '<c-]>', -- increment to the upper scope (as defined in locals.scm)
+          node_decremental = '<c-[>', -- decrement to the previous node
         }
       },
       textobjects = {
@@ -927,6 +917,8 @@ local config = {
             ['[aF'] = '@function.outer',
             ['[aL'] = '@loop.outer',
             ['[aP'] = '@parameter.outer',
+            ['[a='] = '@assignment.outer',
+            ['[a+'] = '@assignment.lhs',
             ['[iq'] = '@call.inner',
             ['[iQ'] = '@class.inner',
             ['[ig'] = '@comment.inner',
@@ -936,6 +928,8 @@ local config = {
             ['[iL'] = '@loop.inner',
             ['[iP'] = '@parameter.inner',
             ['[['] = '@parameter.inner',
+            ['[i='] = '@assignment.inner',
+            ['[i+'] = '@assignment.rhs',
           },
           goto_next_start = {
             [']aq'] = '@call.outer',
@@ -946,6 +940,8 @@ local config = {
             [']aF'] = '@function.outer',
             [']aL'] = '@loop.outer',
             [']aP'] = '@parameter.outer',
+            [']a='] = '@assignment.outer',
+            [']a+'] = '@assignment.lhs',
             [']iq'] = '@call.inner',
             [']iQ'] = '@class.inner',
             [']ig'] = '@comment.inner',
@@ -955,6 +951,8 @@ local config = {
             [']iL'] = '@loop.inner',
             [']iP'] = '@parameter.inner',
             [']]'] = '@parameter.inner',
+            [']i='] = '@assignment.inner',
+            [']i+'] = '@assignment.rhs',
           },
           goto_previous_end = {
             ['[eaq'] = '@call.outer',
@@ -965,6 +963,8 @@ local config = {
             ['[eaF'] = '@function.outer',
             ['[eaL'] = '@loop.outer',
             ['[eaP'] = '@parameter.outer',
+            ['[ea='] = '@assignment.outer',
+            ['[ea+'] = '@assignment.lhs',
             ['[eiq'] = '@call.inner',
             ['[eiQ'] = '@class.inner',
             ['[eig'] = '@comment.inner',
@@ -973,6 +973,8 @@ local config = {
             ['[eiF'] = '@function.inner',
             ['[eiL'] = '@loop.inner',
             ['[eiP'] = '@parameter.inner',
+            ['[ei='] = '@assignment.inner',
+            ['[ei+'] = '@assignment.rhs',
           },
           goto_next_end = {
             [']eaq'] = '@call.outer',
@@ -983,6 +985,8 @@ local config = {
             [']eaF'] = '@function.outer',
             [']eaL'] = '@loop.outer',
             [']eaP'] = '@parameter.outer',
+            [']ea='] = '@assignment.outer',
+            [']ea+'] = '@assignment.lhs',
             [']eiq'] = '@call.inner',
             [']eiQ'] = '@class.inner',
             [']eig'] = '@comment.inner',
@@ -991,6 +995,8 @@ local config = {
             [']eiF'] = '@function.inner',
             [']eiL'] = '@loop.inner',
             [']eiP'] = '@parameter.inner',
+            [']ei='] = '@assignment.inner',
+            [']ei+'] = '@assignment.rhs',
           },
         },
         swap = {
@@ -1043,8 +1049,8 @@ local config = {
       window = {
         mappings = {
           ["F"] = "filter_on_submit",
-          ["v"] = "open_vsplit",
-          ["V"] = "open_split",
+          ["v"] = function(state) state.commands["open_vsplit"](state) vim.cmd("Neotree close") end,
+          ["V"] = function(state) state.commands["open_split"](state) vim.cmd("Neotree close") end,
           ["s"] = false,
           ["S"] = false,
           ["f"] = false,
@@ -1837,6 +1843,7 @@ local config = {
     keymap("n", "<leader><Tab>", ":tabnext<CR>", opts)
     keymap("n", "<leader><S-Tab>", ":tabprevious<CR>", opts)
     keymap("n", "<leader>X", ":tabclose<CR>", { desc = "Close Tab" })
+    keymap("n", "gb;", "<C-6>", { noremap = true, silent = true, desc = "go to last buffer" })
 
     -- _codeium_completion
     map('i', '<c-h>', function() return vim.fn['codeium#Clear']() end, { expr = true })
@@ -1896,18 +1903,6 @@ local config = {
       { desc = "Url textobj" })
 
     -- _nvim_various_textobjs: inner-outer
-    map({ "o", "x" }, "av", function() require("various-textobjs").value(false) vim.call("repeat#set", "vav") end,
-      { desc = "outer value textobj" })
-    map({ "o", "x" }, "iv", function() require("various-textobjs").value(true) vim.call("repeat#set", "viv") end,
-      { desc = "inner value textobj" })
-    map({ "o", "x" }, "ak", function() require("various-textobjs").key(false) vim.call("repeat#set", "vak") end,
-      { desc = "outer key textobj" })
-    map({ "o", "x" }, "ik", function() require("various-textobjs").key(true) vim.call("repeat#set", "vik") end,
-      { desc = "inner key textobj" })
-    map({ "o", "x" }, "an", function() require("various-textobjs").number(false) vim.call("repeat#set", "van") end,
-      { desc = "outer number textobj" })
-    map({ "o", "x" }, "in", function() require("various-textobjs").number(true) vim.call("repeat#set", "vin") end,
-      { desc = "inner number textobj" })
     map({ "o", "x" }, "aS", function() require("various-textobjs").subword(false) vim.call("repeat#set", "vaS") end,
       { desc = "outer Subword textobj" })
     map({ "o", "x" }, "iS", function() require("various-textobjs").subword(true) vim.call("repeat#set", "vaS") end,
@@ -1927,15 +1922,33 @@ local config = {
     map({ "o", "x" }, "ir", "<Plug>(textobj-space-i)", { desc = "Space textobj" })
     map({ "o", "x" }, "ar", "<Plug>(textobj-space-a)", { desc = "Space textobj" })
 
-    -- _vim-textobj-numeral
-    vim.g.textobj_numeral_no_default_key_mappings = true
-    map({ "o", "x" }, "ix", "<Plug>(textobj-numeral-hex-i)", { desc = "Hex textobj" })
-    map({ "o", "x" }, "ax", "<Plug>(textobj-numeral-hex-a)", { desc = "Hex textobj" })
-
     -- _illuminate_text_objects
     map({ 'n', 'x', 'o' }, '<a-n>', '<cmd>lua require"illuminate".goto_next_reference(wrap)<cr>')
     map({ 'n', 'x', 'o' }, '<a-p>', '<cmd>lua require"illuminate".goto_prev_reference(wrap)<cr>')
     map({ 'n', 'x', 'o' }, '<a-i>', '<cmd>lua require"illuminate".textobj_select()<cr>')
+
+    -- _clipboard_textobj
+    vim.cmd [[
+      let g:EasyClipUseCutDefaults = 0
+      let g:EasyClipEnableBlackHoleRedirect = 0
+      nmap gx "_d
+      nmap gxx "_dd
+      xmap gx "_d
+
+      let g:EasyClipUseYankDefaults = 0
+      nmap <silent> gy <plug>SubstituteOverMotionMap
+      nmap gyy <plug>SubstituteLine
+      xmap gy <plug>XEasyClipPaste
+
+      let g:EasyClipUsePasteDefaults = 0
+      nmap gY <plug>G_EasyClipPasteBefore
+      xmap gY <Plug>XG_EasyClipPaste
+
+      let g:EasyClipUsePasteToggleDefaults = 0
+      nmap gz <plug>EasyClipSwapPasteForward
+      nmap gZ <plug>EasyClipSwapPasteBackwards
+
+    ]]
 
     -- ╭─────────╮
     -- │ Motions │
@@ -2110,35 +2123,37 @@ local config = {
       map({ "n", "x", "o" }, "<leader><leader>+", next_startline, { desc = "Next StartLine" })
       map({ "n", "x", "o" }, "<leader><leader>-", prev_startline, { desc = "Prev StartLine" })
 
-      -- _vim-textobj-numeral_(goto_repeatable)
+      -- _number_textobj_(goto_repeatable)
       local next_inner_hex, prev_inner_hex = ts_repeat_move.make_repeatable_move_pair(
-        function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-hex-n)" ]] end,
-        function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-hex-p)" ]] end
+        function() require("mini.ai").move_cursor('left', 'i', 'x', { search_method = 'next' }) end,
+        function() require("mini.ai").move_cursor('left', 'i', 'x', { search_method = 'prev' }) end
       )
       map({ "n", "x", "o" }, "gnx", next_inner_hex, { desc = "Next Inner Hex" })
       map({ "n", "x", "o" }, "gpx", prev_inner_hex, { desc = "Prev Inner Hex" })
 
-      local next_inner_numeral, prev_inner_numeral = ts_repeat_move.make_repeatable_move_pair(
-        function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-n)" ]] end,
-        function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-p)" ]] end
-      )
-      map({ "n", "x", "o" }, "gnn", next_inner_numeral, { desc = "Next Inner Number" })
-      map({ "n", "x", "o" }, "gpn", prev_inner_numeral, { desc = "Prev Inner Number" })
-
       local next_around_hex, prev_around_hex = ts_repeat_move.make_repeatable_move_pair(
-        function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-hex-N)" ]] end,
-        function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-hex-P)" ]] end
+        function() require("mini.ai").move_cursor('left', 'a', 'x', { search_method = 'next' }) end,
+        function() require("mini.ai").move_cursor('left', 'a', 'x', { search_method = 'prev' }) end
       )
       map({ "n", "x", "o" }, "gNx", next_around_hex, { desc = "Next Around Hex" })
       map({ "n", "x", "o" }, "gPx", prev_around_hex, { desc = "Prev Around Hex" })
 
+      -- hexadecimalcolor_textobj_(goto_repeatable)
+      local next_inner_numeral, prev_inner_numeral = ts_repeat_move.make_repeatable_move_pair(
+        function() require("mini.ai").move_cursor('left', 'i', 'n', { search_method = 'next' }) end,
+        function() require("mini.ai").move_cursor('left', 'i', 'n', { search_method = 'prev' }) end
+      )
+      map({ "n", "x", "o" }, "gnn", next_inner_numeral, { desc = "Next Inner Number" })
+      map({ "n", "x", "o" }, "gpn", prev_inner_numeral, { desc = "Prev Inner Number" })
+
       local next_around_numeral, prev_around_numeral = ts_repeat_move.make_repeatable_move_pair(
-        function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-N)" ]] end,
-        function() vim.cmd [[ execute "normal \<Plug>(textobj-numeral-P)" ]] end
+        function() require("mini.ai").move_cursor('left', 'a', 'n', { search_method = 'next' }) end,
+        function() require("mini.ai").move_cursor('left', 'a', 'n', { search_method = 'prev' }) end
       )
       map({ "n", "x", "o" }, "gNn", next_around_numeral, { desc = "Next Around Number" })
       map({ "n", "x", "o" }, "gPn", prev_around_numeral, { desc = "Prev Around Number" })
 
+      -- _vert_horz_incremental_(goto_repeatable)
       local vert_increment, vert_decrement = ts_repeat_move.make_repeatable_move_pair(
         function() vim.cmd [[ normal "zyanjvan"zp ]] FeedKeysCorrectly('<C-a>') end,
         function() vim.cmd [[ normal "zyanjvan"zp ]] FeedKeysCorrectly('<C-x>') end
@@ -2147,11 +2162,41 @@ local config = {
       map({ "n" }, "g-", vert_decrement, { desc = "Vert Decrement" })
 
       local horz_increment, horz_decrement = ts_repeat_move.make_repeatable_move_pair(
-        function() vim.cmd [[ IncrementHorz ]] end,
-        function() vim.cmd [[ DecrementHorz ]] end
+        function() vim.cmd [[ normal "zyanvaNn"zp ]] FeedKeysCorrectly('<C-a>') end,
+        function() vim.cmd [[ normal "zyanvaNn"zp ]] FeedKeysCorrectly('<C-x>') end
       )
       map({ "n" }, "gn+", horz_increment, { desc = "Horz increment" })
       map({ "n" }, "gn-", horz_decrement, { desc = "Horz Decrement" })
+
+      -- _key_textobj_(goto_repeatable)
+      local next_inner_key, prev_inner_key = ts_repeat_move.make_repeatable_move_pair(
+        function() require("mini.ai").move_cursor('left', 'i', 'k', { search_method = 'next' }) end,
+        function() require("mini.ai").move_cursor('left', 'i', 'k', { search_method = 'prev' }) end
+      )
+      map({ "n", "x", "o" }, "gnk", next_inner_key, { desc = "Next Inner Key" })
+      map({ "n", "x", "o" }, "gpk", prev_inner_key, { desc = "Prev Inner Key" })
+
+      local next_around_key, prev_around_key = ts_repeat_move.make_repeatable_move_pair(
+        function() require("mini.ai").move_cursor('left', 'a', 'k', { search_method = 'next' }) end,
+        function() require("mini.ai").move_cursor('left', 'a', 'k', { search_method = 'prev' }) end
+      )
+      map({ "n", "x", "o" }, "gNk", next_around_key, { desc = "Next Around Key" })
+      map({ "n", "x", "o" }, "gNk", prev_around_key, { desc = "Prev Around Key" })
+
+      -- _value_textobj_(goto_repeatable)
+      local next_inner_value, prev_inner_value = ts_repeat_move.make_repeatable_move_pair(
+        function() require("mini.ai").move_cursor('left', 'i', 'v', { search_method = 'next' }) end,
+        function() require("mini.ai").move_cursor('left', 'i', 'v', { search_method = 'prev' }) end
+      )
+      map({ "n", "x", "o" }, "gnv", next_inner_value, { desc = "Next Inner Value" })
+      map({ "n", "x", "o" }, "gpv", prev_inner_value, { desc = "Prev Inner Value" })
+
+      local next_around_value, prev_around_value = ts_repeat_move.make_repeatable_move_pair(
+        function() require("mini.ai").move_cursor('left', 'a', 'v', { search_method = 'next' }) end,
+        function() require("mini.ai").move_cursor('left', 'a', 'v', { search_method = 'prev' }) end
+      )
+      map({ "n", "x", "o" }, "gNv", next_around_value, { desc = "Next Around Value" })
+      map({ "n", "x", "o" }, "gNv", prev_around_value, { desc = "Prev Around Value" })
     end
 
     -- ╭───────────╮
@@ -2178,6 +2223,71 @@ local config = {
       end
       handle:close()
     end
+
+    -- ╭──────────╮
+    -- │ WhichKey │
+    -- ╰──────────╯
+
+    local mini_textobj = {
+      q = '@call',
+      Q = '@class',
+      g = '@comment',
+      G = '@conditional',
+      B = '@block',
+      F = '@function',
+      L = '@loop',
+      P = '@parameter',
+      R = '@return',
+      ["="] = '@assignment.side',
+      ["+"] = '@assignment.whole',
+      ['a'] = 'Function Parameters',
+      ['A'] = 'Whole Buffer',
+      ['b'] = 'Alias )]}',
+      ['f'] = 'Function Definition',
+      ['k'] = 'Key',
+      ['n'] = 'Number',
+      ['p'] = 'Paragraph',
+      ['s'] = 'Sentence',
+      ['t'] = 'Tag',
+      ['u'] = 'Alias "\'`',
+      ['v'] = 'Value',
+      ['w'] = 'Word',
+      ['x'] = 'Hex',
+      ['?'] = 'Prompt',
+      ['('] = 'Same as )',
+      ['['] = 'Same as ]',
+      ['{'] = 'Same as }',
+      ['<'] = 'Same as >',
+      ['"'] = 'punctuations...',
+      ["'"] = 'punctuations...',
+      ["`"] = 'punctuations...',
+      ['.'] = 'punctuations...',
+      [','] = 'punctuations...',
+      [';'] = 'punctuations...',
+      ['-'] = 'punctuations...',
+      ['_'] = 'punctuations...',
+      ['/'] = 'punctuations...',
+      ['|'] = 'punctuations...',
+      ['&'] = 'punctuations...',
+      -- `!@#$%^&*()_+-=[]{};'\:"|,./<>?
+    }
+
+    require("which-key").register({
+      mode = { "o", "x" },
+      ["i"] = mini_textobj,
+      ["il"] = { name = "+Last", mini_textobj },
+      ["iN"] = { name = "+Next", mini_textobj },
+      ["a"] = mini_textobj,
+      ["al"] = { name = "+Last", mini_textobj },
+      ["aN"] = { name = "+Next", mini_textobj },
+    })
+
+    require("which-key").register({
+      mode = { "n" },
+      ["g["] = vim.tbl_extend("force", { name = "+Cursor to Left Around" }, mini_textobj),
+      ["g]"] = vim.tbl_extend("force", { name = "+Cursor to Rigth Around" }, mini_textobj),
+    })
+
   end
 }
 

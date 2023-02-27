@@ -266,6 +266,8 @@ RUN <<==== >> $HOME/.tmux.conf
     bind     c                            set -g status on \; new-window
     bind -n  C-t                          set -g status on \; new-window
     bind -n  C-w                          kill-pane
+    bind     -                            swap-pane
+    bind     +                            join-pane
     bind     x                            kill-pane
     bind -n  M-S                          swap-window -t -1\; select-window -t -1
     bind -n  M-F                          swap-window -t +1\; select-window -t +1
