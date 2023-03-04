@@ -638,7 +638,7 @@ local config = {
         config = function() require("illuminate").configure({ filetypes_denylist = { 'neo-tree', } }) end
       },
       ["echasnovski/mini.nvim"] = {
-        commit = "",
+        commit = "c65901227e5a3671dbcb054745566a1c78f9f0c8",
         config = function()
 
           local spec_treesitter = require('mini.ai').gen_spec.treesitter
@@ -680,6 +680,23 @@ local config = {
               start = 'ga',
               start_with_preview = 'gA',
             },
+          })
+
+          require('mini.bracketed').setup({
+            buffer     = { suffix = 'b', options = {} },
+            comment    = { suffix = 'c', options = {} },
+            conflict   = { suffix = 'x', options = {} },
+            diagnostic = { suffix = 'd', options = {} },
+            file       = { suffix = 'f', options = {} },
+            indent     = { suffix = 'n', options = {} },
+            jump       = { suffix = 'j', options = {} },
+            location   = { suffix = 'l', options = {} },
+            oldfile    = { suffix = 'o', options = {} },
+            quickfix   = { suffix = 'q', options = {} },
+            treesitter = { suffix = 't', options = {} },
+            undo       = { suffix = 'u', options = {} },
+            window     = { suffix = 'w', options = {} },
+            yank       = { suffix = 'y', options = {} },
           })
 
           require('mini.comment').setup({
@@ -917,6 +934,7 @@ local config = {
             ['[aF'] = '@function.outer',
             ['[aL'] = '@loop.outer',
             ['[aP'] = '@parameter.outer',
+            ['[aR'] = '@return.outer',
             ['[a='] = '@assignment.outer',
             ['[a+'] = '@assignment.lhs',
             ['[iq'] = '@call.inner',
@@ -927,6 +945,7 @@ local config = {
             ['[iF'] = '@function.inner',
             ['[iL'] = '@loop.inner',
             ['[iP'] = '@parameter.inner',
+            ['[iR'] = '@return.inner',
             ['[['] = '@parameter.inner',
             ['[i='] = '@assignment.inner',
             ['[i+'] = '@assignment.rhs',
@@ -940,6 +959,7 @@ local config = {
             [']aF'] = '@function.outer',
             [']aL'] = '@loop.outer',
             [']aP'] = '@parameter.outer',
+            [']aR'] = '@return.outer',
             [']a='] = '@assignment.outer',
             [']a+'] = '@assignment.lhs',
             [']iq'] = '@call.inner',
@@ -950,6 +970,7 @@ local config = {
             [']iF'] = '@function.inner',
             [']iL'] = '@loop.inner',
             [']iP'] = '@parameter.inner',
+            [']iR'] = '@return.inner',
             [']]'] = '@parameter.inner',
             [']i='] = '@assignment.inner',
             [']i+'] = '@assignment.rhs',
@@ -963,6 +984,7 @@ local config = {
             ['[eaF'] = '@function.outer',
             ['[eaL'] = '@loop.outer',
             ['[eaP'] = '@parameter.outer',
+            ['[eaR'] = '@return.outer',
             ['[ea='] = '@assignment.outer',
             ['[ea+'] = '@assignment.lhs',
             ['[eiq'] = '@call.inner',
@@ -973,6 +995,7 @@ local config = {
             ['[eiF'] = '@function.inner',
             ['[eiL'] = '@loop.inner',
             ['[eiP'] = '@parameter.inner',
+            ['[eiR'] = '@return.inner',
             ['[ei='] = '@assignment.inner',
             ['[ei+'] = '@assignment.rhs',
           },
@@ -985,6 +1008,7 @@ local config = {
             [']eaF'] = '@function.outer',
             [']eaL'] = '@loop.outer',
             [']eaP'] = '@parameter.outer',
+            [']eaR'] = '@return.outer',
             [']ea='] = '@assignment.outer',
             [']ea+'] = '@assignment.lhs',
             [']eiq'] = '@call.inner',
@@ -995,6 +1019,7 @@ local config = {
             [']eiF'] = '@function.inner',
             [']eiL'] = '@loop.inner',
             [']eiP'] = '@parameter.inner',
+            [']eiR'] = '@return.inner',
             [']ei='] = '@assignment.inner',
             [']ei+'] = '@assignment.rhs',
           },
@@ -1825,10 +1850,6 @@ local config = {
     map({ 'n', 't' }, '<M-Right>', require('smart-splits').resize_right)
 
     -- Navigate buffers
-    keymap("n", "]q", ":cnext<CR>", opts)
-    keymap("n", "[q", ":cprevious<CR>", opts)
-    keymap("n", "]l", ":lnext<CR>", opts)
-    keymap("n", "[l", ":lprevious<CR>", opts)
     keymap("n", "<right>", ":bnext<CR>", opts)
     keymap("n", "<left>", ":bprevious<CR>", opts)
     keymap("n", "<Home>", ":tabprevious<CR>", opts)
@@ -2197,6 +2218,15 @@ local config = {
       )
       map({ "n", "x", "o" }, "gNv", next_around_value, { desc = "Next Around Value" })
       map({ "n", "x", "o" }, "gNv", prev_around_value, { desc = "Prev Around Value" })
+
+      -- _comment_(goto_repeatable)
+      local next_comment, prev_comment = ts_repeat_move.make_repeatable_move_pair(
+        function() require('mini.bracketed').comment('forward') end,
+        function() require('mini.bracketed').comment('backward') end
+      )
+      map({ "n", "x", "o" }, "gnc", next_comment, { desc = "Next Comment" })
+      map({ "n", "x", "o" }, "gpc", prev_comment, { desc = "Prev Comment" })
+
     end
 
     -- ╭───────────╮
