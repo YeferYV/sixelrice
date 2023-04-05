@@ -82,7 +82,7 @@ RUN <<"====" >> $HOME/.zprofile
     export LF_ICONS=" tw=:or=:ex=:bd=:di=:ow=:ln=:fi="
     export LS_COLORS="tw=30:or=31:ex=32:bd=33:di=34:ow=35:ln=36:fi=37"
     export PAGER="less -r --use-color -Dd+r -Du+b -DPyk -DSyk"
-    export PATH="$PATH:$HOME/.local/bin"
+    export PATH="$HOME/.local/bin:$PATH"
     export PROMPT_COMMAND='echo -ne "\033]0; ${${PWD/#$HOME/~}##*/} \a"'
     export SAVEHIST=1000000
     export SHELL="$(which zsh)"
