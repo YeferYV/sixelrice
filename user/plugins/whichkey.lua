@@ -231,7 +231,7 @@ return {
           },
           ["p"] = {
             name = "Packages",
-            C = { "<cmd>PackerClean<cr>", "Packer Clean" },
+            -- C = { "<cmd><cr>", "Packer Clean" },
             L = { "<cmd>LspInfo<cr>", "Lsp Info" },
             N = { "<cmd>NullLsInfo<cr>", "NullLs Info" },
           },

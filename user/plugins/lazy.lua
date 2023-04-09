@@ -99,6 +99,7 @@ return {
   },
   {
     "DaikyXendo/nvim-material-icon",
+    lazy = false,
     config = function()
       require("nvim-web-devicons").setup({ override = require("nvim-material-icon").get_icons() })
     end
