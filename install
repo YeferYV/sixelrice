@@ -53,8 +53,8 @@ NIX_INSTALL=true
 [ -e /.dockerenv ] && echo "export APPIMAGE_EXTRACT_AND_RUN=1" >> "$HOME"/.zprofile
 sudo curl -Lo /usr/local/bin/nvim https://github.com/neovim/neovim/releases/download/v0.8.1/nvim.appimage && sudo chmod +x /usr/local/bin/nvim
 git clone --depth=1 https://github.com/astronvim/astronvim ~/.config/nvim
-mkdir -p ~/.config/nvim/lua/user/
-cp init.lua ~/.config/nvim/lua/user/
+cp ./user ~/.config/nvim/lua
+cp ./lazy_snapshot.lua ~/.config/nvim/lua
 
 # source zsh plugins
 cat <<"====" >> "$HOME/.zprofile"

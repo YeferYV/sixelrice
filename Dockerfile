@@ -62,8 +62,8 @@ RUN . $HOME/.nix-profile/etc/profile.d/nix.sh \
     && git clone --depth=1 https://github.com/astronvim/astronvim ~/.config/nvim
 
 # copy astronvim custom config
-RUN mkdir -p  $HOME/.config/nvim/lua/user
-COPY --chown=drksl init.lua $HOME/.config/nvim/lua/user
+COPY --chown=drksl ./user $HOME/.config/nvim/lua
+COPY --chown=drksl ./lazy_snapshot.lua $HOME/.config/nvim/lua
 
 # source zsh plugins
 RUN <<"====" >> $HOME/.zprofile
