@@ -117,10 +117,8 @@ return {
   {
     "folke/which-key.nvim",
     lazy = false,
-    dependencies = { "mrjones2014/legendary.nvim" },
+    dependencies = { "machakann/vim-columnmove" },
     config = function()
-
-      require('legendary').setup({ which_key = { auto_register = true } })
 
       require("which-key").setup({
         plugins = {

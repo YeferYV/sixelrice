@@ -21,9 +21,7 @@ return {
 
   -- Motions
   { "tpope/vim-repeat", event = "VeryLazy" },
-  { "machakann/vim-columnmove", event = "VeryLazy" },
   { "justinmk/vim-sneak", event = "VeryLazy" },
-  { "numToStr/Comment.nvim", config = { disable = true } },
 
   -- Text Objects
   { "paraduxos/vim-indent-object", branch = "new_branch", event = "VeryLazy" },
