@@ -18,14 +18,14 @@ return {
     end,
   },
   { "Exafunction/codeium.vim", event = "InsertEnter" },
-  {
-    "tzachar/cmp-tabnine",
-    build = "./install.sh",
-    config = function()
-      require("cmp_tabnine.config"):setup()
-      astronvim.add_cmp_source({ name = "cmp_tabnine", priority = 1000, max_item_count = 7 })
-    end
-  },
+  -- {
+  --   "tzachar/cmp-tabnine",
+  --   build = "./install.sh",
+  --   config = function()
+  --     require("cmp_tabnine.config"):setup()
+  --     astronvim.add_cmp_source({ name = "cmp_tabnine", priority = 1000, max_item_count = 7 })
+  --   end
+  -- },
   {
     "ahmedkhalf/project.nvim",
     lazy = false,

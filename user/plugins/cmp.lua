@@ -1,5 +1,10 @@
 return {
   {
+    "ray-x/lsp_signature.nvim",
+    event = { "InsertEnter" },
+    config = function() require "lsp_signature".on_attach({ hint_enable = false }) end
+  },
+  {
     "hrsh7th/nvim-cmp",
     -- override the options table that is used in the `require("cmp").setup()` call
     event = { "InsertEnter" },
