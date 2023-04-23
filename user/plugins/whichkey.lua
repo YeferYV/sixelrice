@@ -1,31 +1,6 @@
-local null_sources = {}
-local formatting = require("null-ls").builtins.formatting
+------------------------------------------------------------------------------------------------------------------------
+
 local _, terminal = pcall(require, "toggleterm.terminal")
-
-------------------------------------------------------------------------------------------------------------------------
-
-local function stylua_config()
-  for _, package in ipairs(require("mason-registry").get_installed_packages()) do
-    if package.name == "stylua" then
-      table.insert(
-        null_sources,
-        formatting[package.name].with {
-          extra_args = {
-            "--indent-width=2",
-            "--indent-type=Spaces",
-            "--call-parentheses=None",
-            "--collapse-simple-statement=Always",
-          },
-        }
-      )
-    end
-  end
-end
-
-stylua_config()
-
-------------------------------------------------------------------------------------------------------------------------
-
 local temp_path = "/tmp/lfpickerpath"
 function _LF_TOGGLE(dir, openmode)
   terminal.Terminal:new({

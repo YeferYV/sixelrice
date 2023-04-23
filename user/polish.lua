@@ -509,6 +509,33 @@ local polishconf = function()
   -- │ Lspconfig │
   -- ╰───────────╯
 
+  ------------------------------------------------------------------------------------------------------------------------
+
+  -- _load_system_stylua
+  local null_sources = {}
+  local formatting = require("null-ls").builtins.formatting
+  local function stylua_config()
+    for _, package in ipairs(require("mason-registry").get_installed_packages()) do
+      if package.name == "stylua" then
+        table.insert(
+          null_sources,
+          formatting[package.name].with {
+            extra_args = {
+              "--indent-width=2",
+              "--indent-type=Spaces",
+              "--call-parentheses=None",
+              "--collapse-simple-statement=Always",
+            },
+          }
+        )
+      end
+    end
+  end
+
+  stylua_config()
+
+  ------------------------------------------------------------------------------------------------------------------------
+
   -- _manually_lspconfig_setup_using_nix/system_package_manager
   local handle = io.popen("lua-language-server --version 2>/dev/null")
   if handle then --handles "Need check nil" warning
@@ -529,6 +556,8 @@ local polishconf = function()
     end
     handle:close()
   end
+
+  ------------------------------------------------------------------------------------------------------------------------
 
   -- ╭──────────╮
   -- │ WhichKey │
