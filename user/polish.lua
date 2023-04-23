@@ -2,7 +2,6 @@ local cmd = vim.api.nvim_create_autocmd
 local keymap = vim.api.nvim_set_keymap
 local map = vim.keymap.set
 local opts = { noremap = true, silent = true }
-local ui = require "astronvim.utils.ui"
 
 
 local polishconf = function()
@@ -148,7 +147,22 @@ local polishconf = function()
   map('i', '<A-j>', function() return vim.fn['codeium#CycleCompletions'](1) end, { expr = true, silent = true })
   map('i', '<A-k>', function() return vim.fn['codeium#CycleCompletions'](-1) end, { expr = true, silent = true })
   map('i', '<A-l>', function() return vim.fn['codeium#Accept']() end, { expr = true, silent = true })
-  map('i', '<C-h>', function() ui.toggle_diagnostics() end, { silent = true, desc = "Toggle diagnostics" })
+  map('i', '<C-h>', function()
+    if vim.g.diagnosticsEnabled == "on" or vim.g.diagnosticsEnabled == nil then
+      vim.g.diagnosticsEnabled = "off"
+      vim.diagnostic.config({ virtual_text = false })
+      vim.cmd [[
+      augroup _toggle_virtualtext_insertmode
+      autocmd InsertEnter * lua vim.diagnostic.config({ virtual_text = false })
+      autocmd InsertLeave * lua vim.diagnostic.config({ virtual_text = true })
+      augroup end
+    ]]
+    else
+      vim.g.diagnosticsEnabled = "on"
+      vim.diagnostic.config({ virtual_text = true })
+      vim.cmd [[ autocmd! _toggle_virtualtext_insertmode ]]
+    end
+  end, { silent = true, desc = "Toggle VirtualText (InsertMode Only)" })
 
   -- Replace all/visual_selected
   map({ "n" }, "<C-s>", ":%s//g<Left><Left>", { silent = true, desc = "Replace in Buffer" })
