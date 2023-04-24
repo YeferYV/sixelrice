@@ -142,12 +142,23 @@ local polishconf = function()
   keymap("n", "<leader>X", ":tabclose<CR>", { silent = true, desc = "Close Tab" })
   keymap("n", "gb;", "<C-6>", { noremap = true, silent = true, desc = "go to last buffer" })
 
+  -- Replace all/visual_selected
+  map({ "n" }, "<C-s>", ":%s//g<Left><Left>", { silent = true, desc = "Replace in Buffer" })
+  map({ "x" }, "<C-s>", ":s//g<Left><Left>", { silent = true, desc = "Replace in Visual_selected" })
+
   -- _codeium_completion
   -- map('i', '<A-h>', function() return vim.fn['codeium#Clear']() end, { expr = true, silent = true })
   map('i', '<A-j>', function() return vim.fn['codeium#CycleCompletions'](1) end, { expr = true, silent = true })
   map('i', '<A-k>', function() return vim.fn['codeium#CycleCompletions'](-1) end, { expr = true, silent = true })
   map('i', '<A-l>', function() return vim.fn['codeium#Accept']() end, { expr = true, silent = true })
-  map('i', '<C-h>', function()
+
+  keymap("i", "<C-e>", "<esc><C-e>a", opts)
+  keymap("i", "<C-y>", "<esc><C-y>a", opts)
+  keymap("i", "<C-n>", "<C-e>", opts) -- completes next line
+  keymap("i", "<C-p>", "<C-y>", opts) -- completes previous line
+  map('i', '<C-h>', function() require('lsp_signature').toggle_float_win() end, opts)
+
+  map('i', '<C-v>', function()
     if vim.g.diagnosticsEnabled == "on" or vim.g.diagnosticsEnabled == nil then
       vim.g.diagnosticsEnabled = "off"
       vim.diagnostic.config({ virtual_text = false })
@@ -163,10 +174,6 @@ local polishconf = function()
       vim.cmd [[ autocmd! _toggle_virtualtext_insertmode ]]
     end
   end, { silent = true, desc = "Toggle VirtualText (InsertMode Only)" })
-
-  -- Replace all/visual_selected
-  map({ "n" }, "<C-s>", ":%s//g<Left><Left>", { silent = true, desc = "Replace in Buffer" })
-  map({ "x" }, "<C-s>", ":s//g<Left><Left>", { silent = true, desc = "Replace in Visual_selected" })
 
   -- ╭──────────────╮
   -- │ Text Objects │

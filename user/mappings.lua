@@ -5,11 +5,6 @@
 -- automatically pick-up stored data by this setting.)
 return {
   n = {
-    ["<leader>lF"] = { function() vim.lsp.buf.format(astronvim.lsp.format_opts) end, desc = "Format buffer" },
-    ["K"] = false, -- disable Hover symbol
-    ["gh"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", desc = "Hover Symbol" },
-    ["go"] = { "<cmd>lua vim.diagnostic.open_float()<cr>", desc = "Hover Diagnostics" },
-    ["gl"] = { "`.", desc = "Jump to Last change" }, -- Overwrites Hover Diagnostics
     ["Q"] = { function() vim.cmd("quit") end, desc = "Quit" },
     ["R"] = { function()
       vim.lsp.buf.format()

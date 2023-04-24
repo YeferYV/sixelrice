@@ -49,6 +49,15 @@ return {
     servers = {
       -- "pyright"
     },
+    mappings = {
+      n = {
+        ["<leader>lF"] = { function() vim.lsp.buf.format(astronvim.lsp.format_opts) end, desc = "Format buffer" },
+        ["K"] = false, -- disable Hover symbol
+        ["gh"] = { "<cmd>lua vim.lsp.buf.hover()<CR>", desc = "Hover Symbol" },
+        ["go"] = { "<cmd>lua vim.diagnostic.open_float()<cr>", desc = "Hover Diagnostics" },
+        ["gl"] = { "`.", desc = "Jump to Last change" }, -- Overwrites Hover Diagnostics
+      }
+    },
   },
   ["config"] = {
     jsonls = {
