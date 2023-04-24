@@ -17,12 +17,12 @@ return {
           R = spec_treesitter({ a = '@return.outer', i = '@return.inner', }),
           ["="] = spec_treesitter({ a = '@assignment.rhs', i = '@assignment.lhs', }),
           ["+"] = spec_treesitter({ a = '@assignment.outer', i = '@assignment.inner', }),
-          ["z"] = spec_treesitter({ a = '@number.outer', i = '@number.inner', }),
+          ["*"] = spec_treesitter({ a = '@number.outer', i = '@number.inner', }),
           a = require('mini.ai').gen_spec.argument({ brackets = { '%b()' } }),
           k = { { '\n.-[=:]', '^.-[=:]' }, '^%s*()().-()%s-()=?[!=<>\\+-\\*]?[=:]' }, -- .- -> don't be greedy let %s- to exist
-          v = { { '[=:]()%s*().-%s*()[;,]()', '[=:]=?()%s*().*()().$' } },            -- Pattern in double curly bracket equals fallback
+          v = { { '[=:]()%s*().-%s*()[;,]()', '[=:]=?()%s*().*()().$' } }, -- Pattern in double curly bracket equals fallback
           u = { { "%b''", '%b""', '%b``' }, '^.().*().$' },
-          n = { '[-+]?()%f[%d]%d+()%.?%d*' },                                         -- %f[%d] to make jumping to next group of number instead of next digit
+          n = { '[-+]?()%f[%d]%d+()%.?%d*' }, -- %f[%d] to make jumping to next group of number instead of next digit
           x = { '#()%x%x%x%x%x%x()' },
         },
         mappings = {
@@ -80,7 +80,7 @@ return {
           animation = nil
         },
         mappings = {
-          object_scope = 'iI',             -- empty to disable
+          object_scope = 'iI', -- empty to disable
           object_scope_with_border = 'aI', -- empty to disable
           goto_top = '[ii',
           goto_bottom = ']ii',
@@ -110,15 +110,15 @@ return {
         custom_surroundings = nil,
         highlight_duration = 500,
         mappings = {
-          add = 'ys',            -- Add surrounding in Normal and Visual modes
-          delete = 'ds',         -- Delete surrounding
-          find = 'zf',           -- Find surrounding (to the right)
-          find_left = 'zF',      -- Find surrounding (to the left)
-          highlight = 'zh',      -- Highlight surrounding
-          replace = 'cs',        -- Replace surrounding
+          add = 'ys', -- Add surrounding in Normal and Visual modes
+          delete = 'ds', -- Delete surrounding
+          find = 'zf', -- Find surrounding (to the right)
+          find_left = 'zF', -- Find surrounding (to the left)
+          highlight = 'zh', -- Highlight surrounding
+          replace = 'cs', -- Replace surrounding
           update_n_lines = 'zn', -- Update `n_lines`
-          suffix_last = 'l',     -- Suffix to search with "prev" method
-          suffix_next = 'N',     -- Suffix to search with "next" method
+          suffix_last = 'l', -- Suffix to search with "prev" method
+          suffix_next = 'N', -- Suffix to search with "next" method
         },
       })
     end

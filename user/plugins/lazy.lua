@@ -46,15 +46,19 @@ return {
     event = "VeryLazy",
     dependencies = { "saihoooooooo/vim-textobj-space" }
   },
+  {
+    "nvim-treesitter/nvim-treesitter",
+    dependencies = {
+      { "nvim-treesitter/nvim-treesitter-textobjects" },
+      { "RRethy/nvim-treesitter-textsubjects" },
+    }
+  },
   { "coderifous/textobj-word-column.vim", event = "VeryLazy" },
   { "mg979/vim-visual-multi", event = "VeryLazy" },
   { "svermeulen/vim-easyclip", event = "VeryLazy" },
   {
-    "nvim-treesitter/nvim-treesitter",
-    dependencies = {
-      { "RRethy/nvim-treesitter-textsubjects" },
-      { "chrisgrieser/nvim-various-textobjs", config = { useDefaultKeymaps = false, lookForwardLines = 30 } },
-    }
+    "chrisgrieser/nvim-various-textobjs",
+    config = { useDefaultKeymaps = false, lookForwardSmall = 30, lookForwardBig = 30 }
   },
   {
     "RRethy/vim-illuminate",
@@ -72,7 +76,7 @@ return {
 
   -- UI
   { "folke/tokyonight.nvim" },
-  { "olivercederborg/poimandres.nvim" },
+  -- { "olivercederborg/poimandres.nvim", event = "VeryLazy" },
   {
     "nvim-telescope/telescope-file-browser.nvim",
     lazy = false,

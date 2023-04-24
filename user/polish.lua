@@ -212,6 +212,8 @@ local polishconf = function()
     { silent = true, desc = "Diagnostic textobj" })
   map({ "o", "x" }, "gL", "<cmd>lua require('various-textobjs').nearEoL()<cr>",
     { silent = true, desc = "nearEoL textobj" })
+  map({ "o", "x" }, "g_", "<cmd>lua require('various-textobjs').lineCharacterwise()<CR>",
+    { silent = true, desc = "lineCharacterwise textobj" })
   map({ "o", "x" }, "g|", "<cmd>lua require('various-textobjs').column()<cr>",
     { silent = true, desc = "ColumnDown textobj" })
   map({ "o", "x" }, "gr", "<cmd>lua require('various-textobjs').restOfParagraph()<cr>",
@@ -223,10 +225,18 @@ local polishconf = function()
   map({ "o", "x" }, "gu", "<cmd>lua require('various-textobjs').url()<cr>",
     { silent = true, desc = "Url textobj" })
 
+  map({ "o", "x" }, "am", "<cmd>lua require('various-textobjs').chainMember(false)<CR>",
+    { silent = true, desc = "inner chainMember textobj" })
+  map({ "o", "x" }, "im", "<cmd>lua require('various-textobjs').chainMember(true)<CR>",
+    { silent = true, desc = "inner chainMember textobj" })
   map({ "o", "x" }, "aS", "<cmd>lua require('various-textobjs').subword(false)<cr>",
     { silent = true, desc = "outer Subword textobj" })
   map({ "o", "x" }, "iS", "<cmd>lua require('various-textobjs').subword(true)<cr>",
     { silent = true, desc = "inner Subword textobj" })
+  map({ "o", "x" }, "az", "<cmd>lua require('various-textobjs').closedFold(false)<CR>",
+    { silent = true, desc = "outer ClosedFold textobj" })
+  map({ "o", "x" }, "iz", "<cmd>lua require('various-textobjs').closedFold(true)<CR>",
+    { silent = true, desc = "inner ClosedFold textobj" })
 
   -- _vim_indent_object_(visualrepeatable_+_vimrepeat)
   vim.api.nvim_create_autocmd({ "FileType" }, {
@@ -599,6 +609,7 @@ local polishconf = function()
     R = '@return',
     ["="] = '@assignment.side',
     ["+"] = '@assignment.whole',
+    ["*"] = '@number',
     ['a'] = 'Function Parameters',
     ['A'] = 'Whole Buffer',
     ['b'] = 'Alias )]}',
