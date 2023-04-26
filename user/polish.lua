@@ -140,7 +140,10 @@ local polishconf = function()
   keymap("n", "<leader><Tab>", ":tabnext<CR>", opts)
   keymap("n", "<leader><S-Tab>", ":tabprevious<CR>", opts)
   keymap("n", "<leader>X", ":tabclose<CR>", { silent = true, desc = "Close Tab" })
+  keymap("n", "g,", "g,", { noremap = true, silent = true, desc = "go forward in :changes" })
+  keymap("n", "g;", "g;", { noremap = true, silent = true, desc = "go backward in :changes" })
   keymap("n", "gb;", "<C-6>", { noremap = true, silent = true, desc = "go to last buffer" })
+  keymap("n", "<C-;>", "<C-6>", { noremap = true, silent = true, desc = "go to last buffer" })
 
   -- Replace all/visual_selected
   map({ "n" }, "<C-s>", ":%s//g<Left><Left>", { silent = true, desc = "Replace in Buffer" })

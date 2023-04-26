@@ -76,7 +76,7 @@ return {
 
   -- UI
   { "folke/tokyonight.nvim" },
-  -- { "olivercederborg/poimandres.nvim", event = "VeryLazy" },
+  { "olivercederborg/poimandres.nvim", event = "VeryLazy" },
   {
     "nvim-telescope/telescope-file-browser.nvim",
     lazy = false,

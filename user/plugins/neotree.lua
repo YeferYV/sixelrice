@@ -13,6 +13,7 @@ return {
             state.commands["open_split"](state)
             vim.cmd("Neotree close")
           end,
+          ["0"] = "focus_preview",
           ["s"] = false,
           ["S"] = false,
           ["f"] = false,
@@ -43,6 +44,8 @@ return {
           ["fy"] = function() vim.cmd [[normal 0]] vim.cmd [[/ y]] vim.cmd [[normal n]] end,
           ["fz"] = function() vim.cmd [[normal 0]] vim.cmd [[/ z]] vim.cmd [[normal n]] end,
           ["f/"] = function() vim.cmd [[normal 0]] vim.cmd [[/\v( | )]] vim.cmd [[normal n]] end,
+          ["z"] = "close_all_nodes",
+          ["Z"] = "expand_all_nodes",
         },
       },
       filesystem = {
