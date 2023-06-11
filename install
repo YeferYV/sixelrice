@@ -49,12 +49,12 @@ NIX_INSTALL=true
     nix-collect-garbage -d
   }
 
-# install neovim.appimage v0.8.1 (nixpkgs.neovim doesn't work in codespaces) + astronvim
+# install neovim.appimage v0.9.1 (nixpkgs.neovim doesn't work in codespaces) + astronvim
 [ -e /.dockerenv ] && echo "export APPIMAGE_EXTRACT_AND_RUN=1" >> "$HOME"/.zprofile
-sudo curl -Lo /usr/local/bin/nvim https://github.com/neovim/neovim/releases/download/v0.8.1/nvim.appimage && sudo chmod +x /usr/local/bin/nvim
+sudo curl -Lo /usr/local/bin/nvim https://github.com/neovim/neovim/releases/download/v0.9.1/nvim.appimage && sudo chmod +x /usr/local/bin/nvim
 git clone --depth=1 https://github.com/astronvim/astronvim ~/.config/nvim
-cp ./user ~/.config/nvim/lua
-cp ./lazy_snapshot.lua ~/.config/nvim/lua
+cp -r ./user ~/.config/nvim/lua
+cp ./lazy-lock.json ~/.config/nvim
 
 # source zsh plugins
 cat <<"====" >> "$HOME/.zprofile"
