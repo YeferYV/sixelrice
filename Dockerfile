@@ -1,72 +1,90 @@
-# syntax=docker/dockerfile:1
-
-#=========== Docker build/run alpine-nix-dockerfile ==========#
+#================================ Docker run sixel-rice ================================#
 
 # xhost +
-# sudo pkill dockerd && sleep 1 && sudo dockerd --experimental & disown
-# DOCKER_BUILDKIT=1 docker build --squash -t alpine-nix-dockerfile .
-# docker run -it --name alpine-nix-dockerfile -v /tmp/.X11-unix:/tmp/.X11-unix alpine-nix-dockerfile
+# docker build --tag sixel-rice .
+# docker run -it \
+#     --name sixel-rice \
+#     --ipc=host \
+#     --volume=/run/user/1000/pipewire-0:/run/user/1000/pipewire-0 \
+#     --volume=/tmp/.X11-unix:/tmp/.X11-unix \
+#     sixel-rice
 
-#============= Dockerfile: alpine-nix-dockerfile =============#
+#===================================== Dockerfile ======================================#
 
-# FROM alpine
-# RUN apk add bash curl shadow sudo tmux xz zsh zsh-vcs \
-#     && useradd -mG wheel -s /bin/bash drksl \
-#     && echo root:toor | chpasswd \
-#     && echo drksl:toor | chpasswd \
-#     && echo "%wheel ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel
-# ...
+# FROM ubuntu
+FROM archlinux:base-devel
 
-#=========== Docker build/run ubuntu-nix-dockerfile ==========#
+SHELL ["/bin/bash","-c"]
 
-# xhost +
-# sudo pkill dockerd && sleep 1 && sudo dockerd --experimental & disown
-# DOCKER_BUILDKIT=1 docker build --squash -t ubuntu-nix-dockerfile .
-# docker run -it --name ubuntu-nix-dockerfile -v /tmp/.X11-unix:/tmp/.X11-unix ubuntu-nix-dockerfile
+# add user:
+RUN if [[ -e /bin/pacman ]]; then useradd -mG wheel drksl; fi; \
+  if [[ -e /bin/apt    ]]; then useradd -mG sudo  drksl; fi; \
+  echo root:toor  | chpasswd; \
+  echo drksl:toor | chpasswd; \
+  mkdir -p /etc/sudoers.d; \
+  echo "%sudo ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/sudo; \
+  echo "%wheel ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel
 
-#============= Dockerfile: ubuntu-nix-dockerfile =============#
+# Arch dependencies:
+RUN if [[ -e /bin/pacman ]]; then  \
+  pacman -Sy --noconfirm bat fzf lazygit libsixel lf ripgrep tmux unzip xclip zsh glibc \
+  && curl -L https://github.com/Jguer/yay/releases/download/v12.1.2/yay_12.1.2_x86_64.tar.gz | tar -xzf- --strip-components=1 --directory="/usr/local/bin" "yay_12.1.2_x86_64/yay" \
+  && curl -L https://github.com/neovim/neovim/releases/download/v0.9.1/nvim.appimage                               --create-dirs --output "/usr/local/bin/nvim" && chmod +x /usr/local/bin/nvim; \
+  fi
 
-FROM ubuntu
-RUN apt update \
-    && DEBIAN_FRONTEND=noninteractive apt install -y curl file sudo unzip xz-utils zsh \
-    && useradd -mG sudo -s /bin/bash drksl \
-    && echo root:toor | chpasswd \
-    && echo drksl:toor | chpasswd \
-    && echo "%sudo ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel
+# Debian dependencies:
+RUN if [[ -e /bin/apt ]]; then \
+  apt update \
+  && DEBIAN_FRONTEND=noninteractive apt install -y curl file git gcc libglib2.0-bin libsixel-bin make ripgrep sudo unzip xclip xz-utils zsh \
+  && curl -L https://github.com/sharkdp/bat/releases/download/v0.23.0/bat-v0.23.0-x86_64-unknown-linux-gnu.tar.gz  | $SUDO tar -xzf- --directory="/tmp"  && $SUDO cp "/tmp/bat-v0.23.0-x86_64-unknown-linux-gnu/bat" "/usr/local/bin" \
+  && curl -L https://github.com/jesseduffield/lazygit/releases/download/v0.40.2/lazygit_0.40.2_Linux_x86_64.tar.gz | $SUDO tar -xzf- --directory="/usr/local/bin/" \
+  && curl -L https://github.com/gokcehan/lf/releases/download/r30/lf-linux-amd64.tar.gz                            | $SUDO tar -xzf- --directory="/usr/local/bin/" \
+  && curl -L https://github.com/junegunn/fzf/releases/download/0.42.0/fzf-0.42.0-linux_amd64.tar.gz                | $SUDO tar -xzf- --directory="/usr/local/bin/" \
+  && curl -L https://raw.githubusercontent.com/junegunn/fzf/master/shell/completion.zsh                                   --create-dirs --output "/usr/share/fzf/completion.zsh" \
+  && curl -L https://raw.githubusercontent.com/junegunn/fzf/master/shell/key-bindings.zsh                                 --create-dirs --output "/usr/share/fzf/key-bindings.zsh" \
+  && curl -L https://github.com/antontkv/tmux-appimage/releases/download/3.3a/tmux-3.3a-x86_64.appimage                   --create-dirs --output "/usr/local/bin/tmux" && $SUDO chmod +x /usr/local/bin/tmux \
+  && curl -L https://github.com/neovim/neovim/releases/download/v0.9.1/nvim.appimage                                      --create-dirs --output "/usr/local/bin/nvim" && chmod +x /usr/local/bin/nvim \
+  && chmod o+rx "/usr/share/fzf" \
+  && yes | sh <(curl -L https://nixos.org/nix/install) --daemon; \
+  fi
 
 USER drksl
 WORKDIR /home/drksl
+EXPOSE 22/tcp
+EXPOSE 8080/tcp
 ENV HOME="/home/drksl"
 ENV USER="drksl"
 ENV SHELL="/bin/zsh"
 ENV DISPLAY=:0
 SHELL ["/bin/zsh","-c"]
 
-# install nix
-RUN curl -L nixos.org/nix/install | sh \
-    && . $HOME/.nix-profile/etc/profile.d/nix.sh \
-    && nix-env -iA nixpkgs.bat nixpkgs.fzf nixpkgs.gcc nixpkgs.git nixpkgs.killall nixpkgs.lazygit \
-                   nixpkgs.libsixel nixpkgs.less nixpkgs.lf nixpkgs.neovim nixpkgs.ripgrep nixpkgs.timg nixpkgs.tmux nixpkgs.trash-cli \
-                   nixpkgs.xclip nixpkgs.xdg-utils nixpkgs.zsh-autosuggestions nixpkgs.zsh-fast-syntax-highlighting \
-    && nix-env -iA spaceship-prompt -f https://github.com/NixOS/nixpkgs/archive/ff8b619cfecb98bb94ae49ca7ceca937923a75fa.tar.gz \
-    && nix-collect-garbage -d
+# neovim/zsh/mpv plugins:
+RUN  git clone --depth=1                        https://github.com/astronvim/astronvim                                          "$HOME/.config/nvim" \
+  && git clone --depth=1 --branch "v3.16.4"     https://github.com/spaceship-prompt/spaceship-prompt.git                        "$HOME/.config/spaceship" \
+  && git clone --depth=1                        https://github.com/zsh-users/zsh-autosuggestions                                "$HOME/.config/zsh-autosuggestions" \
+  && git clone --depth=1                        https://github.com/zdharma-continuum/fast-syntax-highlighting                   "$HOME/.config/fast-syntax-highlighting" \
+  && git clone --depth=1                        https://github.com/occivink/mpv-gallery-view                                    "$HOME/.config/mpv" \
+  && curl -L                                    https://raw.githubusercontent.com/jgreco/mpv-pdf/master/pdf_hook.lua         -o "$HOME/.config/mpv/scripts/pdf_hook.lua" \
+  && curl -L                                    https://raw.githubusercontent.com/jgreco/mpv-pdf/master/pdf_hook-worker.lua  -o "$HOME/.config/mpv/scripts/pdf_hook-worker-1.lua" \
+  && curl -L                                    https://raw.githubusercontent.com/jgreco/mpv-pdf/master/pdf_hook-worker.lua  -o "$HOME/.config/mpv/scripts/pdf_hook-worker-2.lua" \
+  && curl -L                                    https://raw.githubusercontent.com/jgreco/mpv-pdf/master/pdf_hook-worker.lua  -o "$HOME/.config/mpv/scripts/pdf_hook-worker-3.lua"
 
-# # ssh
-# RUN DEBIAN_FRONTEND=noninteractive sudo apt install -y openssh-client openssh-server \
-#     && sudo mkdir /run/sshd \
-#     && sudo /usr/bin/ssh-keygen -A \
-#     && echo "sudo /sbin/sshd" >>/home/drksl/.zprofile
+# astronvim configs:
+COPY --chown=drksl ./user           $HOME/.config/nvim/lua/user
+COPY --chown=drksl ./lazy-lock.json $HOME/.config/nvim/lua/lazy-lock.json
 
-# install neovim plugins
-RUN . $HOME/.nix-profile/etc/profile.d/nix.sh \
-    && git clone --depth=1 https://github.com/astronvim/astronvim ~/.config/nvim
+# ssh daemon:
+# RUN if [[ -e /bin/pacman ]]; then sudo pacman -S --noconfirm openssh; fi; \
+#     if [[ -e /bin/apt    ]]; then DEBIAN_FRONTEND=noninteractive sudo apt install -y openssh-client openssh-server; fi; \
+#     sudo mkdir /run/sshd; \
+#     sudo /usr/bin/ssh-keygen -A; \
+#     echo "sudo /sbin/sshd" >>/home/drksl/.zprofile
 
-# copy astronvim custom config
-COPY --chown=drksl ./user $HOME/.config/nvim/lua
-COPY --chown=drksl ./lazy_snapshot.lua $HOME/.config/nvim/lua
+#=============================== zsh configs ===========================================#
 
 # source zsh plugins
 RUN <<"====" >> $HOME/.zprofile
+    export APPIMAGE_EXTRACT_AND_RUN=1
     alias  ll="ls -lAhN --hyperlink=auto --color=auto --group-directories-first"
     alias  ls="ls -a --hyperlink=auto --color=auto --group-directories-first"
     alias  grep="grep --color=auto"
@@ -79,7 +97,7 @@ RUN <<"====" >> $HOME/.zprofile
     export HISTFILE="$HOME/.cache/history"
     export LANG=en_US.UTF-8
     export LESSKEYIN="$HOME/.config/lf/lesskey"
-    export LF_ICONS=" tw=:or=:ex=:bd=:di=:ow=:ln=:fi="
+    export LF_ICONS=" tw=󰉋:or=:ex=:bd=:di=󰉋:ow=󰉋:ln=:fi="
     export LS_COLORS="tw=30:or=31:ex=32:bd=33:di=34:ow=35:ln=36:fi=37"
     export PAGER="less -r --use-color -Dd+r -Du+b -DPyk -DSyk"
     export PATH="$HOME/.local/bin:$PATH"
@@ -95,17 +113,17 @@ RUN <<"====" >> $HOME/.zprofile
     export SPACESHIP_USER_COLOR_ROOT="blue"
     export SPACESHIP_VI_MODE_SHOW="false"
     export TERM="xterm-256color"
-    export VIM="/usr/share/nvim"
     export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#555555"
-    source $HOME/.nix-profile/share/fzf/completion.zsh
-    source $HOME/.nix-profile/share/fzf/key-bindings.zsh
-    source $HOME/.nix-profile/share/zsh/site-functions/fast-syntax-highlighting.plugin.zsh
-    source $HOME/.nix-profile/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-    source $HOME/.nix-profile/lib/spaceship-prompt/spaceship.zsh
-    source $HOME/.nix-profile/etc/profile.d/nix.sh
+    source /usr/share/fzf/key-bindings.zsh
+    source /usr/share/fzf/completion.zsh
+    source $HOME/.config/spaceship/spaceship.zsh
+    source $HOME/.config/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
+    source $HOME/.config/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
     setopt interactive_comments
     precmd() { eval "$PROMPT_COMMAND" }
-    [[ -z $TMUX ]] && sleep 1 && exec tmux -u
+    [[ -e "/bin/apt" ]] && ! pidof -s nix-deamon >/dev/null 2>&1 && sudo /nix/var/nix/profiles/default/bin/nix-daemon &|
+    [[ -z $TMUX ]] && [[ -z $NVIM ]] && export PTS=$TTY && sleep 1 && exec tmux -u
+    [[ $USER != codespace ]] && [[ -e /.dockerenv ]] && export PTS=/dev/pts/0
     bindkey -v '^?' backward-delete-char
     function zle-keymap-select () {
         case $KEYMAP in
@@ -132,14 +150,6 @@ RUN <<"====" >> $HOME/.zprofile
     bindkey -v '^?' backward-delete-char
 ====
 
-# lfcd
-RUN mkdir -p $HOME/.config/lf \
-    && curl -L "https://raw.githubusercontent.com/gokcehan/lf/master/etc/lfcd.sh" >> $HOME/.zprofile \
-    && echo -E "zle -N lfcd </dev/tty"                                            >> $HOME/.zprofile \
-    && echo -E "bindkey '\eo' 'lfcd'"                                             >> $HOME/.zprofile \
-    && sed -i 's/cd "$dir"/cd "$dir" \&\& zle reset-prompt/'                         $HOME/.zprofile \
-    && ln -s $HOME/.zprofile $HOME/.zshrc
-
 # LessKeys
 COPY --chown=drksl <<"====" "$HOME/.config/lf/lesskey"
 h left-scroll
@@ -148,6 +158,28 @@ i quit
 J forw-scroll
 K back-scroll
 ====
+
+# lfcd
+RUN <<"====" >> $HOME/.zprofile
+    [ -e /.dockerenv ] && [ "$(id -u)" != 0 ] && sudo chown "$USER":tty /dev/pts/0
+    lfcd () {
+      tmp="$(mktemp)"
+      command lf -last-dir-path="$tmp" "$@"
+      if [ -f "$tmp" ]; then
+        dir="$(cat "$tmp")"
+        rm -f "$tmp"
+        if [ -d "$dir" ]; then
+          if [ "$dir" != "$(pwd)" ]; then
+            cd "$dir" && zle reset-prompt
+          fi
+        fi
+      fi
+    }
+    zle -N lfcd < $PTS
+    bindkey '\eo' 'lfcd'
+====
+
+#================================== lf configs ===========================================#
 
 # lfrc
 COPY --chown=drksl <<"====" $HOME/.config/lf/lfrc
@@ -158,14 +190,18 @@ set shell /bin/bash
 set previewer ~/.config/lf/previewer
 set cleaner ~/.config/lf/cleaner
 set promptfmt "[1;34m%w "
+set cursoractivefmt  "\033[40m" # "\033[7m\033[30m\033[46m"
+set cursorparentfmt  "\033[40m" # "\033[7m\033[30m\033[46m"
+set cursorpreviewfmt "\033[40m" # "\033[7m\033[30m\033[46m"
 
-cmd on-cd &{{ printf "\033]0; $(TMP=${PWD/#$HOME/\~};echo ${TMP##*/}) \a" >/dev/tty }}
+cmd on-cd &{{ printf "\033]0; $(TMP=${PWD/#$HOME/\~};echo ${TMP##*/}) \a" > $PTS }}
 
 cmd open ${{
-    case $(file --dereference --brief --mime-type $f) in
-        text/*|application/json) printf "\033]0; ${f##*/} \a" >/dev/tty; $EDITOR $fx ;;
-        *) for f in $fx; do xdg-open $f &>/dev/null & disown; done;;
-    esac
+  case $(file --dereference --brief --mime-type $f) in
+    text/*|application/json)         ( printf "\033]0; ${f##*/} \a" ) >$PTS && $EDITOR $fx ;;
+    image/*|video/*|application/pdf)   XDG_RUNTIME_DIR=/run/user/1000 mpv --vo=x11 $fx || ( printf %b '\033Ptmux;\033''\033]777;notify;run "xhost +" outside docker/root;\007\007''\033\\'; XDG_RUNTIME_DIR=/run/user/1000 mpv --vo=sixel,kitty $fx) ;;
+    *) for f in $fx; do gio open "$f" &>/dev/null & disown; done;;
+  esac
 }}
 
 cmd fzf_ripgrep ${{
@@ -181,25 +217,39 @@ cmd fzf_ripgrep ${{
   [ -n "${selected[0]}" ] && nvim "${selected[0]}" "+${selected[1]}"
 }}
 
-map i       $[[ $fx =~ .png|.jpg ]] && img2sixel --loop-control=disable $fx | less -r >/dev/pts/0 && lf -remote "send $id reload redraw" || bat --paging=always --wrap=never $fx
-map o       $( timg -pi --loops=1 --frames=1 $fx | less -rX) >/dev/pts/0 && lf -remote "send $id reload redraw"
-map gmi     $[[ $fx =~ .png|.jpg ]] && img2sixel --loop-control=disable $fx | less -r >/dev/pts/0 && lf -remote "send $id reload redraw" || bat --paging=always --wrap=never $fx
-map gmo     $( timg -pi --loops=1 --frames=1 $fx | less -rX) >/dev/pts/0 && lf -remote "send $id reload redraw"
-map gms     $wezterm cli split-pane --horizontal -- bash -c "timg --center $fx && read"
-map gmt     $wezterm cli spawn -- bash -c "timg --center $fx && read"
+map gmt     $( timg -pi --loops=1 --frames=1        "$f" | less -rX           ) > $PTS || bat --paging=always --wrap=never "$f"
+map i       $[[ "$f" =~ .png|.jpg ]] && ( img2sixel "$f" | less -r            ) > $PTS || bat --paging=always --wrap=never "$f"
+map gmi     $[[ "$f" =~ .png|.jpg ]] && ( img2sixel "$f" | less -r            ) > $PTS || bat --paging=always --wrap=never "$f"
+map o       $[[ "$f" =~ .pdf      ]] && ( convert "${f}[0]" sixel:- | less -r ) > $PTS || (      mpv --ao=null --vo-image-outdir=/tmp  --vo=image --start=1 --frames=1 "$f" && img2sixel /tmp/00000001.jpg | less -r ) > $PTS
+map gmo     $[[ "$f" =~ .pdf      ]] && ( convert "${f}[0]" sixel:- | less -r ) > $PTS || (      mpv --ao=null --vo-image-outdir=/tmp  --vo=image --start=1 --frames=1 "$f" && img2sixel /tmp/00000001.jpg | less -r ) > $PTS
+map gtd     $tmux detach -E                                      "XDG_RUNTIME_DIR=/run/user/1000 PATH=$HOME/.nix-profile/bin:$PATH mpv --vo=sixel,kitty,x11 $fx && tmux attach-session"
+map gtp     $tmux popup -w 110 -h 37 -x 60 -y 1 -E               "XDG_RUNTIME_DIR=/run/user/1000 PATH=$HOME/.nix-profile/bin:$PATH mpv --vo=tct             $fx"
+map gts     $tmux split-window -h && sleep 0.5 && tmux send-keys "XDG_RUNTIME_DIR=/run/user/1000 mpv                                   --vo=sixel,kitty,x11 $fx && exit" 'Enter'
+map gtw     $tmux new-window      && sleep 0.5 && tmux send-keys "XDG_RUNTIME_DIR=/run/user/1000 mpv                                   --vo=sixel,kitty,x11 $fx && exit" 'Enter'
+map gws     $wezterm cli split-pane --horizontal   -- bash -c    "XDG_RUNTIME_DIR=/run/user/1000 mpv                                   --vo=sixel,kitty,x11 $fx"
+map gww     $wezterm cli spawn                     -- bash -c    "XDG_RUNTIME_DIR=/run/user/1000 mpv                                   --vo=sixel,kitty,x11 $fx"
 map gll     $lazygit
-map gfs     $lf -remote "send $id select \"$(fzf --bind='?:toggle-preview' --preview 'bat --color=always {}' --preview-window 'right,50%,border-left' </dev/tty)\""
+map gfs     $lf -remote "send $id select \"$(fzf --bind='?:toggle-preview' --preview 'bat --color=always {}' --preview-window 'right,50%,border-left' < $PTS)\""
 map gfr     :fzf_ripgrep
 map <enter> shell
-map D       $trash --trash-dir ~/.cache/Trash $fx
+map D       $[ ! -e $HOME/.cache/Trash ] && ln -s $HOME/.local/share/Trash $HOME/.cache/Trash; gio trash $fx
 map J       push 10j
 map K       push 10k
+map Y     $ printf "%s" "$fx" | xclip -selection clipboard
 ====
 
 # lf previewer
 COPY --chown=drksl <<"====" $HOME/.config/lf/previewer
 #!/bin/bash
-[[ $1 =~ .png|.jpg ]] && (tput cup $5 $4 && img2sixel --loop-control=disable -w $((${2}*8)) $1) >/dev/pts/0 && exit 1 || bat --style=plain --color=always $1
+
+case $(file --dereference --brief --mime-type $f) in
+  image/*)                    ( img2sixel --loop-control=disable -w $((${2}*7)) "$f" )                                                                     > $PTS && exit 1 || echo "no libsixel :(" ;;
+  # video/*|application/pdf)  ( timg -pi --loops=1 --frames=1 -g "$(($2 - 30))" "$f" )                                                                     > $PTS && exit 1 || echo "no timg :(" ;;
+  application/pdf)            ( convert "${f}[0]" sixel:- )                                                                                                > $PTS && exit 1 || echo "no imagemagick :(" ;;
+  video/*)                    ( mpv --really-quiet --ao=null --vo=image --vo-image-outdir=/tmp --start=10 --frames=1 "$f" && img2sixel /tmp/00000001.jpg ) > $PTS && exit 1 || echo "no mpv :(" ;;
+  *) bat --style=plain --color=always "$f" || echo "no bat :(";;
+esac
+
 ====
 
 # lf cleaner
@@ -211,6 +261,8 @@ killall -s SIGWINCH lf
 # lf executables
 RUN chmod +x $HOME/.config/lf/{previewer,cleaner}
 
+#=================================== tmux configs ===========================================#
+
 # tmux config
 RUN <<==== >> $HOME/.tmux.conf
     set  -g  default-shell                /bin/zsh
@@ -218,11 +270,12 @@ RUN <<==== >> $HOME/.tmux.conf
     set  -g  pane-active-border-style     bg=default,fg=gray
     set  -g  pane-border-style            fg=colour235
     set  -g  status                       off
+    set  -g  allow-passthrough            on
     set  -ga status-style                 bg=default
     set  -ga status-style                 fg="#aaaaaa"
     set  -g  status-left                  ""
     set  -g  status-right                 ""
-    set  -ga terminal-overrides           "xterm-256color:Tc"
+    set  -g  default-terminal             "tmux-256color"
     set  -g  window-status-current-format "#[bg=#1c1c1c,fg=#888888]#{window_index}:#{pane_title}"
     set  -g  window-status-format         "#[bg=default,fg=#2c2c2c]#{window_index}:#{pane_title}"
     set  -g  window-status-separator      " "
