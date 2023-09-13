@@ -35,7 +35,7 @@ RUN if [[ -e /bin/pacman ]]; then  \
 # Debian dependencies:
 RUN if [[ -e /bin/apt ]]; then \
   apt update \
-  && DEBIAN_FRONTEND=noninteractive apt install -y curl file git gcc libglib2.0-bin libsixel-bin make ripgrep sudo unzip xclip xz-utils zsh \
+  && DEBIAN_FRONTEND=noninteractive apt install -y curl file git gcc libglib2.0-bin libsixel-bin locales make ripgrep sudo unzip xclip xz-utils zsh \
   && curl -L https://github.com/sharkdp/bat/releases/download/v0.23.0/bat-v0.23.0-x86_64-unknown-linux-gnu.tar.gz    | $SUDO tar -xzf- --directory="/tmp"  && $SUDO cp "/tmp/bat-v0.23.0-x86_64-unknown-linux-gnu/bat" "/usr/local/bin" \
   && curl -L https://github.com/starship/starship/releases/download/v1.16.0/starship-x86_64-unknown-linux-gnu.tar.gz | $SUDO tar -xzf- --directory="/usr/local/bin/" \
   && curl -L https://github.com/jesseduffield/lazygit/releases/download/v0.40.2/lazygit_0.40.2_Linux_x86_64.tar.gz   | $SUDO tar -xzf- --directory="/usr/local/bin/" \
@@ -48,6 +48,10 @@ RUN if [[ -e /bin/apt ]]; then \
   && chmod o+rx "/usr/share/fzf" \
   && yes | sh <(curl -L https://nixos.org/nix/install) --daemon; \
   fi
+
+# locales for zsh-autosuggestions:
+RUN sed -i 's/#en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen \
+  && locale-gen
 
 USER drksl
 WORKDIR /home/drksl
@@ -101,46 +105,44 @@ RUN <<"====" >> $HOME/.zprofile
     export LS_COLORS="tw=30:or=31:ex=32:bd=33:di=34:ow=35:ln=36:fi=37"
     export PAGER="less -r --use-color -Dd+r -Du+b -DPyk -DSyk"
     export PATH="$HOME/.local/bin:$PATH"
-    export PROMPT_COMMAND='echo -ne "\033]0; ${${PWD/#$HOME/~}##*/} \a"'
     export SAVEHIST=1000000
     export SHELL="$(which zsh)"
     export STARSHIP_CONFIG="$HOME/.config/lf/starship.toml"
     export TERM="xterm-256color"
     export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#555555"
+    [[ -e "/bin/apt" ]]      && ! pidof -s nix-deamon >/dev/null 2>&1 && sudo /nix/var/nix/profiles/default/bin/nix-daemon &|
+    [[ -z $TMUX ]]           && [[ -z $NVIM ]]                        && export PTS=$TTY && sleep 1 && exec tmux -u
+    [[ $USER != codespace ]] && [[ -e /.dockerenv ]]                  && export PTS=/dev/pts/0
+
+    # Basic auto/tab complete:
+    autoload -U compinit && compinit -u
+    zmodload zsh/complist
+    zstyle ':completion:*' menu select
+    _comp_options+=(globdots)		# Include hidden files.
+
+    # zsh-vim keybindings
+    bindkey -v '^?'           backward-delete-char
+    bindkey -M menuselect 'h' vi-backward-char
+    bindkey -M menuselect 'l' vi-forward-char
+    bindkey -M menuselect 'j' vi-down-line-or-history
+    bindkey -M menuselect 'k' vi-up-line-or-history
+    function zle-keymap-select () {
+        case $KEYMAP in
+            vicmd)      echo -ne '\e[2 q';; # block
+            viins|main) echo -ne '\e[6 q';; # beam
+        esac
+    }
+    zle-line-init() { zle -K viins; echo -ne "\e[6 q"; }
+    zle -N zle-keymap-select
+    zle -N zle-line-init
+    preexec() { echo -ne '\e[6 q' ;} # Use beam shape cursor for each new prompt.
+    setopt interactive_comments      # to allow comments
+
     source /usr/share/fzf/key-bindings.zsh
     source /usr/share/fzf/completion.zsh
     source $HOME/.config/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
     source $HOME/.config/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
     eval "$(starship init zsh)"
-    setopt interactive_comments
-    precmd() { eval "$PROMPT_COMMAND" }
-    [[ -e "/bin/apt" ]] && ! pidof -s nix-deamon >/dev/null 2>&1 && sudo /nix/var/nix/profiles/default/bin/nix-daemon &|
-    [[ -z $TMUX ]] && [[ -z $NVIM ]] && export PTS=$TTY && sleep 1 && exec tmux -u
-    [[ $USER != codespace ]] && [[ -e /.dockerenv ]] && export PTS=/dev/pts/0
-    bindkey -v '^?' backward-delete-char
-    function zle-keymap-select () {
-        case $KEYMAP in
-            vicmd) echo -ne '\e[2 q';;      # block
-            viins|main) echo -ne '\e[6 q';; # beam
-        esac
-    }
-    zle -N zle-keymap-select
-    zle-line-init() {
-        zle -K viins
-        echo -ne "\e[6 q"
-    }
-    zle -N zle-line-init
-    preexec() { echo -ne '\e[6 q' ;} # Use beam shape cursor for each new prompt.
-    ## Basic auto/tab complete:
-    autoload -U compinit && compinit -u
-    zmodload zsh/complist
-    zstyle ':completion:*' menu select
-    _comp_options+=(globdots)		# Include hidden files.
-    bindkey -M menuselect 'h' vi-backward-char
-    bindkey -M menuselect 'l' vi-forward-char
-    bindkey -M menuselect 'j' vi-down-line-or-history
-    bindkey -M menuselect 'k' vi-up-line-or-history
-    bindkey -v '^?' backward-delete-char
 ====
 
 # LessKeys
@@ -155,8 +157,10 @@ K back-scroll
 # starship
 COPY --chown=drksl <<"====" "$HOME/.config/lf/starship.toml"
 format = "($battery)($sudo)($username)($directory)($git_branch)($git_status)($cmd_duration)($status)($character)"
-command_timeout = 60000
 add_newline = false
+
+[cmd_duration]
+min_time = 60000
 
 [directory]
 style = "bold fg:#5555cc"
@@ -207,6 +211,7 @@ Alt+j  add video-pan-y -0.05
 
 # lfcd
 RUN <<"====" >> $HOME/.zprofile
+
     [ -e /.dockerenv ] && [ "$(id -u)" != 0 ] && sudo chown "$USER":tty /dev/pts/0
     lfcd () {
       tmp="$(mktemp)"
@@ -223,6 +228,7 @@ RUN <<"====" >> $HOME/.zprofile
     }
     zle -N lfcd < $PTS
     bindkey '\eo' 'lfcd'
+
 ====
 
 #================================== lf configs ===========================================#
