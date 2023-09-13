@@ -159,6 +159,48 @@ J forw-scroll
 K back-scroll
 ====
 
+# mpv
+COPY --chown=drksl <<"====" "$HOME/.config/mpv/input.conf"
+Q seek -10.0
+R seek -10.0
+W seek -5.0
+E seek  5.0
+w seek -5.0
+e seek  5.0
+[ seek -60
+] seek  60
+- add speed -0.1
++ add speed  0.1
+/ set speed  1.0
+* set speed  3.0
+1 seek 10 absolute-percent
+2 seek 20 absolute-percent
+3 seek 30 absolute-percent
+4 seek 40 absolute-percent
+5 seek 50 absolute-percent
+6 seek 60 absolute-percent
+7 seek 70 absolute-percent
+8 seek 80 absolute-percent
+9 seek 90 absolute-percent
+0 seek 0  absolute-percent
+h playlist-prev
+j playlist-next
+k playlist-prev
+l playlist-next
+z playlist-shuffle           # like ncmpcpp shuffle  key
+C cycle sub                  # like youtube captions key
+d      add sub-delay   -0.1  # subtract 100 ms from sub
+D      add sub-delay    0.1  # add      100 ms to   sub
+ctrl+- add volume      -2.0
+ctrl++ add volume       2.0
+alt+i  add video-zoom   0.1  # zoom in
+alt+o  add video-zoom  -0.1  # zoom out
+Alt+h  add video-pan-x  0.05
+Alt+l  add video-pan-x -0.05
+Alt+k  add video-pan-y  0.05
+Alt+j  add video-pan-y -0.05
+====
+
 # lfcd
 RUN <<"====" >> $HOME/.zprofile
     [ -e /.dockerenv ] && [ "$(id -u)" != 0 ] && sudo chown "$USER":tty /dev/pts/0
@@ -217,7 +259,6 @@ cmd fzf_ripgrep ${{
   [ -n "${selected[0]}" ] && nvim "${selected[0]}" "+${selected[1]}"
 }}
 
-map gmt     $( timg -pi --loops=1 --frames=1        "$f" | less -rX           ) > $PTS || bat --paging=always --wrap=never "$f"
 map i       $[[ "$f" =~ .png|.jpg ]] && ( img2sixel "$f" | less -r            ) > $PTS || bat --paging=always --wrap=never "$f"
 map gmi     $[[ "$f" =~ .png|.jpg ]] && ( img2sixel "$f" | less -r            ) > $PTS || bat --paging=always --wrap=never "$f"
 map o       $[[ "$f" =~ .pdf      ]] && ( convert "${f}[0]" sixel:- | less -r ) > $PTS || (      mpv --ao=null --vo-image-outdir=/tmp  --vo=image --start=1 --frames=1 "$f" && img2sixel /tmp/00000001.jpg | less -r ) > $PTS
@@ -243,11 +284,10 @@ COPY --chown=drksl <<"====" $HOME/.config/lf/previewer
 #!/bin/bash
 
 case $(file --dereference --brief --mime-type $f) in
-  image/*)                    ( img2sixel --loop-control=disable -w $((${2}*7)) "$f" )                                                                     > $PTS && exit 1 || echo "no libsixel :(" ;;
-  # video/*|application/pdf)  ( timg -pi --loops=1 --frames=1 -g "$(($2 - 30))" "$f" )                                                                     > $PTS && exit 1 || echo "no timg :(" ;;
-  application/pdf)            ( convert "${f}[0]" sixel:- )                                                                                                > $PTS && exit 1 || echo "no imagemagick :(" ;;
-  video/*)                    ( mpv --really-quiet --ao=null --vo=image --vo-image-outdir=/tmp --start=10 --frames=1 "$f" && img2sixel /tmp/00000001.jpg ) > $PTS && exit 1 || echo "no mpv :(" ;;
-  *) bat --style=plain --color=always "$f" || echo "no bat :(";;
+  image/*)          ( img2sixel --loop-control=disable                                             -w $((${2}*7)) "$f"                 ) > $PTS && exit 1 || echo "no libsixel :(" ;;
+  application/pdf)  ( convert "${f}[0]" png:/tmp/imagemagick.png                      && img2sixel -w $((${2}*4)) /tmp/imagemagick.png ) > $PTS && exit 1 || echo "no imagemagick :(" ;;
+  video/*)          ( ffmpeg -ss 00:10 -i "$1" -frames 1 -f image2 /tmp/ffmpeg.png -y && img2sixel -w $((${2}*7)) /tmp/ffmpeg.png      ) > $PTS && exit 1 || echo "no ffmpeg :(" ;;
+  *)                ( bat --style=plain --color=always "$f" )                                                                                             || echo "no bat :(" ;;
 esac
 
 ====
