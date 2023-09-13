@@ -27,7 +27,7 @@ RUN if [[ -e /bin/pacman ]]; then useradd -mG wheel drksl; fi; \
 
 # Arch dependencies:
 RUN if [[ -e /bin/pacman ]]; then  \
-  pacman -Sy --noconfirm bat fzf lazygit libsixel lf ripgrep tmux unzip xclip zsh glibc \
+  pacman -Sy --noconfirm bat fzf lazygit libsixel lf ripgrep starship tmux unzip xclip zsh glibc \
   && curl -L https://github.com/Jguer/yay/releases/download/v12.1.2/yay_12.1.2_x86_64.tar.gz | tar -xzf- --strip-components=1 --directory="/usr/local/bin" "yay_12.1.2_x86_64/yay" \
   && curl -L https://github.com/neovim/neovim/releases/download/v0.9.1/nvim.appimage                               --create-dirs --output "/usr/local/bin/nvim" && chmod +x /usr/local/bin/nvim; \
   fi
@@ -36,14 +36,15 @@ RUN if [[ -e /bin/pacman ]]; then  \
 RUN if [[ -e /bin/apt ]]; then \
   apt update \
   && DEBIAN_FRONTEND=noninteractive apt install -y curl file git gcc libglib2.0-bin libsixel-bin make ripgrep sudo unzip xclip xz-utils zsh \
-  && curl -L https://github.com/sharkdp/bat/releases/download/v0.23.0/bat-v0.23.0-x86_64-unknown-linux-gnu.tar.gz  | $SUDO tar -xzf- --directory="/tmp"  && $SUDO cp "/tmp/bat-v0.23.0-x86_64-unknown-linux-gnu/bat" "/usr/local/bin" \
-  && curl -L https://github.com/jesseduffield/lazygit/releases/download/v0.40.2/lazygit_0.40.2_Linux_x86_64.tar.gz | $SUDO tar -xzf- --directory="/usr/local/bin/" \
-  && curl -L https://github.com/gokcehan/lf/releases/download/r30/lf-linux-amd64.tar.gz                            | $SUDO tar -xzf- --directory="/usr/local/bin/" \
-  && curl -L https://github.com/junegunn/fzf/releases/download/0.42.0/fzf-0.42.0-linux_amd64.tar.gz                | $SUDO tar -xzf- --directory="/usr/local/bin/" \
-  && curl -L https://raw.githubusercontent.com/junegunn/fzf/master/shell/completion.zsh                                   --create-dirs --output "/usr/share/fzf/completion.zsh" \
-  && curl -L https://raw.githubusercontent.com/junegunn/fzf/master/shell/key-bindings.zsh                                 --create-dirs --output "/usr/share/fzf/key-bindings.zsh" \
-  && curl -L https://github.com/antontkv/tmux-appimage/releases/download/3.3a/tmux-3.3a-x86_64.appimage                   --create-dirs --output "/usr/local/bin/tmux" && $SUDO chmod +x /usr/local/bin/tmux \
-  && curl -L https://github.com/neovim/neovim/releases/download/v0.9.1/nvim.appimage                                      --create-dirs --output "/usr/local/bin/nvim" && chmod +x /usr/local/bin/nvim \
+  && curl -L https://github.com/sharkdp/bat/releases/download/v0.23.0/bat-v0.23.0-x86_64-unknown-linux-gnu.tar.gz    | $SUDO tar -xzf- --directory="/tmp"  && $SUDO cp "/tmp/bat-v0.23.0-x86_64-unknown-linux-gnu/bat" "/usr/local/bin" \
+  && curl -L https://github.com/starship/starship/releases/download/v1.16.0/starship-x86_64-unknown-linux-gnu.tar.gz | $SUDO tar -xzf- --directory="/usr/local/bin/" \
+  && curl -L https://github.com/jesseduffield/lazygit/releases/download/v0.40.2/lazygit_0.40.2_Linux_x86_64.tar.gz   | $SUDO tar -xzf- --directory="/usr/local/bin/" \
+  && curl -L https://github.com/gokcehan/lf/releases/download/r30/lf-linux-amd64.tar.gz                              | $SUDO tar -xzf- --directory="/usr/local/bin/" \
+  && curl -L https://github.com/junegunn/fzf/releases/download/0.42.0/fzf-0.42.0-linux_amd64.tar.gz                  | $SUDO tar -xzf- --directory="/usr/local/bin/" \
+  && curl -L https://raw.githubusercontent.com/junegunn/fzf/master/shell/completion.zsh                                     --create-dirs --output "/usr/share/fzf/completion.zsh" \
+  && curl -L https://raw.githubusercontent.com/junegunn/fzf/master/shell/key-bindings.zsh                                   --create-dirs --output "/usr/share/fzf/key-bindings.zsh" \
+  && curl -L https://github.com/antontkv/tmux-appimage/releases/download/3.3a/tmux-3.3a-x86_64.appimage                     --create-dirs --output "/usr/local/bin/tmux" && $SUDO chmod +x /usr/local/bin/tmux \
+  && curl -L https://github.com/neovim/neovim/releases/download/v0.9.1/nvim.appimage                                        --create-dirs --output "/usr/local/bin/nvim" && chmod +x /usr/local/bin/nvim \
   && chmod o+rx "/usr/share/fzf" \
   && yes | sh <(curl -L https://nixos.org/nix/install) --daemon; \
   fi
@@ -60,7 +61,6 @@ SHELL ["/bin/zsh","-c"]
 
 # neovim/zsh/mpv plugins:
 RUN  git clone --depth=1                        https://github.com/astronvim/astronvim                                          "$HOME/.config/nvim" \
-  && git clone --depth=1 --branch "v3.16.4"     https://github.com/spaceship-prompt/spaceship-prompt.git                        "$HOME/.config/spaceship" \
   && git clone --depth=1                        https://github.com/zsh-users/zsh-autosuggestions                                "$HOME/.config/zsh-autosuggestions" \
   && git clone --depth=1                        https://github.com/zdharma-continuum/fast-syntax-highlighting                   "$HOME/.config/fast-syntax-highlighting" \
   && git clone --depth=1                        https://github.com/occivink/mpv-gallery-view                                    "$HOME/.config/mpv" \
@@ -104,21 +104,14 @@ RUN <<"====" >> $HOME/.zprofile
     export PROMPT_COMMAND='echo -ne "\033]0; ${${PWD/#$HOME/~}##*/} \a"'
     export SAVEHIST=1000000
     export SHELL="$(which zsh)"
-    export SPACESHIP_DIR_COLOR="blue"
-    export SPACESHIP_DIR_PREFIX="\033[34;1min "
-    export SPACESHIP_GIT_PREFIX="\033[35;1mon "
-    export SPACESHIP_DIR_TRUNC=9
-    export SPACESHIP_PROMPT_ADD_NEWLINE="false"
-    export SPACESHIP_PROMPT_SEPARATE_LINE="false"
-    export SPACESHIP_USER_COLOR_ROOT="blue"
-    export SPACESHIP_VI_MODE_SHOW="false"
+    export STARSHIP_CONFIG="$HOME/.config/lf/starship.toml"
     export TERM="xterm-256color"
     export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#555555"
     source /usr/share/fzf/key-bindings.zsh
     source /usr/share/fzf/completion.zsh
-    source $HOME/.config/spaceship/spaceship.zsh
     source $HOME/.config/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
     source $HOME/.config/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
+    eval "$(starship init zsh)"
     setopt interactive_comments
     precmd() { eval "$PROMPT_COMMAND" }
     [[ -e "/bin/apt" ]] && ! pidof -s nix-deamon >/dev/null 2>&1 && sudo /nix/var/nix/profiles/default/bin/nix-daemon &|
@@ -157,6 +150,17 @@ l right-scroll
 i quit
 J forw-scroll
 K back-scroll
+====
+
+# starship
+COPY --chown=drksl <<"====" "$HOME/.config/lf/starship.toml"
+format = "($battery)($sudo)($username)($directory)($git_branch)($git_status)($cmd_duration)($status)($character)"
+command_timeout = 60000
+add_newline = false
+
+[directory]
+style = "bold fg:#5555cc"
+truncation_length = 9
 ====
 
 # mpv
