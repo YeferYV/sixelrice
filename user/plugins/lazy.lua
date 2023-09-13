@@ -77,8 +77,14 @@ return {
   },
 
   -- UI
-  { "folke/tokyonight.nvim" },
   { "olivercederborg/poimandres.nvim", event = "VeryLazy" },
+  { "folke/tokyonight.nvim" },
+  {
+    'oncomouse/lushwal.nvim',
+    event = "BufEnter",
+    cmd = { "LushwalCompile" },
+    dependencies = { "rktjmp/lush.nvim", "rktjmp/shipwright.nvim" },
+  },
   {
     "nvim-telescope/telescope-file-browser.nvim",
     lazy = false,

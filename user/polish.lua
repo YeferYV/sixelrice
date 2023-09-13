@@ -57,11 +57,56 @@ local polishconf = function()
   })
 
   -- _custom_terminal_colors
+  local lushwal_path = "~/.cache/wal/colors.json"
+  if not vim.loop.fs_stat(lushwal_path) then
+    black       =  "#1c1712"
+    red         =  "#294e65"
+    green       =  "#3b5967"
+    yellow      =  "#4b6c74"
+    blue        =  "#72817b"
+    magenta     =  "#859489"
+    cyan        =  "#8e9487"
+    white       =  "#838283"
+    br_black    =  "#454345"
+    br_red      =  "#376887"
+    br_green    =  "#4F778A"
+    br_yellow   =  "#65919B"
+    br_blue     =  "#99ADA5"
+    br_magenta  =  "#B2C6B7"
+    br_cyan     =  "#BEC6B4"
+    br_white    =  "#c1c0c1"
+    grey        =  "#565f89"
+    br_grey     =  "#565f89"
+    amaranth    =  "#376887"
+  else
+    local colors = require("lushwal").colors
+    black       =  string.format("%s",colors.br_white.darken(90) )
+    red         =  string.format("%s",colors.red       )
+    green       =  string.format("%s",colors.green     )
+    yellow      =  string.format("%s",colors.yellow    )
+    blue        =  string.format("%s",colors.blue      )
+    magenta     =  string.format("%s",colors.magenta   )
+    cyan        =  string.format("%s",colors.cyan      )
+    white       =  string.format("%s",colors.white     )
+    br_black    =  string.format("%s",colors.br_black  )
+    br_red      =  string.format("%s",colors.br_red    )
+    br_green    =  string.format("%s",colors.br_green  )
+    br_yellow   =  string.format("%s",colors.br_yellow )
+    br_blue     =  string.format("%s",colors.br_blue   )
+    br_magenta  =  string.format("%s",colors.br_magenta)
+    br_cyan     =  string.format("%s",colors.br_cyan   )
+    br_white    =  string.format("%s",colors.br_white  )
+    grey        =  string.format("%s",colors.grey      )
+    br_grey     =  string.format("%s",colors.br_grey   )
+    amaranth    =  string.format("%s",colors.amaranth  )
+  end
+
   vim.api.nvim_create_autocmd("ColorScheme", {
     pattern = "*",
     callback = function()
       local custom_themes = {
         tokyonight = {
+          custom_colorscheme = {},
           custom_terminal_colors = {
             terminal_color_0  = '#222222',
             terminal_color_1  = '#990000',
@@ -82,6 +127,7 @@ local polishconf = function()
           }
         },
         poimandres = {
+          custom_colorscheme = {},
           custom_terminal_colors = {
             terminal_color_0  = '#222222',
             terminal_color_1  = '#990000',
@@ -101,11 +147,59 @@ local polishconf = function()
             terminal_color_15 = '#ffffff',
           }
         },
+        lushwal = {
+          custom_colorscheme = {
+            ["@comment"]               = { fg = "#3e4041" },
+            ["Comment"]                = { fg = "#3e4041" },
+            ["Visual"]                 = { bg = "#1c1c1c" },
+            GitSignsAdd                = { fg = br_green  },
+            GitSignsChange             = { fg = br_blue   },
+            GitSignsDelete             = { fg = amaranth  },
+            IndentBlanklineChar        = { fg = grey      },
+            IndentBlanklineContextChar = { fg = br_white  },
+            IlluminatedWordText        = { bg = "#080811" },
+            IlluminatedWordRead        = { bg = "#080811" },
+            IlluminatedWordWrite       = { bg = "#080811" },
+            NotifyBackground           = { bg = "#000000" },
+            LspReferenceRead           = { bg = "#080811" },
+            LspReferenceText           = { bg = "#080811" },
+            LspReferenceWrite          = { bg = "#080811" },
+            PmenuSel                   = { bg = "#1c1c1c" },
+            TelescopeSelection         = { bg = "#080811" },
+            TelescopeSelectionCaret    = { bg = "#080811" },
+            WinSeparator               = { fg = br_grey   },
+          },
+          custom_terminal_colors = {
+            terminal_color_0  = black,
+            terminal_color_1  = red,
+            terminal_color_2  = green,
+            terminal_color_3  = yellow,
+            terminal_color_4  = blue,
+            terminal_color_5  = magenta,
+            terminal_color_6  = cyan,
+            terminal_color_7  = white,
+            terminal_color_8  = br_black,
+            terminal_color_9  = br_red,
+            terminal_color_10 = br_green,
+            terminal_color_11 = br_yellow,
+            terminal_color_12 = br_blue,
+            terminal_color_13 = br_magenta,
+            terminal_color_14 = br_cyan,
+            terminal_color_15 = br_white,
+          }
+        }
       }
+
       local selected_colorscheme = custom_themes[vim.g.colors_name]
       if selected_colorscheme then
-        for k, v in pairs(selected_colorscheme.custom_terminal_colors) do
-          vim.g[k] = v
+        -- setting custom_colorscheme
+        for group, conf in pairs(selected_colorscheme.custom_colorscheme) do
+          vim.api.nvim_set_hl(0, group, conf)
+        end
+
+        -- setting custom_terminal_colors
+        for group, conf in pairs(selected_colorscheme.custom_terminal_colors) do
+          vim.g[group] = conf
         end
       end
     end
