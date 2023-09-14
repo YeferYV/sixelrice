@@ -286,7 +286,7 @@ map <enter> shell
 map D       $[ ! -e $HOME/.cache/Trash ] && ln -s $HOME/.local/share/Trash $HOME/.cache/Trash; gio trash $fx
 map J       push 10j
 map K       push 10k
-map Y     $ printf "%s" "$fx" | xclip -selection clipboard
+map Y       $printf "%s" "$fx" | xclip -selection clipboard
 ====
 
 # lf previewer
@@ -305,7 +305,7 @@ esac
 # lf cleaner
 COPY --chown=drksl <<"====" $HOME/.config/lf/cleaner
 #!/bin/bash
-killall -s SIGWINCH lf
+pkill --signal SIGWINCH lf
 ====
 
 # lf executables
