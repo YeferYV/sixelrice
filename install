@@ -66,7 +66,7 @@ set -eu
     $SUDO pacman-key  --init
     $SUDO pacman-key  --populate
     $SUDO pacman -Sy  --noconfirm archlinux-keyring
-    $SUDO pacman -Syu --noconfirm base-devel bat fzf lazygit libsixel lf ripgrep tmux unzip xclip zsh
+    $SUDO pacman -Syu --noconfirm base-devel bat fzf lazygit libsixel lf ripgrep starship tmux unzip xclip zsh
   }
   $SUDO curl -L https://github.com/Jguer/yay/releases/download/v12.1.2/yay_12.1.2_x86_64.tar.gz | $SUDO tar -xzf- --strip-components=1 --directory="/usr/local/bin" "yay_12.1.2_x86_64/yay"
   # yes | yay -S --noconfirm libplacebo-git mpv-git pipewire-pulse imagemagick poppler ghostscript # (libplacebo-git mpv-git dep)(mpv-git autodetects libsixel)(poppler mpv-pdf dep)(ghostscript imagemagick dep)  # multimedia (pre)viewer
@@ -311,7 +311,7 @@ cmd fzf_ripgrep ${{
   IFS=: read -ra selected < <(
     rg --color=always --line-number --no-heading --smart-case "${*:-}" |
       fzf --ansi \
-          --color "hl:-1:underline,hl+:-1:underline:reverse,bg+:#111111" \
+          --color "hl:-1:reverse,hl+:-1:reverse,bg+:#111111" \
           --delimiter : \
           --preview 'bat --color=always {1} --highlight-line {2}' \
           --preview-window 'up,60%,border-bottom,+{2}+3/3,~3'
