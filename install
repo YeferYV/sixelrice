@@ -175,8 +175,9 @@ cat <<"====" >> "$HOME/.zprofile"
     zle-line-init() { zle -K viins; echo -ne "\e[6 q"; }
     zle -N zle-keymap-select
     zle -N zle-line-init
-    preexec() { echo -ne '\e[6 q' ;} # Use beam shape cursor for each new prompt.
-    setopt interactive_comments      # to allow comments
+    preexec() { echo -ne '\e[6 q' ;}                       # Use beam shape cursor for each new prompt.
+    precmd() { printf "\033]0; ${${PWD/#$HOME/~}##*/} \a"} # tmux CWD(current working directory) status
+    setopt interactive_comments                            # to allow comments
 
     source /usr/share/fzf/key-bindings.zsh
     source /usr/share/fzf/completion.zsh
@@ -297,7 +298,7 @@ set cursoractivefmt  "\033[40m" # "\033[7m\033[30m\033[46m"
 set cursorparentfmt  "\033[40m" # "\033[7m\033[30m\033[46m"
 set cursorpreviewfmt "\033[40m" # "\033[7m\033[30m\033[46m"
 
-cmd on-cd &{{ printf "\033]0; $(TMP=${PWD/#$HOME/\~};echo ${TMP##*/}) \a" > $PTS }}
+cmd on-cd &{{ printf "\033]0; $(TMP=${PWD/#$HOME/\~};echo ${TMP##*/}) \a" > /dev/tty }}
 
 cmd open ${{
   case $(file --dereference --brief --mime-type $f) in
@@ -344,11 +345,11 @@ map Y       $printf "%s" "$fx" | xclip -selection clipboard
 cat <<"====">> "$HOME/.config/lf/previewer"
 #!/bin/bash
 
-case $(file --dereference --brief --mime-type $f) in
-  image/*)          ( img2sixel --loop-control=disable                                             -w $((${2}*7)) "$f"                 ) > $PTS && exit 1 || echo "no libsixel :(" ;;
-  application/pdf)  ( convert "${f}[0]" png:/tmp/imagemagick.png                      && img2sixel -w $((${2}*4)) /tmp/imagemagick.png ) > $PTS && exit 1 || echo "no imagemagick :(" ;;
+case $(file --dereference --brief --mime-type $1) in
+  image/*)          ( img2sixel --loop-control=disable                                             -w $((${2}*7)) "$1"                 ) > $PTS && exit 1 || echo "no libsixel :(" ;;
+  application/pdf)  ( convert "${1}[0]" png:/tmp/imagemagick.png                      && img2sixel -w $((${2}*4)) /tmp/imagemagick.png ) > $PTS && exit 1 || echo "no imagemagick :(" ;;
   video/*)          ( ffmpeg -ss 00:10 -i "$1" -frames 1 -f image2 /tmp/ffmpeg.png -y && img2sixel -w $((${2}*7)) /tmp/ffmpeg.png      ) > $PTS && exit 1 || echo "no ffmpeg :(" ;;
-  *)                ( bat --style=plain --color=always "$f" )                                                                                             || echo "no bat :(" ;;
+  *)                ( bat --style=plain --color=always "$1" )                                                                                             || echo "no bat :(" ;;
 esac
 
 ====
