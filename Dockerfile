@@ -28,6 +28,7 @@ RUN if [[ -e /bin/pacman ]]; then useradd -mG wheel drksl; fi; \
 # Arch dependencies:
 RUN if [[ -e /bin/pacman ]]; then  \
   pacman -Sy --noconfirm bat fzf lazygit libsixel lf ripgrep starship tmux unzip xclip zsh glibc \
+  && yes | pacman -Scc \
   && curl -L https://github.com/Jguer/yay/releases/download/v12.1.2/yay_12.1.2_x86_64.tar.gz | tar -xzf- --strip-components=1 --directory="/usr/local/bin" "yay_12.1.2_x86_64/yay" \
   && curl -L https://github.com/neovim/neovim/releases/download/v0.9.1/nvim.appimage                               --create-dirs --output "/usr/local/bin/nvim" && chmod +x /usr/local/bin/nvim; \
   fi
@@ -36,6 +37,7 @@ RUN if [[ -e /bin/pacman ]]; then  \
 RUN if [[ -e /bin/apt ]]; then \
   apt update \
   && DEBIAN_FRONTEND=noninteractive apt install -y curl file git gcc libglib2.0-bin libsixel-bin locales make ripgrep sudo unzip xclip xz-utils zsh \
+  && apt autoremove -y \
   && curl -L https://github.com/sharkdp/bat/releases/download/v0.23.0/bat-v0.23.0-x86_64-unknown-linux-gnu.tar.gz    | $SUDO tar -xzf- --directory="/tmp"  && $SUDO cp "/tmp/bat-v0.23.0-x86_64-unknown-linux-gnu/bat" "/usr/local/bin" \
   && curl -L https://github.com/starship/starship/releases/download/v1.16.0/starship-x86_64-unknown-linux-gnu.tar.gz | $SUDO tar -xzf- --directory="/usr/local/bin/" \
   && curl -L https://github.com/jesseduffield/lazygit/releases/download/v0.40.2/lazygit_0.40.2_Linux_x86_64.tar.gz   | $SUDO tar -xzf- --directory="/usr/local/bin/" \
@@ -215,17 +217,8 @@ RUN <<"====" >> $HOME/.zprofile
 
     [ -e /.dockerenv ] && [ "$(id -u)" != 0 ] && sudo chown "$USER":tty /dev/pts/0
     lfcd () {
-      tmp="$(mktemp)"
-      command lf -last-dir-path="$tmp" "$@"
-      if [ -f "$tmp" ]; then
-        dir="$(cat "$tmp")"
-        rm -f "$tmp"
-        if [ -d "$dir" ]; then
-          if [ "$dir" != "$(pwd)" ]; then
-            cd "$dir" && zle reset-prompt
-          fi
-        fi
-      fi
+      cd "$(command lf -print-last-dir "$@")"
+      zle reset-prompt
     }
     zle -N lfcd < $PTS
     bindkey '\eo' 'lfcd'

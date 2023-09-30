@@ -68,6 +68,7 @@ set -eu
     $SUDO pacman -Sy  --noconfirm archlinux-keyring
     $SUDO pacman -Syu --noconfirm base-devel bat fzf lazygit libsixel lf ripgrep starship tmux unzip xclip zsh
   }
+  yes | $SUDO pacman -Scc
   $SUDO curl -L https://github.com/Jguer/yay/releases/download/v12.1.2/yay_12.1.2_x86_64.tar.gz | $SUDO tar -xzf- --strip-components=1 --directory="/usr/local/bin" "yay_12.1.2_x86_64/yay"
   # yes | yay -S --noconfirm libplacebo-git mpv-git pipewire-pulse imagemagick poppler ghostscript # (libplacebo-git mpv-git dep)(mpv-git autodetects libsixel)(poppler mpv-pdf dep)(ghostscript imagemagick dep)  # multimedia (pre)viewer
 }
@@ -77,6 +78,7 @@ set -eu
   export DEBIAN_FRONTEND=noninteractive
   $SUDO apt update
   $SUDO apt install -y curl file git gcc libglib2.0-bin libsixel-bin locales make ripgrep sudo unzip xclip xz-utils zsh # ( libglib2.0-bin gio binary) (locales zsh-autosuggestions dep)
+  $SUDO apt autoremove -y
   $SUDO curl -L https://github.com/sharkdp/bat/releases/download/v0.23.0/bat-v0.23.0-x86_64-unknown-linux-gnu.tar.gz    | $SUDO tar -xzf- --directory="/tmp"  && $SUDO cp "/tmp/bat-v0.23.0-x86_64-unknown-linux-gnu/bat" "/usr/local/bin"
   $SUDO curl -L https://github.com/starship/starship/releases/download/v1.16.0/starship-x86_64-unknown-linux-gnu.tar.gz | $SUDO tar -xzf- --directory="/usr/local/bin/"
   $SUDO curl -L https://github.com/jesseduffield/lazygit/releases/download/v0.40.2/lazygit_0.40.2_Linux_x86_64.tar.gz   | $SUDO tar -xzf- --directory="/usr/local/bin/"
@@ -116,7 +118,7 @@ $SUDO locale-gen
 
 [ "${TMUX_SIXEL:-}" == true ] && {
   [ -e /bin/pacman ] && $SUDO pacman -S --noconfirm ncurses libevent
-  [ -e /bin/apt ] && $SUDO apt -y install -y autoconf automake bison build-essential flex libevent-dev libncurses-dev pkg-config
+  [ -e /bin/apt ] && $SUDO apt install -y autoconf automake bison build-essential flex libevent-dev libncurses-dev pkg-config
   git clone --depth=1 https://github.com/tmux/tmux.git "/tmp/tmux"
   cd "/tmp/tmux"
   sed -i "/case 64:/a\case 65:" tty-keys.c
@@ -266,17 +268,8 @@ cat <<"====">> "$HOME/.zprofile"
 
     [ -e /.dockerenv ] && [ "$(id -u)" != 0 ] && sudo chown "$USER":tty /dev/pts/0
     lfcd () {
-      tmp="$(mktemp)"
-      command lf -last-dir-path="$tmp" "$@"
-      if [ -f "$tmp" ]; then
-        dir="$(cat "$tmp")"
-        rm -f "$tmp"
-        if [ -d "$dir" ]; then
-          if [ "$dir" != "$(pwd)" ]; then
-            cd "$dir" && zle reset-prompt
-          fi
-        fi
-      fi
+      cd "$(command lf -print-last-dir "$@")"
+      zle reset-prompt
     }
     zle -N lfcd < $PTS
     bindkey '\eo' 'lfcd'
