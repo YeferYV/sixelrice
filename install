@@ -77,21 +77,22 @@ set -eu
 [ -e /bin/apt ] && {
   export DEBIAN_FRONTEND=noninteractive
   $SUDO apt update
-  $SUDO apt install -y curl file git gcc libglib2.0-bin libsixel-bin locales make ripgrep sudo unzip xclip xz-utils zsh # ( libglib2.0-bin gio binary) (locales zsh-autosuggestions dep)
+  $SUDO apt install -y curl file git gcc libsixel-bin locales make ripgrep sudo unzip xclip xdg-utils xz-utils zsh # (locales zsh-autosuggestions dep)
   $SUDO apt autoremove -y
   $SUDO curl -L https://github.com/sharkdp/bat/releases/download/v0.23.0/bat-v0.23.0-x86_64-unknown-linux-gnu.tar.gz    | $SUDO tar -xzf- --directory="/tmp"  && $SUDO cp "/tmp/bat-v0.23.0-x86_64-unknown-linux-gnu/bat" "/usr/local/bin"
   $SUDO curl -L https://github.com/starship/starship/releases/download/v1.16.0/starship-x86_64-unknown-linux-gnu.tar.gz | $SUDO tar -xzf- --directory="/usr/local/bin/"
   $SUDO curl -L https://github.com/jesseduffield/lazygit/releases/download/v0.40.2/lazygit_0.40.2_Linux_x86_64.tar.gz   | $SUDO tar -xzf- --directory="/usr/local/bin/"
-  $SUDO curl -L https://github.com/gokcehan/lf/releases/download/r30/lf-linux-amd64.tar.gz                              | $SUDO tar -xzf- --directory="/usr/local/bin/"
+  $SUDO curl -L https://github.com/gokcehan/lf/releases/download/r31/lf-linux-amd64.tar.gz                              | $SUDO tar -xzf- --directory="/usr/local/bin/"
   $SUDO curl -L https://github.com/junegunn/fzf/releases/download/0.42.0/fzf-0.42.0-linux_amd64.tar.gz                  | $SUDO tar -xzf- --directory="/usr/local/bin/"
   $SUDO curl -L https://raw.githubusercontent.com/junegunn/fzf/master/shell/completion.zsh                                     --create-dirs --output "/usr/share/fzf/completion.zsh"
   $SUDO curl -L https://raw.githubusercontent.com/junegunn/fzf/master/shell/key-bindings.zsh                                   --create-dirs --output "/usr/share/fzf/key-bindings.zsh"
   $SUDO curl -L https://github.com/antontkv/tmux-appimage/releases/download/3.3a/tmux-3.3a-x86_64.appimage                     --create-dirs --output "/usr/local/bin/tmux" && $SUDO chmod +x /usr/local/bin/tmux
+  # $SUDO curl -L https://github.com/ImageMagick/ImageMagick/releases/download/7.1.1-18/ImageMagick--gcc-x86_64.AppImage         --create-dirs --output "/usr/local/bin/convert" && $SUDO chmod +x /usr/local/bin/convert
   $SUDO chmod o+rx "/usr/share/fzf"
   yes | sh <(curl -L https://nixos.org/nix/install) --daemon
   # nix-env --install -E 'f: (import <nixpkgs> {}).mpv-unwrapped.override { sixelSupport = true; }'                                                                # multimedia viewer
   # nix-build -o /tmp/mpv -E 'with import <nixpkgs> {}; mpv-unwrapped.override { sixelSupport = true; }' && nix-env --install $(readlink /tmp/mpv)                 # multimedia viewer
-  # nix-env -iA nixpkgs.imagemagick nixpkgs.ffmpeg                                                                                                                 # multimedia previewer
+  # nix-env -iA nixpkgs.ffmpeg                                                                                                                                     # multimedia previewer
   # apt -y install pipewire-pulse poppler-utils ghostscript # (apt-install-mpv  doesn't support pipewire) (apt-install-imagemagick too old with pdf restrictions)  # multimedia dependencies
 }
 
@@ -145,6 +146,7 @@ cat <<"====" >> "$HOME/.zprofile"
     export LESSKEYIN="$HOME/.config/lf/lesskey"
     export LF_ICONS=" tw=󰉋:or=:ex=:bd=:di=󰉋:ow=󰉋:ln=:fi="
     export LS_COLORS="tw=30:or=31:ex=32:bd=33:di=34:ow=35:ln=36:fi=37"
+    export OPENER="$([ -e /bin/apt ] && echo 'xdg-open' || echo 'gio open')"
     export PAGER="less -r --use-color -Dd+r -Du+b -DPyk -DSyk"
     export PATH="$HOME/.local/bin:$PATH"
     export SAVEHIST=1000000
@@ -152,7 +154,7 @@ cat <<"====" >> "$HOME/.zprofile"
     export STARSHIP_CONFIG="$HOME/.config/lf/starship.toml"
     export TERM="xterm-256color"
     export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#555555"
-    [[ -e "/bin/apt" ]]      && ! pidof -s nix-deamon >/dev/null 2>&1 && sudo /nix/var/nix/profiles/default/bin/nix-daemon &|
+    [[ -e "/bin/apt" ]]      && ! pidof -s nix-daemon >/dev/null 2>&1 && sudo /nix/var/nix/profiles/default/bin/nix-daemon &|
     [[ -z $TMUX ]]           && [[ -z $NVIM ]]                        && export PTS=$TTY && sleep 1 && exec tmux -u
     [[ $USER != codespace ]] && [[ -e /.dockerenv ]]                  && export PTS=/dev/pts/0
 
@@ -297,7 +299,7 @@ cmd open ${{
   case $(file --dereference --brief --mime-type $f) in
     text/*|application/json)         ( printf "\033]0; ${f##*/} \a" ) >$PTS && $EDITOR $fx ;;
     image/*|video/*|application/pdf)   XDG_RUNTIME_DIR=/run/user/1000 mpv --vo=x11 $fx || ( printf %b '\033Ptmux;\033''\033]777;notify;run "xhost +" outside docker/root;\007\007''\033\\'; XDG_RUNTIME_DIR=/run/user/1000 mpv --vo=sixel,kitty $fx) ;;
-    *) for f in $fx; do gio open "$f" &>/dev/null & disown; done;;
+    *) for f in $fx; do $OPENER "$f" &>/dev/null & disown; done;;
   esac
 }}
 
@@ -328,7 +330,7 @@ map gll     $lazygit
 map gfs     $lf -remote "send $id select \"$(fzf --bind='?:toggle-preview' --preview 'bat --color=always {}' --preview-window 'right,50%,border-left' < $PTS)\""
 map gfr     :fzf_ripgrep
 map <enter> shell
-map D       $[ ! -e $HOME/.cache/Trash ] && ln -s $HOME/.local/share/Trash $HOME/.cache/Trash; gio trash $fx
+map D       $mkdir -p $HOME/.cache/Trash && basename -a $fx | xargs -I var mv var "$HOME/.cache/Trash/var-$(date '+%y%m%d-%H-%M-%S')"
 map J       push 10j
 map K       push 10k
 map Y       $printf "%s" "$fx" | xclip -selection clipboard

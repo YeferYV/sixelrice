@@ -36,7 +36,7 @@ RUN if [[ -e /bin/pacman ]]; then  \
 # Debian dependencies:
 RUN if [[ -e /bin/apt ]]; then \
   apt update \
-  && DEBIAN_FRONTEND=noninteractive apt install -y curl file git gcc libglib2.0-bin libsixel-bin locales make ripgrep sudo unzip xclip xz-utils zsh \
+  && DEBIAN_FRONTEND=noninteractive apt install -y curl file git gcc libsixel-bin locales make ripgrep sudo unzip xclip xdg-utils xz-utils zsh \
   && apt autoremove -y \
   && curl -L https://github.com/sharkdp/bat/releases/download/v0.23.0/bat-v0.23.0-x86_64-unknown-linux-gnu.tar.gz    | $SUDO tar -xzf- --directory="/tmp"  && $SUDO cp "/tmp/bat-v0.23.0-x86_64-unknown-linux-gnu/bat" "/usr/local/bin" \
   && curl -L https://github.com/starship/starship/releases/download/v1.16.0/starship-x86_64-unknown-linux-gnu.tar.gz | $SUDO tar -xzf- --directory="/usr/local/bin/" \
@@ -105,6 +105,7 @@ RUN <<"====" >> $HOME/.zprofile
     export LESSKEYIN="$HOME/.config/lf/lesskey"
     export LF_ICONS=" tw=󰉋:or=:ex=:bd=:di=󰉋:ow=󰉋:ln=:fi="
     export LS_COLORS="tw=30:or=31:ex=32:bd=33:di=34:ow=35:ln=36:fi=37"
+    export OPENER="$([ -e /bin/apt ] && echo 'xdg-open' || echo 'gio open')"
     export PAGER="less -r --use-color -Dd+r -Du+b -DPyk -DSyk"
     export PATH="$HOME/.local/bin:$PATH"
     export SAVEHIST=1000000
@@ -112,7 +113,7 @@ RUN <<"====" >> $HOME/.zprofile
     export STARSHIP_CONFIG="$HOME/.config/lf/starship.toml"
     export TERM="xterm-256color"
     export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#555555"
-    [[ -e "/bin/apt" ]]      && ! pidof -s nix-deamon >/dev/null 2>&1 && sudo /nix/var/nix/profiles/default/bin/nix-daemon &|
+    [[ -e "/bin/apt" ]]      && ! pidof -s nix-daemon >/dev/null 2>&1 && sudo /nix/var/nix/profiles/default/bin/nix-daemon &|
     [[ -z $TMUX ]]           && [[ -z $NVIM ]]                        && export PTS=$TTY && sleep 1 && exec tmux -u
     [[ $USER != codespace ]] && [[ -e /.dockerenv ]]                  && export PTS=/dev/pts/0
 
@@ -246,7 +247,7 @@ cmd open ${{
   case $(file --dereference --brief --mime-type $f) in
     text/*|application/json)         ( printf "\033]0; ${f##*/} \a" ) >$PTS && $EDITOR $fx ;;
     image/*|video/*|application/pdf)   XDG_RUNTIME_DIR=/run/user/1000 mpv --vo=x11 $fx || ( printf %b '\033Ptmux;\033''\033]777;notify;run "xhost +" outside docker/root;\007\007''\033\\'; XDG_RUNTIME_DIR=/run/user/1000 mpv --vo=sixel,kitty $fx) ;;
-    *) for f in $fx; do gio open "$f" &>/dev/null & disown; done;;
+    *) for f in $fx; do $OPENER "$f" &>/dev/null & disown; done;;
   esac
 }}
 
@@ -277,7 +278,7 @@ map gll     $lazygit
 map gfs     $lf -remote "send $id select \"$(fzf --bind='?:toggle-preview' --preview 'bat --color=always {}' --preview-window 'right,50%,border-left' < $PTS)\""
 map gfr     :fzf_ripgrep
 map <enter> shell
-map D       $[ ! -e $HOME/.cache/Trash ] && ln -s $HOME/.local/share/Trash $HOME/.cache/Trash; gio trash $fx
+map D       $mkdir -p $HOME/.cache/Trash && basename -a $fx | xargs -I var mv var "$HOME/.cache/Trash/var-$(date '+%y%m%d-%H-%M-%S')"
 map J       push 10j
 map K       push 10k
 map Y       $printf "%s" "$fx" | xclip -selection clipboard
