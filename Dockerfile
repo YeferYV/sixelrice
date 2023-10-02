@@ -41,7 +41,7 @@ RUN if [[ -e /bin/apt ]]; then \
   && curl -L https://github.com/sharkdp/bat/releases/download/v0.23.0/bat-v0.23.0-x86_64-unknown-linux-gnu.tar.gz    | $SUDO tar -xzf- --directory="/tmp"  && $SUDO cp "/tmp/bat-v0.23.0-x86_64-unknown-linux-gnu/bat" "/usr/local/bin" \
   && curl -L https://github.com/starship/starship/releases/download/v1.16.0/starship-x86_64-unknown-linux-gnu.tar.gz | $SUDO tar -xzf- --directory="/usr/local/bin/" \
   && curl -L https://github.com/jesseduffield/lazygit/releases/download/v0.40.2/lazygit_0.40.2_Linux_x86_64.tar.gz   | $SUDO tar -xzf- --directory="/usr/local/bin/" \
-  && curl -L https://github.com/gokcehan/lf/releases/download/r30/lf-linux-amd64.tar.gz                              | $SUDO tar -xzf- --directory="/usr/local/bin/" \
+  && curl -L https://github.com/gokcehan/lf/releases/download/r31/lf-linux-amd64.tar.gz                              | $SUDO tar -xzf- --directory="/usr/local/bin/" \
   && curl -L https://github.com/junegunn/fzf/releases/download/0.42.0/fzf-0.42.0-linux_amd64.tar.gz                  | $SUDO tar -xzf- --directory="/usr/local/bin/" \
   && curl -L https://raw.githubusercontent.com/junegunn/fzf/master/shell/completion.zsh                                     --create-dirs --output "/usr/share/fzf/completion.zsh" \
   && curl -L https://raw.githubusercontent.com/junegunn/fzf/master/shell/key-bindings.zsh                                   --create-dirs --output "/usr/share/fzf/key-bindings.zsh" \
