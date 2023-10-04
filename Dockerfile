@@ -290,7 +290,7 @@ COPY --chown=drksl <<"====" $HOME/.config/lf/previewer
 
 case $(file --dereference --brief --mime-type $1) in
   image/*)          ( img2sixel --loop-control=disable                                             -w $((${2}*7)) "$1"                 ) > $PTS && exit 1 || echo "no libsixel :(" ;;
-  application/pdf)  ( convert "${1}[0]" png:/tmp/imagemagick.png                      && img2sixel -w $((${2}*4)) /tmp/imagemagick.png ) > $PTS && exit 1 || echo "no imagemagick :(" ;;
+  application/pdf)  ( convert "${1}[0]" jpg:/tmp/imagemagick.png                      && img2sixel -w $((${2}*4)) /tmp/imagemagick.png ) > $PTS && exit 1 || echo "no imagemagick :(" ;;
   video/*)          ( ffmpeg -ss 00:10 -i "$1" -frames 1 -f image2 /tmp/ffmpeg.png -y && img2sixel -w $((${2}*7)) /tmp/ffmpeg.png      ) > $PTS && exit 1 || echo "no ffmpeg :(" ;;
   *)                ( bat --style=plain --color=always "$1" )                                                                                             || echo "no bat :(" ;;
 esac
