@@ -84,7 +84,7 @@ return {
       { "rktjmp/shipwright.nvim", commit = "ab70e80bb67b7ed3350bec89dd73473539893932" }
     },
     -- config = function() vim.g.lushwal_configuration = { compile_to_vimscript = false } end
-  }
+  },
   {
     "nvim-telescope/telescope-file-browser.nvim",
     commit = "e0fcb12702ad0d2873544a31730f9aaef04fd032",

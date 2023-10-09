@@ -72,7 +72,7 @@ local polishconf = function()
 
   -- https://thevaluable.dev/vim-create-text-objects
   -- select indent by the same level:
-  M.select_indent = function(check_blank_line)
+  function select_indent(check_blank_line)
     local start_indent = vim.fn.indent(vim.fn.line('.'))
 
     if check_blank_line then
@@ -99,7 +99,7 @@ local polishconf = function()
   ------------------------------------------------------------------------------------------------------------------------
 
   -- next/prev same level indent:
-  M.next_indent = function(next)
+  function next_indent(next)
     local start_indent = vim.fn.indent(vim.fn.line('.'))
     local next_line = next and ( vim.fn.line('.') + 1 ) or ( vim.fn.line('.') - 1 )
     local sign = next and '+' or '-'
@@ -415,8 +415,8 @@ local polishconf = function()
   map({ "o", "x" }, "aI", "<Cmd>lua MiniIndentscope.textobject(true)<CR>", { silent = true, desc = "MiniIndentscope borders blankline_skip" })
 
   -- indent same level textobj:
-  map({"x","o"}, "iy", function() require("user.autocommands").select_indent(false) end, { silent = true, desc = "indent_samelevel_noblankline textobj" })
-  map({"x","o"}, "ay", function() require("user.autocommands").select_indent(true) end, { silent = true, desc = "indent_samelevel_blankline textobj" })
+  map({"x","o"}, "iy", function() select_indent(false) end, { silent = true, desc = "indent_samelevel_noblankline textobj" })
+  map({"x","o"}, "ay", function() select_indent(true) end, { silent = true, desc = "indent_samelevel_blankline textobj" })
 
   -- _illuminate_text_objects
   map({ 'n', 'x', 'o' }, '<a-n>', '<cmd>lua require"illuminate".goto_next_reference(wrap)<cr>', opts)
