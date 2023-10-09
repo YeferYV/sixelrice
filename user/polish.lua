@@ -12,8 +12,12 @@ local polishconf = function()
   -- _autostart_EnableAutoNoHighlightSearch
   EnableAutoNoHighlightSearch()
 
+  ------------------------------------------------------------------------------------------------------------------------
+
   -- _jump_to_last_position_on_reopen
   vim.cmd [[ au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif ]]
+
+  ------------------------------------------------------------------------------------------------------------------------
 
   -- _disable_autocommented_new_lines
   vim.api.nvim_create_autocmd("FileType", {
@@ -23,8 +27,12 @@ local polishconf = function()
     end,
   })
 
+  ------------------------------------------------------------------------------------------------------------------------
+
   -- _show_bufferline_if_more_than_two
   cmd({ "BufAdd" }, { command = "set showtabline=2" })
+
+  ------------------------------------------------------------------------------------------------------------------------
 
   -- _hide_bufferline_if_last_buffer
   cmd({ "BufDelete" }, {
@@ -35,8 +43,12 @@ local polishconf = function()
     end,
   })
 
+  ------------------------------------------------------------------------------------------------------------------------
+
   -- _show_tabs_if_more_than_two
   cmd({ "TabNew" }, { command = "set showtabline=2" })
+
+  ------------------------------------------------------------------------------------------------------------------------
 
   -- _show_alpha_if_close_last_tab-terminal
   cmd({ "TermClose" }, {
@@ -55,6 +67,57 @@ local polishconf = function()
       end
     end,
   })
+
+  ------------------------------------------------------------------------------------------------------------------------
+
+  -- https://thevaluable.dev/vim-create-text-objects
+  -- select indent by the same level:
+  M.select_indent = function(check_blank_line)
+    local start_indent = vim.fn.indent(vim.fn.line('.'))
+
+    if check_blank_line then
+      match_blank_line = function(line) return string.match(vim.fn.getline(line), '^%s*$') end
+    else
+      match_blank_line = function(line) return false end
+    end
+
+    local prev_line = vim.fn.line('.') - 1
+    while vim.fn.indent(prev_line) == start_indent or match_blank_line(prev_line) do
+      vim.cmd('-')
+      prev_line = vim.fn.line('.') - 1
+    end
+
+    vim.cmd('normal! 0V')
+
+    local next_line = vim.fn.line('.') + 1
+    while vim.fn.indent(next_line) == start_indent or match_blank_line(next_line) do
+      vim.cmd('+')
+      next_line = vim.fn.line('.') + 1
+    end
+  end
+
+  ------------------------------------------------------------------------------------------------------------------------
+
+  -- next/prev same level indent:
+  M.next_indent = function(next)
+    local start_indent = vim.fn.indent(vim.fn.line('.'))
+    local next_line = next and ( vim.fn.line('.') + 1 ) or ( vim.fn.line('.') - 1 )
+    local sign = next and '+' or '-'
+
+    while vim.fn.indent(next_line) == start_indent do
+      vim.cmd(sign)
+      next_line = next and ( vim.fn.line('.') + 1 ) or ( vim.fn.line('.') - 1 )
+    end
+
+    while vim.fn.indent(next_line) > start_indent or string.match(vim.fn.getline(next_line), '^%s*$')  do
+      vim.cmd(sign)
+      next_line = next and ( vim.fn.line('.') + 1 ) or ( vim.fn.line('.') - 1 )
+    end
+
+    vim.cmd(sign)
+  end
+
+  ------------------------------------------------------------------------------------------------------------------------
 
   -- _custom_terminal_colors
   local lushwal_path = "~/.cache/wal/colors.json"
@@ -239,6 +302,9 @@ local polishconf = function()
   keymap("n", "gb;", "<C-6>", { noremap = true, silent = true, desc = "go to last buffer" })
   keymap("n", "<C-;>", "<C-6>", { noremap = true, silent = true, desc = "go to last buffer" })
 
+  -- Macros and :normal <keys> repeatable
+  keymap("n", "U", "@:", opts)
+
   -- Replace all/visual_selected
   map({ "n" }, "<C-s>", ":%s//g<Left><Left>", { silent = true, desc = "Replace in Buffer" })
   map({ "x" }, "<C-s>", ":s//g<Left><Left>", { silent = true, desc = "Replace in Visual_selected" })
@@ -260,11 +326,11 @@ local polishconf = function()
       vim.g.diagnosticsEnabled = "off"
       vim.diagnostic.config({ virtual_text = false })
       vim.cmd [[
-      augroup _toggle_virtualtext_insertmode
-      autocmd InsertEnter * lua vim.diagnostic.config({ virtual_text = false })
-      autocmd InsertLeave * lua vim.diagnostic.config({ virtual_text = true })
-      augroup end
-    ]]
+        augroup _toggle_virtualtext_insertmode
+        autocmd InsertEnter * lua vim.diagnostic.config({ virtual_text = false })
+        autocmd InsertLeave * lua vim.diagnostic.config({ virtual_text = true })
+        augroup end
+      ]]
     else
       vim.g.diagnosticsEnabled = "on"
       vim.diagnostic.config({ virtual_text = true })
@@ -291,7 +357,7 @@ local polishconf = function()
   -- _jump_to_last_change
   map({ "n", "o", "x" }, "gl", "`.", { silent = true, desc = "Jump to last change" })
 
-  -- _mini_comment_(not_showing_desc)_(next/prev_autojump_unsupported)
+-- _mini_comment_(not_showing_desc)_(next/prev_autojump_unsupported)_(gC and gk visual support for gc and gk textobj)
   map({ "o" }, 'gk', '<Cmd>lua MiniComment.textobject()<CR>', { silent = true, desc = "BlockComment textobj" })
   map({ "x" }, 'gk', ':<C-u>normal "zygkgv<cr>', { silent = true, desc = "BlockComment textobj" })
   map({ "x" }, 'gK', '<Cmd>lua MiniComment.textobject()<cr>', { silent = true, desc = "RestOfComment textobj" })
@@ -330,26 +396,27 @@ local polishconf = function()
     { silent = true, desc = "outer Subword textobj" })
   map({ "o", "x" }, "iS", "<cmd>lua require('various-textobjs').subword(true)<cr>",
     { silent = true, desc = "inner Subword textobj" })
-  map({ "o", "x" }, "az", "<cmd>lua require('various-textobjs').closedFold(false)<CR>",
+  map({ "o", "x" }, "aZ", "<cmd>lua require('various-textobjs').closedFold(false)<CR>",
     { silent = true, desc = "outer ClosedFold textobj" })
-  map({ "o", "x" }, "iz", "<cmd>lua require('various-textobjs').closedFold(true)<CR>",
+  map({ "o", "x" }, "iZ", "<cmd>lua require('various-textobjs').closedFold(true)<CR>",
     { silent = true, desc = "inner ClosedFold textobj" })
 
-  -- _vim_indent_object_(visualrepeatable_+_vimrepeat)
-  vim.api.nvim_create_autocmd({ "FileType" }, {
-    pattern = "*",
-    callback = function()
-      map({ "o", "x" }, "iI", "<Cmd>lua MiniIndentscope.textobject(false)<CR>",
-        { silent = true, desc = "MiniIndentscope_iI" })
-      map({ "o", "x" }, "aI", "<Cmd>lua MiniIndentscope.textobject(true)<CR>",
-        { silent = true, desc = "MiniIndentscope_aI" })
-    end
-  })
+  -- _fold_textobj
+  keymap("x", 'iz', ":<C-U>silent!normal![zjV]zk<CR>", { silent = true, desc = "inner fold textobj" })
+  keymap("o", 'iz', ":normal Vif<CR>", { silent = true, desc = "inner fold textobj" })
+  keymap("x", 'az', ":<C-U>silent!normal![zV]z<CR>", { silent = true, desc = "outer fold textobj" })
+  keymap("o", 'az', ":normal Vaf<CR>", { silent = true, desc = "outer fold textobj" })
 
-  -- _vim-textobj-space
-  vim.g.textobj_space_no_default_key_mappings = true
-  map({ "o", "x" }, "ir", "<Plug>(textobj-space-i)", { silent = true, desc = "Space textobj" })
-  map({ "o", "x" }, "ar", "<Plug>(textobj-space-a)", { silent = true, desc = "Space textobj" })
+  -- Mini Indent Scope textobj:
+  map({ "o", "x" }, "ii", function() require("mini.ai").select_textobject("i","i") end, { silent = true, desc = "MiniIndentscope bordersless blankline_wise" })
+  map({ "x" }, "ai", function() require("mini.ai").select_textobject("i","i") vim.cmd [[ normal koj ]] end, { silent = true, desc = "MiniIndentscope borders blankline_wise" })
+  map({ "o" }, 'ai', ':<C-u>normal vai<cr>', { silent = true, desc = "MiniIndentscope borders blankline_wise" })
+  map({ "o", "x" }, "iI", "<Cmd>lua MiniIndentscope.textobject(false)<CR>", { silent = true, desc = "MiniIndentscope bordersless blankline_skip" })
+  map({ "o", "x" }, "aI", "<Cmd>lua MiniIndentscope.textobject(true)<CR>", { silent = true, desc = "MiniIndentscope borders blankline_skip" })
+
+  -- indent same level textobj:
+  map({"x","o"}, "iy", function() require("user.autocommands").select_indent(false) end, { silent = true, desc = "indent_samelevel_noblankline textobj" })
+  map({"x","o"}, "ay", function() require("user.autocommands").select_indent(true) end, { silent = true, desc = "indent_samelevel_blankline textobj" })
 
   -- _illuminate_text_objects
   map({ 'n', 'x', 'o' }, '<a-n>', '<cmd>lua require"illuminate".goto_next_reference(wrap)<cr>', opts)
@@ -357,27 +424,25 @@ local polishconf = function()
   map({ 'n', 'x', 'o' }, '<a-i>', '<cmd>lua require"illuminate".textobj_select()<cr>', opts)
 
   -- _clipboard_textobj
-  vim.cmd [[
-      let g:EasyClipUseCutDefaults = 0
-      let g:EasyClipEnableBlackHoleRedirect = 0
-      nmap <silent> gx "_d
-      nmap <silent> gxx "_dd
-      xmap <silent> gx "_d
+  vim.g.EasyClipAutoFormat = 1
+  vim.g.EasyClipUseCutDefaults = false
+  vim.g.EasyClipEnableBlackHoleRedirect = false
+  map({ "n", "x" }, "gx", '"_d', { silent = true, desc = "Blackhole Motion/Selected" })
+  map({ "n" }, "gxx", '"_dd', { silent = true, desc = "Blackhole line" })
+  map({ "n" }, "gX", '"/p', { silent = true, desc = "Search register" })
 
-      let g:EasyClipUseYankDefaults = 0
-      nmap <silent> gy <plug>SubstituteOverMotionMap
-      nmap <silent> gyy <plug>SubstituteLine
-      xmap <silent> gy <plug>XEasyClipPaste
+  vim.g.EasyClipUseYankDefaults = false
+  map({ "n" }, "gy", "<plug>SubstituteOverMotionMap", { silent = true, desc = "Substitute Motion" })
+  map({ "n" }, "gyy", "<plug>SubstituteLine", { silent = true, desc = "Substitute Line" })
+  map({ "x" }, "gy", "<plug>XEasyClipPaste ", { silent = true, desc = "Substitute Selected" })
 
-      let g:EasyClipUsePasteDefaults = 0
-      nmap <silent> gY <plug>G_EasyClipPasteBefore
-      xmap <silent> gY <Plug>XG_EasyClipPaste
+  vim.g.EasyClipUsePasteDefaults = false
+  map({ "n" }, "gY", "<plug>G_EasyClipPasteBefore", { silent = true, desc = "Paste Preserving cursor position" })
+  map({ "x" }, "gY", "<plug>XG_EasyClipPaste ", { silent = true, desc = "Paste Preserving cursor position" })
 
-      let g:EasyClipUsePasteToggleDefaults = 0
-      nmap <silent> gz <plug>EasyClipSwapPasteForward
-      nmap <silent> gZ <plug>EasyClipSwapPasteBackwards
-
-    ]]
+  vim.g.EasyClipUsePasteToggleDefaults = false
+  map({ "n" }, "gz", '"1p', { silent = true, desc = "Redo register (dot to Paste forward the rest of register)" })
+  map({ "n" }, "gZ", '"1P', { silent = true, desc = "Redo register (dot to Paste backward the rest of register)" })
 
   -- ╭─────────╮
   -- │ Motions │
@@ -446,6 +511,24 @@ local polishconf = function()
     )
     map({ "n", "x", "o" }, "<BS>", next_sneak, { silent = true, desc = "Next SneakForward" })
     map({ "n", "x", "o" }, "<S-BS>", prev_sneak, { silent = true, desc = "Prev SneakForward" })
+
+    -- _goto_next_indent_repeatable
+    vim.cmd [[ command NextIndentedParagraph execute "normal \<Plug>(textobj-indentedparagraph-n)" ]]
+    vim.cmd [[ command PrevIndentedParagraph execute "normal \<Plug>(textobj-indentedparagraph-p)" ]]
+    local next_indentedparagraph, prev_indentedparagraph = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ NextIndentedParagraph ]] end,
+      function() vim.cmd [[ PrevIndentedParagraph ]] end
+    )
+    map({ "n", "x", "o" }, "gni", next_indentedparagraph, { silent = true, desc = "Next IndentedParagraph" })
+    map({ "n", "x", "o" }, "gpi", prev_indentedparagraph, { silent = true, desc = "Prev IndentedParagraph" })
+
+    -- _goto_indent_samelevel_blankline_repeatable
+    local next_indent, prev_indent = ts_repeat_move.make_repeatable_move_pair(
+      function() require("user.autocommands").next_indent(true) end,
+      function() require("user.autocommands").next_indent(false) end
+    )
+    map({ "n", "x", "o" }, "gny", next_indent, { silent = true, desc = "next indent_samelevel_blankline" })
+    map({ "n", "x", "o" }, "gpy", prev_indent, { silent = true, desc = "prev indent_samelevel_blankline" })
 
     -- _goto_diagnostic_repeatable
     local next_diagnostic, prev_diagnostic = ts_repeat_move.make_repeatable_move_pair(
@@ -528,21 +611,29 @@ local polishconf = function()
     map({ "n", "x", "o" }, "<leader><leader>}", next_blankline, { silent = true, desc = "Next Blankline" })
     map({ "n", "x", "o" }, "<leader><leader>{", prev_blankline, { silent = true, desc = "Prev Blankline" })
 
-    -- _jump_indent_repeatable
-    local next_indent, prev_indent = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.cmd [[ normal vii_ ]] vim.cmd [[ call feedkeys("") ]] end,
-      function() vim.cmd [[ normal viio_ ]] vim.cmd [[ call feedkeys("") ]] end
-    )
-    map({ "n", "x", "o" }, "<leader><leader>]", next_indent, { silent = true, desc = "Next Indent" })
-    map({ "n", "x", "o" }, "<leader><leader>[", prev_indent, { silent = true, desc = "Prev Indent" })
-
     -- _jump_paragraph_repeatable
     local next_paragraph, prev_paragraph = ts_repeat_move.make_repeatable_move_pair(
-      function() vim.cmd [[ normal ) ]] end,
-      function() vim.cmd [[ normal ( ]] end
+      function() vim.cmd [[ normal )) ]] end,
+      function() vim.cmd [[ normal (( ]] end
     )
     map({ "n", "x", "o" }, "<leader><leader>)", next_paragraph, { silent = true, desc = "Next Paragraph" })
     map({ "n", "x", "o" }, "<leader><leader>(", prev_paragraph, { silent = true, desc = "Prev Paragraph" })
+
+    -- _jump_edgeindent_repeatable
+    local next_indent, prev_indent = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ normal g]i ]] end,
+      function() vim.cmd [[ normal g[i ]] end
+    )
+    map({ "n", "x", "o" }, "<leader><leader>i", next_indent, { silent = true, desc = "End Indent" })
+    map({ "n", "x", "o" }, "<leader><leader>i", prev_indent, { silent = true, desc = "Start Indent" })
+
+    -- _jump_edgefold_repeatable
+    local next_fold, prev_fold = ts_repeat_move.make_repeatable_move_pair(
+      function() vim.cmd [[ normal ]z ]] end,
+      function() vim.cmd [[ normal [z ]] end
+    )
+    map({ "n", "x", "o" }, "<leader><leader>]", next_fold, { silent = true, desc = "End Fold" })
+    map({ "n", "x", "o" }, "<leader><leader>[", prev_fold, { silent = true, desc = "Start Fold" })
 
     -- _jump_startofline_repeatable
     local next_startline, prev_startline = ts_repeat_move.make_repeatable_move_pair(
@@ -689,74 +780,6 @@ local polishconf = function()
   end
 
   ------------------------------------------------------------------------------------------------------------------------
-
-  -- ╭──────────╮
-  -- │ WhichKey │
-  -- ╰──────────╯
-
-  local mini_textobj = {
-    q = '@call',
-    Q = '@class',
-    g = '@comment',
-    G = '@conditional',
-    B = '@block',
-    F = '@function',
-    L = '@loop',
-    P = '@parameter',
-    R = '@return',
-    ["="] = '@assignment.side',
-    ["+"] = '@assignment.whole',
-    ["*"] = '@number',
-    ['a'] = 'Function Parameters',
-    ['A'] = 'Whole Buffer',
-    ['b'] = 'Alias )]}',
-    ['f'] = 'Function Definition',
-    ['k'] = 'Key',
-    ['n'] = 'Number',
-    ['p'] = 'Paragraph',
-    ['s'] = 'Sentence',
-    ['t'] = 'Tag',
-    ['u'] = 'Alias "\'`',
-    ['v'] = 'Value',
-    ['w'] = 'Word',
-    ['x'] = 'Hex',
-    ['?'] = 'Prompt',
-    ['('] = 'Same as )',
-    ['['] = 'Same as ]',
-    ['{'] = 'Same as }',
-    ['<'] = 'Same as >',
-    ['"'] = 'punctuations...',
-    ["'"] = 'punctuations...',
-    ["`"] = 'punctuations...',
-    ['.'] = 'punctuations...',
-    [','] = 'punctuations...',
-    [';'] = 'punctuations...',
-    ['-'] = 'punctuations...',
-    ['_'] = 'punctuations...',
-    ['/'] = 'punctuations...',
-    ['|'] = 'punctuations...',
-    ['&'] = 'punctuations...',
-  }
-
-  require("which-key").register({
-    mode = { "o", "x" },
-    ["i"] = mini_textobj,
-    ["il"] = { name = "+Last", mini_textobj },
-    ["iN"] = { name = "+Next", mini_textobj },
-    ["a"] = mini_textobj,
-    ["al"] = { name = "+Last", mini_textobj },
-    ["aN"] = { name = "+Next", mini_textobj },
-    ["Q"] = { "Textsubjects Prev Selection" },
-    ["K"] = { "Textsubjects Smart" },
-    ["aK"] = { "Textsubjects Container Outer" },
-    ["iK"] = { "Textsubjects Container Inner" },
-  })
-
-  require("which-key").register({
-    mode = { "n" },
-    ["g["] = vim.tbl_extend("force", { name = "+Cursor to Left Around" }, mini_textobj),
-    ["g]"] = vim.tbl_extend("force", { name = "+Cursor to Rigth Around" }, mini_textobj),
-  })
 
 end
 

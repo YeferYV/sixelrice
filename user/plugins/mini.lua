@@ -19,11 +19,41 @@ return {
           ["+"] = spec_treesitter({ a = '@assignment.outer', i = '@assignment.inner', }),
           ["*"] = spec_treesitter({ a = '@number.outer', i = '@number.inner', }),
           a = require('mini.ai').gen_spec.argument({ brackets = { '%b()' } }),
-          k = { { '\n.-[=:]', '^.-[=:]' }, '^%s*()().-()%s-()=?[!=<>\\+-\\*]?[=:]' }, -- .- -> don't be greedy let %s- to exist
-          v = { { '[=:]()%s*().-%s*()[;,]()', '[=:]=?()%s*().*()().$' } }, -- Pattern in double curly bracket equals fallback
+          k = { { '\n.-[=:]', '^.-[=:]' }, '^%s*()().-()%s-()=?[!=<>\\+-\\*]?[=:]' },
+          v = { { '[=:]()%s*().-%s*()[;,]()', '[=:]=?()%s*().*()().$' } },
           u = { { "%b''", '%b""', '%b``' }, '^.().*().$' },
-          n = { '[-+]?()%f[%d]%d+()%.?%d*' }, -- %f[%d] to make jumping to next group of number instead of next digit
+          n = { '[-+]?()%f[%d]%d+()%.?%d*' },
           x = { '#()%x%x%x%x%x%x()' },
+          r = { '%S()%s+()%S' },
+          A = function()
+            local from = { line = 1, col = 1 }
+            local to = {
+              line = vim.fn.line('$'),
+              col = math.max(vim.fn.getline('$'):len(), 1)
+            }
+            return { from = from, to = to }
+          end,
+          i = function()
+            local start_indent = vim.fn.indent(vim.fn.line('.'))
+            if string.match(vim.fn.getline('.'), '^%s*$') then return { from = nil, to = nil } end
+
+            local prev_line = vim.fn.line('.') - 1
+            while vim.fn.indent(prev_line) >= start_indent do
+                vim.cmd('-')
+                prev_line = vim.fn.line('.') - 1
+            end
+
+            from = { line = vim.fn.line('.'), col = 1 }
+
+            local next_line = vim.fn.line('.') + 1
+            while vim.fn.indent(next_line) >= start_indent do
+                vim.cmd('+')
+                next_line = vim.fn.line('.') + 1
+            end
+
+            to = { line = vim.fn.line('.'), col = vim.fn.getline(vim.fn.line('.')):len() }
+            return { from = from, to = to }
+          end
         },
         mappings = {
           around = 'a',
@@ -41,6 +71,19 @@ return {
         mappings = {
           start = 'ga',
           start_with_preview = 'gA',
+        },
+        options = {
+          split_pattern = '',
+          justify_side = 'left',
+          merge_delimiter = '',
+        },
+        steps = {
+          pre_split = {},
+          split = nil,
+          pre_justify = {},
+          justify = nil,
+          pre_merge = {},
+          merge = nil,
         },
       })
 
@@ -62,10 +105,16 @@ return {
       })
 
       require('mini.comment').setup({
+        options = {
+          custom_commentstring = nil,
+          ignore_blank_line = false,
+          start_of_line = false,
+          pad_comment_parts = true,
+        },
         mappings = {
-          comment = '',
-          comment_line = '',
-          textobject = '',
+          comment = 'gc',
+          comment_line = 'gcc',
+          textobject = 'gc',
         },
         hooks = {
           pre = function() require('ts_context_commentstring.internal').update_commentstring() end,
@@ -80,8 +129,8 @@ return {
           animation = nil
         },
         mappings = {
-          object_scope = 'iI', -- empty to disable
-          object_scope_with_border = 'aI', -- empty to disable
+          object_scope = '',
+          object_scope_with_border = '',
           goto_top = '[ii',
           goto_bottom = ']ii',
         },
@@ -120,6 +169,8 @@ return {
           suffix_last = 'l', -- Suffix to search with "prev" method
           suffix_next = 'N', -- Suffix to search with "next" method
         },
+        n_lines = 20,
+        search_method = 'cover',
       })
     end
   },

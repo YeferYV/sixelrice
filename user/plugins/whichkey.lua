@@ -399,8 +399,73 @@ return {
           ["<S-Tab>"] = { "which_key_ignore" },
           ["'"] = { "<Cmd>Telescope marks initial_mode=normal<CR>", "Marks" },
         }
-        -- }
-        -- }
+      })
+
+      local mini_textobj = {
+        q = '@call',
+        Q = '@class',
+        g = '@comment',
+        G = '@conditional',
+        B = '@block',
+        F = '@function',
+        L = '@loop',
+        P = '@parameter',
+        R = '@return',
+        ["="] = '@assignment.side',
+        ["+"] = '@assignment.whole',
+        ["*"] = '@number',
+        ['a'] = 'Function Parameters',
+        ['A'] = 'Whole Buffer',
+        ['b'] = 'Alias )]}',
+        ['f'] = 'Function Definition',
+        ['k'] = 'Key',
+        ['n'] = 'Number',
+        ['p'] = 'Paragraph',
+        ['s'] = 'Sentence',
+        ['t'] = 'Tag',
+        ['u'] = 'Alias "\'`',
+        ['v'] = 'Value',
+        ['w'] = 'Word',
+        ['x'] = 'Hex',
+        ['y'] = 'Whitespace',
+        ['z'] = 'ClosedFold',
+        ['?'] = 'Prompt',
+        ['('] = 'Same as )',
+        ['['] = 'Same as ]',
+        ['{'] = 'Same as }',
+        ['<'] = 'Same as >',
+        ['"'] = 'punctuations...',
+        ["'"] = 'punctuations...',
+        ["`"] = 'punctuations...',
+        ['.'] = 'punctuations...',
+        [','] = 'punctuations...',
+        [';'] = 'punctuations...',
+        ['-'] = 'punctuations...',
+        ['_'] = 'punctuations...',
+        ['/'] = 'punctuations...',
+        ['|'] = 'punctuations...',
+        ['&'] = 'punctuations...',
+        -- `!@#$%^&*()_+-=[]{};'\:"|,./<>?
+      }
+
+      require("which-key").register({
+        mode = { "o", "x" },
+        ["i"] = mini_textobj,
+        ["il"] = { name = "+Last", mini_textobj },
+        ["iN"] = { name = "+Next", mini_textobj },
+        ["a"] = mini_textobj,
+        ["al"] = { name = "+Last", mini_textobj },
+        ["aN"] = { name = "+Next", mini_textobj },
+        ["Q"] = { "Textsubjects Prev Selection" },
+        ["K"] = { "Textsubjects Smart" },
+        ["aK"] = { "Textsubjects Container Outer" },
+        ["iK"] = { "Textsubjects Container Inner" },
+      })
+
+      require("which-key").register({
+        mode = { "n" },
+        ["g["] = vim.tbl_extend("force", { name = "+Cursor to Left Around" }, mini_textobj),
+        ["g]"] = vim.tbl_extend("force", { name = "+Cursor to Rigth Around" }, mini_textobj),
       })
     end
   }
