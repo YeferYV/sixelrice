@@ -30,7 +30,7 @@ RUN if [[ -e /bin/pacman ]]; then  \
   pacman -Sy --noconfirm bat fzf lazygit libsixel lf ripgrep starship tmux unzip xclip zsh glibc \
   && yes | pacman -Scc \
   && curl -L https://github.com/Jguer/yay/releases/download/v12.1.2/yay_12.1.2_x86_64.tar.gz | tar -xzf- --strip-components=1 --directory="/usr/local/bin" "yay_12.1.2_x86_64/yay" \
-  && curl -L https://github.com/neovim/neovim/releases/download/v0.9.1/nvim.appimage                               --create-dirs --output "/usr/local/bin/nvim" && chmod +x /usr/local/bin/nvim; \
+  && curl -L https://github.com/neovim/neovim/releases/download/v0.9.4/nvim.appimage                               --create-dirs --output "/usr/local/bin/nvim" && chmod +x /usr/local/bin/nvim; \
   fi
 
 # Debian dependencies:
@@ -46,7 +46,7 @@ RUN if [[ -e /bin/apt ]]; then \
   && curl -L https://raw.githubusercontent.com/junegunn/fzf/master/shell/completion.zsh                                     --create-dirs --output "/usr/share/fzf/completion.zsh" \
   && curl -L https://raw.githubusercontent.com/junegunn/fzf/master/shell/key-bindings.zsh                                   --create-dirs --output "/usr/share/fzf/key-bindings.zsh" \
   && curl -L https://github.com/antontkv/tmux-appimage/releases/download/3.3a/tmux-3.3a-x86_64.appimage                     --create-dirs --output "/usr/local/bin/tmux" && $SUDO chmod +x /usr/local/bin/tmux \
-  && curl -L https://github.com/neovim/neovim/releases/download/v0.9.1/nvim.appimage                                        --create-dirs --output "/usr/local/bin/nvim" && chmod +x /usr/local/bin/nvim \
+  && curl -L https://github.com/neovim/neovim/releases/download/v0.9.4/nvim.appimage                                        --create-dirs --output "/usr/local/bin/nvim" && chmod +x /usr/local/bin/nvim \
   && chmod o+rx "/usr/share/fzf" \
   && yes | sh <(curl -L https://nixos.org/nix/install) --daemon; \
   fi

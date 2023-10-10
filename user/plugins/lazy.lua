@@ -62,15 +62,6 @@ return {
     event = "VeryLazy",
     config = function() require("illuminate").configure({ filetypes_denylist = { 'neo-tree', } }) end
   },
-  {
-    "lukas-reineke/indent-blankline.nvim",
-    commit = "018bd04d80c9a73d399c1061fa0c3b14a7614399",
-    config = {
-      show_first_indent_level = false,
-      show_current_context = true,
-      show_current_context_start = false,
-    }
-  },
 
   -- UI
   { "olivercederborg/poimandres.nvim", event = "VeryLazy" },
@@ -141,7 +132,7 @@ return {
         add          = { text = "│" },
         change       = { text = "│" },
         delete       = { text = "│" },
-        topdelete    = { text = "契" },
+        topdelete    = { text = "" },
         changedelete = { text = "~" },
         untracked    = { text = '┆' },
       },

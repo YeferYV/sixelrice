@@ -104,7 +104,7 @@ $SUDO locale-gen
 {
   [ -e /.dockerenv ] && echo "export APPIMAGE_EXTRACT_AND_RUN=1" >> "$HOME"/.zprofile
   # $SUDO curl -Lo "/usr/local/bin/wezterm"  https://github.com/wez/wezterm/releases/download/20230712-072601-f4abf8fd/WezTerm-20230712-072601-f4abf8fd-Ubuntu20.04.AppImage && $SUDO chmod +x "/usr/local/bin/wezterm"
-  $SUDO   curl -Lo "/usr/local/bin/nvim"     https://github.com/neovim/neovim/releases/download/v0.9.1/nvim.appimage && $SUDO chmod +x /usr/local/bin/nvim
+  $SUDO   curl -Lo "/usr/local/bin/nvim"     https://github.com/neovim/neovim/releases/download/v0.9.4/nvim.appimage && $SUDO chmod +x /usr/local/bin/nvim
   git clone --depth=1                        https://github.com/astronvim/astronvim                                          "$HOME/.config/nvim"
   git clone --depth=1                        https://github.com/zsh-users/zsh-autosuggestions                                "$HOME/.config/zsh-autosuggestions"
   git clone --depth=1                        https://github.com/zdharma-continuum/fast-syntax-highlighting                   "$HOME/.config/fast-syntax-highlighting"
