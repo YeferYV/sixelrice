@@ -61,12 +61,12 @@ set -eu
 
 # Arch dependencies:
 [ -e /bin/pacman ] && {
-  $SUDO pacman -Sy     --noconfirm base-devel bat fzf lazygit libsixel lf ripgrep starship tmux unzip xclip zsh glibc || # glibc required by git
+  $SUDO pacman -Sy     --noconfirm base-devel bat fzf lazygit libsixel lf ripgrep starship unzip xclip zsh glibc || # glibc required by git
   {
     $SUDO pacman-key  --init
     $SUDO pacman-key  --populate
     $SUDO pacman -Sy  --noconfirm archlinux-keyring
-    $SUDO pacman -Syu --noconfirm base-devel bat fzf lazygit libsixel lf ripgrep starship tmux unzip xclip zsh
+    $SUDO pacman -Syu --noconfirm base-devel bat fzf lazygit libsixel lf ripgrep starship unzip xclip zsh
   }
   yes | $SUDO pacman -Scc
   $SUDO curl -L https://github.com/Jguer/yay/releases/download/v12.1.2/yay_12.1.2_x86_64.tar.gz | $SUDO tar -xzf- --strip-components=1 --directory="/usr/local/bin" "yay_12.1.2_x86_64/yay"
@@ -86,7 +86,6 @@ set -eu
   $SUDO curl -L https://github.com/junegunn/fzf/releases/download/0.42.0/fzf-0.42.0-linux_amd64.tar.gz                  | $SUDO tar -xzf- --directory="/usr/local/bin/"
   $SUDO curl -L https://raw.githubusercontent.com/junegunn/fzf/master/shell/completion.zsh                                     --create-dirs --output "/usr/share/fzf/completion.zsh"
   $SUDO curl -L https://raw.githubusercontent.com/junegunn/fzf/master/shell/key-bindings.zsh                                   --create-dirs --output "/usr/share/fzf/key-bindings.zsh"
-  $SUDO curl -L https://github.com/antontkv/tmux-appimage/releases/download/3.3a/tmux-3.3a-x86_64.appimage                     --create-dirs --output "/usr/local/bin/tmux" && $SUDO chmod +x /usr/local/bin/tmux
   # $SUDO curl -L https://github.com/ImageMagick/ImageMagick/releases/download/7.1.1-18/ImageMagick--gcc-x86_64.AppImage         --create-dirs --output "/usr/local/bin/convert" && $SUDO chmod +x /usr/local/bin/convert
   $SUDO chmod o+rx "/usr/share/fzf"
   yes | sh <(curl -L https://nixos.org/nix/install) --daemon
@@ -104,7 +103,8 @@ $SUDO locale-gen
 {
   [ -e /.dockerenv ] && echo "export APPIMAGE_EXTRACT_AND_RUN=1" >> "$HOME"/.zprofile
   # $SUDO curl -Lo "/usr/local/bin/wezterm"  https://github.com/wez/wezterm/releases/download/20230712-072601-f4abf8fd/WezTerm-20230712-072601-f4abf8fd-Ubuntu20.04.AppImage && $SUDO chmod +x "/usr/local/bin/wezterm"
-  $SUDO   curl -Lo "/usr/local/bin/nvim"     https://github.com/neovim/neovim/releases/download/v0.9.4/nvim.appimage && $SUDO chmod +x /usr/local/bin/nvim
+  $SUDO   curl -Lo "/usr/local/bin/tmux"     https://github.com/antontkv/tmux-appimage/releases/download/3.3a/tmux-3.3a-x86_64.appimage  && $SUDO chmod +x /usr/local/bin/tmux
+  $SUDO   curl -Lo "/usr/local/bin/nvim"     https://github.com/neovim/neovim/releases/download/v0.9.4/nvim.appimage                     && $SUDO chmod +x /usr/local/bin/nvim
   git clone --depth=1                        https://github.com/astronvim/astronvim                                          "$HOME/.config/nvim"
   git clone --depth=1                        https://github.com/zsh-users/zsh-autosuggestions                                "$HOME/.config/zsh-autosuggestions"
   git clone --depth=1                        https://github.com/zdharma-continuum/fast-syntax-highlighting                   "$HOME/.config/fast-syntax-highlighting"
