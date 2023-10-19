@@ -61,7 +61,7 @@ set -eu
 
 # Arch dependencies:
 [ -e /bin/pacman ] && {
-  $SUDO pacman -Sy     --noconfirm base-devel bat fzf lazygit libsixel lf ripgrep starship unzip xclip zsh glibc || # glibc required by git
+  $SUDO pacman -Sy     --noconfirm --needed base-devel bat fzf lazygit libsixel lf ripgrep starship unzip xclip zsh glibc || # glibc required by git
   {
     $SUDO pacman-key  --init
     $SUDO pacman-key  --populate
@@ -88,7 +88,7 @@ set -eu
   $SUDO curl -L https://raw.githubusercontent.com/junegunn/fzf/master/shell/key-bindings.zsh                                   --create-dirs --output "/usr/share/fzf/key-bindings.zsh"
   # $SUDO curl -L https://github.com/ImageMagick/ImageMagick/releases/download/7.1.1-18/ImageMagick--gcc-x86_64.AppImage         --create-dirs --output "/usr/local/bin/convert" && $SUDO chmod +x /usr/local/bin/convert
   $SUDO chmod o+rx "/usr/share/fzf"
-  yes | sh <(curl -L https://nixos.org/nix/install) --daemon
+  [ ! -e /nix ] && yes | sh <(curl -L https://nixos.org/nix/install) --daemon
   # nix-env --install -E 'f: (import <nixpkgs> {}).mpv-unwrapped.override { sixelSupport = true; }'                                                                # multimedia viewer
   # nix-build -o /tmp/mpv -E 'with import <nixpkgs> {}; mpv-unwrapped.override { sixelSupport = true; }' && nix-env --install $(readlink /tmp/mpv)                 # multimedia viewer
   # nix-env -iA nixpkgs.ffmpeg                                                                                                                                     # multimedia previewer
