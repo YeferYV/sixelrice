@@ -9,7 +9,8 @@ local function write_session()
 
   local buf_name = vim.api.nvim_buf_get_name(0)
   if buf_name ~= "" then
-    local buf_name_sneakcase = string.gsub(buf_name, "/", '_') .. "_"
+    local sneakcase = string.gsub(buf_name, "/", '_') .. "_"
+    local buf_name_sneakcase = string.gsub(sneakcase, "\\", '_') .. "_" -- fo windows's path
     require("mini.sessions").write(buf_name_sneakcase, { verbose = false })
   end
 end
@@ -307,52 +308,102 @@ require('mini.comment').setup({
   },
 })
 
-require('mini.completion').setup({
-  -- Delay (debounce type, in ms) between certain Neovim event and action.
-  -- This can be used to (virtually) disable certain automatic actions by
-  -- setting very high delay time (like 10^7).
-  delay = { completion = 10 ^ 7, info = 100, signature = 50 },
+-- require('mini.completion').setup({
+--   -- Delay (debounce type, in ms) between certain Neovim event and action.
+--   -- This can be used to (virtually) disable certain automatic actions by
+--   -- setting very high delay time (like 10^7).
+--   delay = { completion = 10 ^ 7, info = 100, signature = 50 },
+--
+--   -- Configuration for action windows:
+--   -- - `height` and `width` are maximum dimensions.
+--   -- - `border` defines border (as in `nvim_open_win()`).
+--   window = {
+--     info = { height = 25, width = 80, border = 'single' },
+--     signature = { height = 25, width = 80, border = 'single' },
+--   },
+--
+--   -- Way of how module does LSP completion
+--   lsp_completion = {
+--     -- `source_func` should be one of 'completefunc' or 'omnifunc'.
+--     source_func = 'completefunc',
+--
+--     -- `auto_setup` should be boolean indicating if LSP completion is set up
+--     -- on every `BufEnter` event.
+--     auto_setup = true,
+--
+--     -- `process_items` should be a function which takes LSP
+--     -- 'textDocument/completion' response items and word to complete. Its
+--     -- output should be a table of the same nature as input items. The most
+--     -- common use-cases are custom filtering and sorting. You can use
+--     -- default `process_items` as `MiniCompletion.default_process_items()`.
+--     -- process_items = --<function: filters out snippets; sorts by LSP specs>,
+--   },
+--
+--   -- Fallback action. It will always be run in Insert mode. To use Neovim's
+--   -- built-in completion (see `:h ins-completion`), supply its mapping as
+--   -- string. Example: to use 'whole lines' completion, supply '<C-x><C-l>'.
+--   -- fallback_action = --<function: like `<C-n>` completion>,
+--
+--   -- Module mappings. Use `''` (empty string) to disable one. Some of them
+--   -- might conflict with system mappings.
+--   mappings = {
+--     force_twostep = '<C-Space>',  -- Force two-step completion
+--     force_fallback = '<A-Space>', -- Force fallback completion
+--   },
+--
+--   -- Whether to set Vim's settings for better experience (modifies
+--   -- `shortmess` and `completeopt`)
+--   set_vim_settings = true,
+-- })
 
-  -- Configuration for action windows:
-  -- - `height` and `width` are maximum dimensions.
-  -- - `border` defines border (as in `nvim_open_win()`).
-  window = {
-    info = { height = 25, width = 80, border = 'single' },
-    signature = { height = 25, width = 80, border = 'single' },
+require("mini.files").setup({
+  -- Customization of shown content
+  content = {
+    -- Predicate for which file system entries to show
+    filter = nil,
+    -- What prefix to show to the left of file system entry
+    prefix = nil,
+    -- In which order to show file system entries
+    sort = nil,
   },
 
-  -- Way of how module does LSP completion
-  lsp_completion = {
-    -- `source_func` should be one of 'completefunc' or 'omnifunc'.
-    source_func = 'completefunc',
-
-    -- `auto_setup` should be boolean indicating if LSP completion is set up
-    -- on every `BufEnter` event.
-    auto_setup = true,
-
-    -- `process_items` should be a function which takes LSP
-    -- 'textDocument/completion' response items and word to complete. Its
-    -- output should be a table of the same nature as input items. The most
-    -- common use-cases are custom filtering and sorting. You can use
-    -- default `process_items` as `MiniCompletion.default_process_items()`.
-    -- process_items = --<function: filters out snippets; sorts by LSP specs>,
-  },
-
-  -- Fallback action. It will always be run in Insert mode. To use Neovim's
-  -- built-in completion (see `:h ins-completion`), supply its mapping as
-  -- string. Example: to use 'whole lines' completion, supply '<C-x><C-l>'.
-  -- fallback_action = --<function: like `<C-n>` completion>,
-
-  -- Module mappings. Use `''` (empty string) to disable one. Some of them
-  -- might conflict with system mappings.
+  -- Module mappings created only inside explorer.
+  -- Use `''` (empty string) to not create one.
   mappings = {
-    force_twostep = '<C-Space>',  -- Force two-step completion
-    force_fallback = '<A-Space>', -- Force fallback completion
+    close       = 'q',
+    go_in       = 'l',
+    go_in_plus  = 'L',
+    go_out      = 'h',
+    go_out_plus = 'H',
+    reset       = '<BS>',
+    reveal_cwd  = '@',
+    show_help   = 'g?',
+    synchronize = '=',
+    trim_left   = '<',
+    trim_right  = '>',
   },
 
-  -- Whether to set Vim's settings for better experience (modifies
-  -- `shortmess` and `completeopt`)
-  set_vim_settings = true,
+  -- General options
+  options = {
+    -- Whether to delete permanently or move into module-specific trash
+    permanent_delete = true,
+    -- Whether to use for editing directories
+    use_as_default_explorer = true,
+  },
+
+  -- Customization of explorer windows
+  windows = {
+    -- Maximum number of windows to show side by side
+    max_number = math.huge,
+    -- Whether to show preview of file/directory under cursor
+    preview = true,
+    -- Width of focused window
+    width_focus = 30,
+    -- Width of non-focused window
+    width_nofocus = 15,
+    -- Width of preview window
+    width_preview = 60,
+  },
 })
 
 require('mini.indentscope').setup({
@@ -420,53 +471,53 @@ require('mini.indentscope').setup({
 --   },
 -- })
 
-require('mini.jump2d').setup({
-  -- Function producing jump spots (byte indexed) for a particular line.
-  -- For more information see |MiniJump2d.start|.
-  -- If `nil` (default) - use |MiniJump2d.default_spotter|
-  spotter = nil,
-
-  -- Characters used for labels of jump spots (in supplied order)
-  labels = 'abcdefghijklmnopqrstuvwxyz',
-
-  -- Options for visual effects
-  view = {
-    -- Whether to dim lines with at least one jump spot
-    dim = false,
-
-    -- How many steps ahead to show. Set to big number to show all steps.
-    n_steps_ahead = 0,
-  },
-
-  -- Which lines are used for computing spots
-  allowed_lines = {
-    blank = true,         -- Blank line (not sent to spotter even if `true`)
-    cursor_before = true, -- Lines before cursor line
-    cursor_at = true,     -- Cursor line
-    cursor_after = true,  -- Lines after cursor line
-    fold = true,          -- Start of fold (not sent to spotter even if `true`)
-  },
-
-  -- Which windows from current tabpage are used for visible lines
-  allowed_windows = {
-    current = true,
-    not_current = true,
-  },
-
-  -- Functions to be executed at certain events
-  hooks = {
-    before_start = nil, -- Before jump start
-    after_jump = nil,   -- After jump was actually done
-  },
-
-  -- Module mappings. Use `''` (empty string) to disable one.
-  mappings = {
-    start_jumping = '<CR>',
-  },
-
-  -- Whether to disable showing non-error feedback
-  silent = false,
-})
+-- require('mini.jump2d').setup({
+--   -- Function producing jump spots (byte indexed) for a particular line.
+--   -- For more information see |MiniJump2d.start|.
+--   -- If `nil` (default) - use |MiniJump2d.default_spotter|
+--   spotter = nil,
+--
+--   -- Characters used for labels of jump spots (in supplied order)
+--   labels = 'abcdefghijklmnopqrstuvwxyz',
+--
+--   -- Options for visual effects
+--   view = {
+--     -- Whether to dim lines with at least one jump spot
+--     dim = false,
+--
+--     -- How many steps ahead to show. Set to big number to show all steps.
+--     n_steps_ahead = 0,
+--   },
+--
+--   -- Which lines are used for computing spots
+--   allowed_lines = {
+--     blank = true,         -- Blank line (not sent to spotter even if `true`)
+--     cursor_before = true, -- Lines before cursor line
+--     cursor_at = true,     -- Cursor line
+--     cursor_after = true,  -- Lines after cursor line
+--     fold = true,          -- Start of fold (not sent to spotter even if `true`)
+--   },
+--
+--   -- Which windows from current tabpage are used for visible lines
+--   allowed_windows = {
+--     current = true,
+--     not_current = true,
+--   },
+--
+--   -- Functions to be executed at certain events
+--   hooks = {
+--     before_start = nil, -- Before jump start
+--     after_jump = nil,   -- After jump was actually done
+--   },
+--
+--   -- Module mappings. Use `''` (empty string) to disable one.
+--   mappings = {
+--     start_jumping = '<Tab>',
+--   },
+--
+--   -- Whether to disable showing non-error feedback
+--   silent = false,
+-- })
 
 require('mini.map').setup({
   -- Highlight integrations (none by default)

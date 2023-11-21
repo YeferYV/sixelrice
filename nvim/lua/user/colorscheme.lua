@@ -124,6 +124,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
       LspSagaWinbarStaticMethod   = { fg = '#495466' },
       LspSagaWinbarTypeParameter  = { fg = '#495466' },
       MiniTrailspace              = { bg = "#ff0000" },
+      MiniFilesCursorLine         = { bg = "#171922" },
       NeoTreeCursorLine           = { bg = "#16161e" },
       NeoTreeGitAdded             = { fg = "#495466" },
       NeoTreeGitConflict          = { fg = "#495466" },

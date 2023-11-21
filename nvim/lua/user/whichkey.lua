@@ -230,8 +230,20 @@ local mappings = {
   },
 
   ["h"] = { "<cmd>noh<cr>", "NoHighlight" },
-  ["e"] = { "<cmd>lua _G.neotree_blend=false<cr><cmd>Neotree toggle left<cr>", "Neotree Toggle" },
-  ["o"] = { "<cmd>lua _G.neotree_blend=true<cr><cmd>Neotree focus<cr>", "Neotree focus" },
+  ["m"] = {
+    function()
+      require("mini.files").open(vim.api.nvim_buf_get_name(0), true)
+    end,
+    "mini files (current file)",
+  },
+  ["M"] = {
+    function()
+      require("mini.files").open(vim.loop.cwd(), true)
+    end,
+    "mini files (cwd)",
+  },
+  ["e"] = { "<cmd>lua _G.neotree_blend=false<cr><cmd>Neotree toggle last left<cr>", "Neotree Toggle" },
+  ["o"] = { "<cmd>lua _G.neotree_blend=true<cr><cmd>Neotree focus last <cr>", "Neotree focus" },
   ["q"] = {
     function()
       _G.neotree_blend = true
@@ -260,9 +272,9 @@ local mappings = {
     r = { function() WhichkeyRepeat("lua require 'gitsigns'.reset_hunk()") end, "Reset Hunk" },
     R = { function() WhichkeyRepeat("lua require 'gitsigns'.reset_buffer()") end, "Reset Buffer" },
     s = { function() WhichkeyRepeat("lua require 'gitsigns'.stage_hunk()") end, "Stage Hunk" },
-    u = { function() WhichkeyRepeat("lua require 'gitsigns'.undo_stage_hunk()") end, "Undo Stage Hunk" },
-    o = { function() WhichkeyRepeat("Gitsigns diffthis HEAD") end, "Open ChangedFile/Diff" },
-    O = { "<cmd>Telescope git_status initial_mode=normal<cr>", "Open All ChangedFile/Diff" },
+    S = { function() WhichkeyRepeat("lua require 'gitsigns'.undo_stage_hunk()") end, "Undo Stage Hunk" },
+    o = { function() WhichkeyRepeat("Gitsigns diffthis HEAD") end, "Open Diff (file changes)" },
+    O = { "<cmd>Telescope git_status initial_mode=normal<cr>", "Open All Diff (file changes)" },
     b = { "<cmd>Telescope git_branches initial_mode=normal<cr>", "Checkout Branch" },
     c = { "<cmd>Telescope git_commits initial_mode=normal<cr>", "Checkout Commit" },
   },
@@ -304,37 +316,37 @@ local mappings = {
     W = { "<cmd>Telescope lsp_implementations initial_mode=normal show_line=false<cr>", "Telescope View Definitions" },
   },
 
-  -- k = {
-  --   name = "Peek LspSaga",
-  --   A = { function() WhichkeyRepeat("Lspsaga code_action") end, "Code Action" },
-  --   b = { function() WhichkeyRepeat("Lspsaga show_buf_diagnostics") end, "Show Buf Diagnostics" },
-  --   c = { function() WhichkeyRepeat("Lspsaga incoming_calls") end, "Incoming Calls" },
-  --   C = { function() WhichkeyRepeat("Lspsaga outgoing_calls") end, "outgoing Calls" },
-  --   d = { function() WhichkeyRepeat("Lspsaga peek_definition") end, "Peek Definition" },
-  --   D = { function() WhichkeyRepeat("Lspsaga goto_definition") end, "Go to Definition" },
-  --   f = { function() WhichkeyRepeat("Lspsaga finder") end, "Finder" },
-  --   h = { function() WhichkeyRepeat("Lspsaga hover_doc") end, "Hover" },
-  --   n = { function() WhichkeyRepeat("Lspsaga diagnostic_jump_next") end, "Next Diagnostics" },
-  --   N = {
-  --     function()
-  --       WhichkeyRepeat("lua require('lspsaga.diagnostic'):goto_next({ severity = vim.diagnostic.severity.ERROR })")
-  --     end,
-  --     "Next Error"
-  --   },
-  --   o = { function() WhichkeyRepeat("Lspsaga show_line_diagnostics") end, "Show Line Diagnostics" },
-  --   O = { function() WhichkeyRepeat("Lspsaga show_cursor_diagnostics") end, "Show Cursor Diagnostics" },
-  --   p = { function() WhichkeyRepeat("Lspsaga diagnostic_jump_prev") end, "Prev Diagnostics" },
-  --   P = {
-  --     function()
-  --       WhichkeyRepeat("lua require('lspsaga.diagnostic'):goto_prev({ severity = vim.diagnostic.severity.ERROR })")
-  --     end,
-  --     "Prev Error"
-  --   },
-  --   r = { function() WhichkeyRepeat("Lspsaga term_toggle ranger") end, "Ranger" },
-  --   R = { function() WhichkeyRepeat("Lspsaga rename") end, "Rename" },
-  --   t = { function() WhichkeyRepeat("Lspsaga term_toggle") end, "Toggle Terminal" },
-  --   z = { function() WhichkeyRepeat("Lspsaga outline") end, "Toggle outline" },
-  -- },
+  p = {
+    name = "Peek LspSaga",
+    A = { function() WhichkeyRepeat("Lspsaga code_action") end, "Code Action" },
+    b = { function() WhichkeyRepeat("Lspsaga show_buf_diagnostics") end, "Show Buf Diagnostics" },
+    c = { function() WhichkeyRepeat("Lspsaga incoming_calls") end, "Incoming Calls" },
+    C = { function() WhichkeyRepeat("Lspsaga outgoing_calls") end, "outgoing Calls" },
+    d = { function() WhichkeyRepeat("Lspsaga peek_definition") end, "Peek Definition" },
+    D = { function() WhichkeyRepeat("Lspsaga goto_definition") end, "Go to Definition" },
+    f = { function() WhichkeyRepeat("Lspsaga finder") end, "Finder" },
+    h = { function() WhichkeyRepeat("Lspsaga hover_doc") end, "Hover" },
+    n = { function() WhichkeyRepeat("Lspsaga diagnostic_jump_next") end, "Next Diagnostics" },
+    N = {
+      function()
+        WhichkeyRepeat("lua require('lspsaga.diagnostic'):goto_next({ severity = vim.diagnostic.severity.ERROR })")
+      end,
+      "Next Error"
+    },
+    o = { function() WhichkeyRepeat("Lspsaga show_line_diagnostics") end, "Show Line Diagnostics" },
+    O = { function() WhichkeyRepeat("Lspsaga show_cursor_diagnostics") end, "Show Cursor Diagnostics" },
+    p = { function() WhichkeyRepeat("Lspsaga diagnostic_jump_prev") end, "Prev Diagnostics" },
+    P = {
+      function()
+        WhichkeyRepeat("lua require('lspsaga.diagnostic'):goto_prev({ severity = vim.diagnostic.severity.ERROR })")
+      end,
+      "Prev Error"
+    },
+    r = { function() WhichkeyRepeat("Lspsaga term_toggle ranger") end, "Ranger" },
+    R = { function() WhichkeyRepeat("Lspsaga rename") end, "Rename" },
+    t = { function() WhichkeyRepeat("Lspsaga term_toggle") end, "Toggle Terminal" },
+    z = { function() WhichkeyRepeat("Lspsaga outline") end, "Toggle outline" },
+  },
 
   P = {
     name = "Packages",
@@ -367,10 +379,17 @@ local mappings = {
     h = { "<cmd>Telescope help_tags<cr>", "Find Help" },
     H = { "<cmd>Telescope highlights<cr>", "Find Highlights" },
     m = { "<cmd>Telescope man_pages<cr>", "Man Pages" },
-    n = { "<cmd>Telescope neoclip initial_mode=normal<cr>", "NeoClip" },
-    N = { "<cmd>Telescope notify initial_mode=normal<cr>", "Search notifications" },
-    O = { "<cmd>lua require('notify').history()<cr>", "History notifications" },
-    o = { "<cmd>Telescope file_browser initial_mode=normal<cr>", "Open File Browser" },
+    ["n"] = {
+      name = "noice",
+      a = { function() require("noice").cmd("all") end, "Noice All" },
+      d = { function() require("noice").cmd("dismiss") end, "Noice Dismiss All" },
+      h = { function() require("noice").cmd("history") end, "Noice History" },
+      l = { function() require("noice").cmd("last") end, "Noice Last Message" },
+      t = { "<cmd>Noice telescope<cr>", "Noice Telescope" },
+    },
+    N = { "<cmd>Telescope neoclip initial_mode=normal<cr>", "NeoClip" },
+    o = { "<cmd>Telescope oldfiles initial_mode=normal<cr>", "Open Recent File" },
+    O = { "<cmd>Telescope file_browser initial_mode=normal<cr>", "Open File Browser" },
     -- O = {
     --   function()
     --     require 'telescope'.extensions.file_browser.file_browser({ path = vim.fn.expand('%:p:h') })
@@ -380,9 +399,9 @@ local mappings = {
     p = { "<cmd>Telescope projects<cr>", "Projects" },
     q = { "<cmd>Telescope quickfixhistory initial_mode=normal<cr>", "Telescope QuickFix History" },
     Q = { "<cmd>Telescope quickfix initial_mode=normal<cr>", "Telescope QuickFix" },
-    r = { "<cmd>Telescope oldfiles initial_mode=normal<cr>", "Open Recent File" },
     R = { "<cmd>Telescope registers initial_mode=normal<cr>", "Registers" },
     s = { "<cmd>Telescope grep_string<cr>", "Grep string under cursor" },
+    y = { "<cmd>Telescope notify initial_mode=normal<cr>", "Telescope Notify(extension)" },
     z = {
       function()
         local aerial_avail, _ = pcall(require, "aerial")
@@ -400,14 +419,14 @@ local mappings = {
     ["'"] = { "<cmd>Telescope marks theme=ivy initial_mode=normal<cr>", "Marks" },
   },
 
-  -- S = {
-  --   name = "Session",
-  --   D = { "<cmd>lua require('mini.sessions').select('delete')<cr>", "Delete sessions" },
-  --   F = { "<cmd>lua require('mini.sessions').select('read')<cr>", "Find sessions" },
-  --   L = { "<cmd>lua require('mini.sessions').read('saved_session')<cr>", "Load saved session" },
-  --   l = { "<cmd>lua require('mini.sessions').read(require('mini.sessions').get_latest())<cr>", "Load last session" },
-  --   S = { "<cmd>lua require('mini.sessions').write('saved_session')<cr>", "Save this session" },
-  -- },
+  S = {
+    name = "Session",
+    D = { "<cmd>lua require('mini.sessions').select('delete')<cr>", "Delete sessions" },
+    F = { "<cmd>lua require('mini.sessions').select('read')<cr>", "Find sessions" },
+    L = { "<cmd>lua require('mini.sessions').read('saved_session')<cr>", "Load saved session" },
+    l = { "<cmd>lua require('mini.sessions').read(require('mini.sessions').get_latest())<cr>", "Load last session" },
+    S = { "<cmd>lua require('mini.sessions').write('saved_session')<cr>", "Save this session" },
+  },
 
   t = {
     name = "Terminal",
@@ -493,7 +512,7 @@ local mappings = {
     ["0v"] = { "<cmd>0ToggleTerm direction=horizontal <cr>", "Toggle tenth vertical ToggleTerm" },
   },
 
-  U = {
+  u = {
     name = "UI Toggle",
     ["0"] = { "<cmd>set showtabline=0<cr>", "Hide Buffer" },
     ["1"] = { "<cmd>BufferlineShow<cr>", "Enable Buffer offset" },
@@ -537,18 +556,7 @@ local mappings = {
       , "Toggle cmdheight"
     },
     C = { "<cmd>ColorizerToggle<cr>", "Toggle Colorizer" },
-    d = {
-      function()
-        if vim.g.diagnostics_enabled then
-          vim.diagnostic.disable()
-          vim.g.diagnostics_enabled = false
-        else
-          vim.diagnostic.enable()
-          vim.g.diagnostics_enabled = true
-        end
-      end,
-      "Toggle Diagnostics"
-    },
+    d = { "<cmd>ToggleDiagnostics<cr>", "Toggle Diagnostics" },
     G = {
       function()
         if vim.g.ToggleNormal == nil then
@@ -561,8 +569,8 @@ local mappings = {
       end
       , "Toggle Background"
     },
-    h = { "<cmd>EnableAutoNoHighlightSearch<cr>", "Disable AutoNoHighlightSearch" },
-    H = { "<cmd>DisableAutoNoHighlightSearch<cr>", "Enable AutoNoHighlightSearch" },
+    h = { "<cmd>EnableAutoNoHighlightSearch<cr>", "Enable AutoNoHighlightSearch" },
+    H = { "<cmd>DisableAutoNoHighlightSearch<cr>", "Disable AutoNoHighlightSearch" },
     i = {
       function()
         local input_avail, input = pcall(vim.fn.input, "Set indent value (>0 expandtab, <=0 noexpandtab): ")
@@ -623,20 +631,7 @@ local mappings = {
       end,
       "Jump to current_context",
     },
-    v = {
-      function()
-        local function bool2str(bool) return bool and "on" or "off" end
-
-        if vim.g.diagnostics_enabled then
-          vim.g.diagnostics_enabled = false
-        else
-          vim.g.diagnostics_enabled = true
-        end
-
-        vim.diagnostic.config(require("user.lsp.handlers").setup(bool2str(vim.g.diagnostics_enabled)))
-      end,
-      "Toggle VirtualText"
-    },
+    v = { "<cmd>ToggleVirtualText<cr>", "Toggle VirtualText" },
     -- w = { "<cmd>set winbar=%@<cr>", "enable winbar" },
     -- W = { "<cmd>set winbar=  <cr>", "disable winbar" },
     [";"] = { ":clearjumps<cr>:normal m'<cr>", "Clear and Add jump" }, -- Reset JumpList
@@ -683,10 +678,10 @@ local mappings = {
   },
   z = {
     name = "folding",
-    ["a"] = { "za", "Toggle fold under cursor" },
-    ["A"] = { "zA", "Toggle all folds under cursor" },
-    ["c"] = { "zc", "Close fold under cursor" },
-    ["C"] = { "zC", "Close all folds under cursor" },
+    ["a"] = { "za", "Toggle fold" },
+    ["A"] = { "zA", "Toggle folds recursively" },
+    ["c"] = { "zc", "Close fold" },
+    ["C"] = { "zC", "Close fold recursively" },
     ["j"] = { "zj", "next fold" },
     ["k"] = { "zk", "previous fold" },
     ["J"] = { "]z", "go to bottom of current fold" },
@@ -701,8 +696,8 @@ local mappings = {
     ["l"] = { "<cmd>loadview<cr>", "load folds" },
     ["p"] = { "zfip", "fold paragraph" },
     ["P"] = { function() require("ufo").peekFoldedLinesUnderCursor() end, "peek FoldedLines" },
-    ["o"] = { "zo", "open fold under cursor" },
-    ["O"] = { "zO", "fold all folds under cursor" },
+    ["o"] = { "zo", "open fold" },
+    ["O"] = { "zO", "open fold recursively" },
     ["r"] = { "zr", "fold less" },
     -- ["R"] = { "<cmd>lua require('ufo').openAllFolds()<cr>", "Open All Folds" },
     ["R"] = { "zR", "Open All Folds" },
@@ -717,13 +712,13 @@ local mappings = {
 which_key.setup(setup)
 which_key.register(mappings, opts)
 
-local mini_textobj = {
+local ai_textobj = {
   ['a'] = 'function args',
   ['A'] = '@assingment',
   ['b'] = 'Alias )]}',
   ["B"] = '@block',
   ["c"] = 'word-column',
-  ["C"] = 'Word-Column',
+  ["C"] = 'WORD-column',
   ["d"] = 'greedyOuterIndentation',
   ["e"] = 'nearEndOfLine',
   ['f'] = 'function call',
@@ -781,7 +776,7 @@ local mini_textobj = {
   -- `!@#$%^&*()_+-=[]{};'\:"|,./<>?
 }
 
-local textobj = {
+local g_textobj = {
   -- ["Q"] = { "Textsubjects Prev Selection" },
   -- ["K"] = { "Textsubjects Smart" },
   ["$"] = "End of line",
@@ -792,40 +787,35 @@ local textobj = {
   ["^"] = "Start of line (non-blank)",
   ["{"] = "Previous empty line",
   ["}"] = "Next empty line",
-  ["<BS> "] = "Next SneakForward",
-  ["<CR> "] = "Start 2d jumping",
-  ["<M-i>"] = "illuminate word",
-  ["<M-n>"] = "illuminate next",
-  ["<M-p>"] = "illuminate prev",
-  ["<S-BS> "] = "Prev SneakForward",
+  ["<CR> "] = "Continue Last Flash search",
   ["b"] = "Previous word",
   ["e"] = "Next end of word",
   ["f"] = "Move to next char",
   ["F"] = "Move to previous char",
   ["G"] = "Last line",
+  ["R"] = "Treesitter Flash Search",
+  ["s"] = "Flash",
+  ["S"] = "Flash Treesitter",
   ["t"] = "Move before next char",
   ["T"] = "Move before previous char",
   ["w"] = "Next word",
-  ["z"] = "Sneak_s",
-  ["Z"] = "Sneak_S",
 
   -- ["aK"] = { "Textsubjects Container Outer" },
   -- ["iK"] = { "Textsubjects Container Inner" },
-  ["i"] = mini_textobj,
-  ["il"] = { name = "+Last", mini_textobj },
-  ["iN"] = { name = "+Next", mini_textobj },
-  ["a"] = mini_textobj,
-  ["al"] = { name = "+Last", mini_textobj },
-  ["aN"] = { name = "+Next", mini_textobj },
+  ["i"] = ai_textobj,
+  ["il"] = { name = "+Last", ai_textobj },
+  ["iN"] = { name = "+Next", ai_textobj },
+  ["a"] = ai_textobj,
+  ["al"] = { name = "+Last", ai_textobj },
+  ["aN"] = { name = "+Next", ai_textobj },
 
   ["g{"] = { "braces linewise textobj" },
   ["g}"] = { "braces linewise textobj" },
-  ["g["] = vim.tbl_extend("force", { name = "+Cursor to Left Around" }, mini_textobj),
-  ["g]"] = vim.tbl_extend("force", { name = "+Cursor to Rigth Around" }, mini_textobj),
-  -- ["ga"] = { "Align (operator)" },                               -- only visual and normal mode
-  -- ["gA"] = { "Preview Align (operator)" },                       -- only visual and normal mode
-  ["gb"] = { "SneakLabeled forward" },
-  ["gB"] = { "SneakLabeled backward" },
+  ["g["] = vim.tbl_extend("force", { name = "+Cursor to Left Around" }, ai_textobj),
+  ["g]"] = vim.tbl_extend("force", { name = "+Cursor to Rigth Around" }, ai_textobj),
+  -- ["ga"] = { "Align (operator)" },                     -- only visual and normal mode
+  -- ["gA"] = { "Preview Align (operator)" },             -- only visual and normal mode
+  -- ["gb"] = { "add virtual cursor (select and find)" }, -- only visual and normal mode
   ["gc"] = { "BlockComment textobj" },
   ["gC"] = { "RestOfComment textobj" },
   ["gd"] = { "Diagnostic textobj" },
@@ -836,6 +826,7 @@ local textobj = {
   ["gg"] = { "First line textobj" },
   ["gh"] = { "Git hunk textobj" },
   ["gi"] = { "Goto Insert textobj" },
+  ["gI"] = { "select reference (under cursor)" },
   ["gj"] = { "GoDown when wrapped textobj" },
   ["gk"] = { "GoUp when wrapped textobj" },
   ["gK"] = { "ColumnDown textobj" },
@@ -843,45 +834,47 @@ local textobj = {
   ["gL"] = { "Url textobj" },
   ["gm"] = { "Last change textobj" },
   ["gn"] = { name = "+next" },
-  ["go"] = { "Sneak forward (s/S to next/prev match)" },
-  ["gO"] = { "Sneak backward (s/S to next/prev match)" },
+  -- ["go"] = { "add virtual cursor down" }, -- only visual and normal mode
+  -- ["gO"] = { "add virtual cursor up" },   -- only visual and normal mode
   ["gp"] = { name = "+previous" },
-  ["gq"] = { "SneakLabel forward" },
-  ["gQ"] = { "SneakLabel backward" },
+  -- ["gq"] = { "SplitJoin comment/lines 80chars (dot to repeat)" }, -- only visual and normal mode (cursor_position at start)
   ["gr"] = { "RestOfWindow textobj" },
   ["gR"] = { "VisibleWindow textobj" },
   ["gs"] = { "Surround textobj" },
   ["gS"] = { "JoinSplit textobj" },
   ["gT"] = { "toNextClosingBracket textobj" },
   ["gt"] = { "toNextQuotationMark textobj" },
-  -- ["gu"] = { "to lowercase" },                                   -- only visual and normal mode
-  -- ["gU"] = { "to Uppercase" },                                   -- only visual and normal mode
-  -- ["gv"] = { "last selected" },                                  -- only visual and normal mode
-  -- ["gw"] = { "SplitJoin comments/lines (limited at 80 chars)" }, -- only visual and normal mode
-  -- ["gx"] = { "Blackhole register" },                             -- only visual and normal mode
-  -- ["gx"] = { "Blackhole linewise" },                             -- only visual and normal mode
-  -- ["gy"] = { "replace with register" },                          -- only visual and normal mode
-  -- ["gY"] = { "exchange text" },                                  -- only visual and normal mode
-  -- ["gz"] = { "sort" },                                           -- only visual and normal mode
+  -- ["gu"] = { "to lowercase" },                                                   -- only visual and normal mode
+  -- ["gU"] = { "to Uppercase" },                                                   -- only visual and normal mode
+  -- ["gv"] = { "last selected" },                                                  -- only visual and normal mode
+  -- ["gw"] = { "SplitJoin comments/lines (limited at 80 chars)" },                 -- only visual and normal mode
+  -- ["gW"] = { "word-column multicursor" },                                        -- only visual and normal mode
+  -- ["gx"] = { "Blackhole register" },                                             -- only visual and normal mode
+  -- ["gX"] = { "Blackhole linewise" },                                             -- only visual and normal mode
+  -- ["gy"] = { "replace with register" },                                          -- only visual and normal mode
+  -- ["gY"] = { "exchange text" },                                                  -- only visual and normal mode
+  -- ["gz"] = { "sort" },                                                           -- only visual and normal mode
+  -- ["g+"] = { "Increment number (dot to repeat)" },                               -- only visual and normal mode
+  -- ["g-"] = { "Decrement number (dot to repeat)" },                               -- only visual and normal mode
+  -- ["g|"] = { "same column for all virtual cursors" },                            -- only visual and normal mode
+  -- ["g\\"] = { "add virtual cursor at current position (eg after search/jump)" }, -- only visual and normal mode
+  -- ["g<Up>"] = { "Numbers ascending" },                                           -- only visual and normal mode
+  -- ["g<Down>"] = { "Numbers descending" },                                        -- only visual and normal mode
 }
 
 local operator_motion = {
-  -- ["gq"] = vim.tbl_extend("force", { name = "+SplitJoin comment 80chars" }, textobj),       -- only visual and normal mode (cursor_position at start)
-  -- ["g<c-a>"] = { "Numbers ascending" },                                                     -- only visual and normal mode
-  -- ["g<c-x>"] = { "Numbers descending" },                                                    -- only visual and normal mode
-  ["="] = vim.tbl_extend("force", { name = "+autoindent (dot to repeat)" }, textobj),
+  ["="] = vim.tbl_extend("force", { name = "+autoindent (dot to repeat)" }, g_textobj),
   [">"] = { name = "+indent right (dot to repeat)" },
   ["<"] = { name = "+indent left (dot to repeat)" },
   ["g,"] = { "go forward in :changes" },
   ["g;"] = { "go backward in :changes" },
-  ["g<"] = vim.tbl_extend("force", { name = "+goto StarOf textobj (dot to repeat)" }, textobj),
-  ["g>"] = vim.tbl_extend("force", { name = "+goto EndOf textobj (dot to repeat)" }, textobj),
-  ["g["] = vim.tbl_extend("force", { name = "+Cursor to Left Around (mini textobj only)" }, mini_textobj),  -- "g<" does it better
-  ["g]"] = vim.tbl_extend("force", { name = "+Cursor to Rigth Around (mini textobj only)" }, mini_textobj), -- "g>" does it better
-  ["ga"] = vim.tbl_extend("force", { name = "+align (dot to repeat)" }, textobj),
-  ["gA"] = vim.tbl_extend("force", { name = "+preview align (dot to repeat)" }, textobj),
-  ["gb"] = { "SneakLabeled forward" },
-  ["gB"] = { "SneakLabeled backward" },
+  ["g<"] = vim.tbl_extend("force", { name = "+goto StarOf textobj (dot to repeat)" }, g_textobj),         -- only visual and normal mode
+  ["g>"] = vim.tbl_extend("force", { name = "+goto EndOf textobj (dot to repeat)" }, g_textobj),          -- only visual and normal mode
+  ["g["] = vim.tbl_extend("force", { name = "+Cursor to Left Around (mini textobj only)" }, ai_textobj),  -- supports operator pending mode, doesn't reset cursor like "g<a"
+  ["g]"] = vim.tbl_extend("force", { name = "+Cursor to Rigth Around (mini textobj only)" }, ai_textobj), -- supports operator pending mode, doesn't reset cursor like "g>a"
+  ["ga"] = vim.tbl_extend("force", { name = "+align (dot to repeat)" }, g_textobj),
+  ["gA"] = vim.tbl_extend("force", { name = "+preview align (dot to repeat)" }, g_textobj),
+  ["gb"] = { "add virtual cursor (select and find)" }, -- only visual and normal mode
   ["gc"] = { name = "+comment (dot to repeat)" },
   ["gd"] = { "goto definition" },
   ["ge"] = { "goto previous endOfWord" },
@@ -890,57 +883,73 @@ local operator_motion = {
   ["gg"] = { "goto first line" },
   ["gh"] = { "paste LastSearch register (dot to repeat)" },
   ["gi"] = { "goto insert" },
+  ["gI"] = { "select reference (under cursor)" },
   ["gj"] = { "goto Down (when wrapped)" },
+  ["gJ"] = { "Join below Line" },
   ["gk"] = { "goto Up (when wrapped)" },
   ["gl"] = { "goto last change" },
   ["gm"] = { "goto mid window" },
   ["gM"] = { "goto mid line" },
   ["gn"] = { name = "+next (;, to repeat)" },
-  ["go"] = { "Sneak forward (sS to repeat)" },
-  ["gO"] = { "Sneak backward (sS to repeat)" },
+  ["go"] = { "add virtual cursor down (tab to extend/cursor mode)" },                                         -- only visual and normal mode
+  ["gO"] = { "add virtual cursor up (tab to extend/cursor mode)" },                                           -- only visual and normal mode
   ["gp"] = { name = "+previous (;, to repeat)" },
-  ["gq"] = { "SneakLabel forward (sS to repeat )" },
-  ["gQ"] = { "SneakLabel backward (sS to repeat)" },
+  ["gq"] = vim.tbl_extend("force", { name = "+SplitJoin comment/lines 80chars (dot to repeat)" }, g_textobj), -- only visual and normal mode (cursor_position at start)
   ["gr"] = { "Redo register (dot to paste forward)" },
-  ["gR"] = { "Redo register (dot to paste backward)" }, -- (overwrites "replace mode")
+  ["gR"] = { "Redo register (dot to paste backward)" },                                                       -- (overwrites "replace mode")
   ["gs"] = { name = "+Surround (dot to repeat)" },
   ["gS"] = { "SplitJoin args (dot to repeat)" },
   ["gt"] = { "goto next tab" },
   ["gT"] = { "goto prev tab" },
-  ["gu"] = { name = "+toLowercase (dot to repeat)" },                                                       -- only visual and normal mode
-  ["gU"] = { name = "+toUppercase (dot to repeat)" },                                                       -- only visual and normal mode
-  ["gv"] = { "last selected" },                                                                             -- only visual and normal mode
-  ["gw"] = vim.tbl_extend("force", { name = "+SplitJoin coments/lines 80chars (dot to repeat)" }, textobj), -- only visual and normal mode (maintains cursor_position)
-  ["gx"] = vim.tbl_extend("force", { name = "+Blackhole register (dot to repeat)" }, textobj),              -- only visual and normal mode (overwrites "open with system")
-  ["gX"] = { "Blackhole linewise (dot to repeat)" },                                                        -- only visual and normal mode
-  ["gy"] = { name = "+replace with register (dot to repeat)" },                                             -- only visual and normal mode
-  ["gY"] = { name = "+exchange text" },                                                                     -- only visual and normal mode
-  ["gz"] = { name = "+sort (dot to repeat)" },                                                              -- only visual and normal mode
-  ["g+"] = { "Increment number (dot to repeat)" },                                                          -- only visual and normal mode
-  ["g-"] = { "Decrement number (dot to repeat)" },                                                          -- only visual and normal mode
+  ["gu"] = { name = "+toLowercase (dot to repeat)" },                                                                 -- only visual and normal mode
+  ["gU"] = { name = "+toUppercase (dot to repeat)" },                                                                 -- only visual and normal mode
+  ["gv"] = { "last selected" },                                                                                       -- only visual and normal mode
+  ["gw"] = vim.tbl_extend("force", { name = "+SplitJoin coments/lines 80chars (keeps cursor position)" }, g_textobj), -- only visual and normal mode (maintains cursor_position)
+  ["gW"] = { "word-column multicursor" },                                                                             -- only visual and normal mode
+  ["gx"] = vim.tbl_extend("force", { name = "+Blackhole register (dot to repeat)" }, g_textobj),                      -- only visual and normal mode (overwrites "open with system")
+  ["gX"] = { "Blackhole linewise (dot to repeat)" },                                                                  -- only visual and normal mode
+  ["gy"] = { name = "+replace with register (dot to repeat)" },                                                       -- only visual and normal mode
+  ["gY"] = { name = "+exchange text" },                                                                               -- only visual and normal mode
+  ["gz"] = { name = "+sort (dot to repeat)" },                                                                        -- only visual and normal mode
+  ["g+"] = { "Increment number (dot to repeat)" },                                                                    -- only visual and normal mode
+  ["g-"] = { "Decrement number (dot to repeat)" },                                                                    -- only visual and normal mode
+  ["g|"] = { "same column for all virtual cursors" },                                                                 -- only visual and normal mode
+  ["g\\"] = { "add virtual cursor at current position (eg after search/jump)" },                                      -- only visual and normal mode
+  ["g<Up>"] = { "Numbers ascending" },                                                                                -- only visual and normal mode
+  ["g<Down>"] = { "Numbers descending" },                                                                             -- only visual and normal mode
 }
 
 local visual_action = {
-  ["ga"] = { "Align" },                                          -- only visual and normal mode
-  ["gA"] = { "Preview Align" },                                  -- only visual and normal mode
-  ["gu"] = { "to lowercase" },                                   -- only visual and normal mode
-  ["gU"] = { "to Uppercase" },                                   -- only visual and normal mode
-  ["gv"] = { "last selected" },                                  -- only visual and normal mode
-  ["gw"] = { "SplitJoin comments/lines (limited at 80 chars)" }, -- only visual and normal mode
-  ["gx"] = { "Blackhole register" },                             -- only visual and normal mode
-  ["gX"] = { "Blackhole linewise" },                             -- only visual and normal mode
-  ["gy"] = { "replace with register" },                          -- only visual and normal mode
-  ["gY"] = { "exchange text" },                                  -- only visual and normal mode
-  ["gz"] = { "sort" },                                           -- only visual and normal mode
-  ["g+"] = { "Increment number" },                               -- only visual and normal mode
-  ["g-"] = { "Decrement number" },                               -- only visual and normal mode
-  ["<leader><leader>p"] = { "Paste (second_clip)" },             -- only visual and normal mode
-  ["<leader><leader>P"] = { "Paste forward (second_clip)" },     -- only visual and normal mode
-  ["<leader><leader>y"] = { "Yank (second_clip)" },              -- only visual and normal mode
-  ["<leader><leader>Y"] = { "Yank forward (second_clip)" },      -- only visual and normal mode
+  ["g<"] = { "+goto StarOf textobj (dot to repeat)" },                           -- only visual and normal mode
+  ["ga"] = { "Align" },                                                          -- only visual and normal mode
+  ["gA"] = { "Preview Align" },                                                  -- only visual and normal mode
+  ["gb"] = { "add virtual cursor (find selected)" },                             -- only visual and normal mode
+  ["go"] = { "visual select to virtual cursor(n to add forward)" },              -- only visual and normal mode
+  ["gO"] = { "visual select to virtual cursor(N to add backward)" },             -- only visual and normal mode
+  ["gq"] = { "SplitJoin comments/lines (limited at 80 chars)" },                 -- only visual and normal mode
+  ["gu"] = { "to lowercase" },                                                   -- only visual and normal mode
+  ["gU"] = { "to Uppercase" },                                                   -- only visual and normal mode
+  ["gv"] = { "last selected" },                                                  -- only visual and normal mode
+  ["gw"] = { "SplitJoin comments/lines (limited at 80 chars)" },                 -- only visual and normal mode
+  ["gW"] = { "word-column multicursor" },                                        -- only visual and normal mode
+  ["gx"] = { "Blackhole register" },                                             -- only visual and normal mode
+  ["gX"] = { "Blackhole linewise" },                                             -- only visual and normal mode
+  ["gy"] = { "replace with register" },                                          -- only visual and normal mode
+  ["gY"] = { "exchange text" },                                                  -- only visual and normal mode
+  ["gz"] = { "sort" },                                                           -- only visual and normal mode
+  ["g+"] = { "Increment number (dot to repeat)" },                               -- only visual and normal mode
+  ["g-"] = { "Decrement number (dot to repeat)" },                               -- only visual and normal mode
+  ["g|"] = { "same column for all virtual cursors" },                            -- only visual and normal mode
+  ["g\\"] = { "add virtual cursor at current position (eg after search/jump)" }, -- only visual and normal mode
+  ["g<Up>"] = { "Numbers ascending" },                                           -- only visual and normal mode
+  ["g<Down>"] = { "Numbers descending" },                                        -- only visual and normal mode
+  ["<leader><leader>p"] = { "Paste (second_clip)" },                             -- only visual and normal mode
+  ["<leader><leader>P"] = { "Paste forward (second_clip)" },                     -- only visual and normal mode
+  ["<leader><leader>y"] = { "Yank (second_clip)" },                              -- only visual and normal mode
+  ["<leader><leader>Y"] = { "Yank forward (second_clip)" },                      -- only visual and normal mode
 }
 
-which_key.register({ mode = { "o", "x" }, textobj })
+which_key.register({ mode = { "o", "x" }, g_textobj })
 which_key.register({ mode = { "n" }, operator_motion })
 which_key.register({ mode = { "x" }, visual_action })
 

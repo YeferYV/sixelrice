@@ -30,9 +30,10 @@ dashboard.section.buttons.val = {
   dashboard.button("l", " " .. " Explorer", ":lua _LF_TOGGLE(vim.api.nvim_buf_get_name(0),'tabreplace')<cr>"),
   dashboard.button("t", " " .. " Terminal",
     ":lua vim.cmd[[ tabedit | terminal ]] vim.cmd[[ tabclose # ]] vim.cmd[[ set ft=tab-terminal nonumber laststatus=0 ]]<cr>"),
-  dashboard.button("T", " " .. " Tmux",
-    ":lua vim.cmd[[ tabnew | terminal tmux ]] vim.cmd[[ tabclose # ]] vim.cmd[[ set ft=tab-terminal nonumber laststatus=0 ]]<cr>"),
+  -- dashboard.button("T", " " .. " Tmux",
+  --   ":lua vim.cmd[[ tabnew | terminal tmux ]] vim.cmd[[ tabclose # ]] vim.cmd[[ set ft=tab-terminal nonumber laststatus=0 ]]<cr>"),
   dashboard.button("s", " " .. " Last Session", ":SessionManager load_last_session<cr>"),
+  dashboard.button("x", " " .. " Lazy Extras", "<cmd> LazyExtras <cr>"),
 }
 
 dashboard.config.layout[1].val = vim.fn.max { 2, vim.fn.floor(vim.fn.winheight(0) * 0.08) }

@@ -14,7 +14,7 @@ local options = {
   guifont = "monospace:h17", -- the font used in graphical neovim applications
   hlsearch = true,           -- highlight all matches on previous search pattern
   ignorecase = true,         -- ignore case in search patterns
-  lazyredraw = true,         -- lazily redraw screen
+  lazyredraw = false,        -- lazily redraw screen (if true conflicts with noice)
   laststatus = 3,            -- laststatus=3 global status line (line between splits)
   mouse = "a",               -- allow the mouse to be used in neovim
   number = true,             -- set numbered lines
@@ -44,6 +44,8 @@ local options = {
   -- whichwrap = "bs<>[]hl", -- which "horizontal" keys are allowed to travel to prev/next line
   wrap = false,              -- display lines as one long line
   writebackup = false,       -- if a file is being edited by another program (or was written to file while editing with another program), it is not allowed to be edited
+  pumblend = 0,              -- popup menu blend from 0 to 100 (0 is transparent)
+  winblend = 0               -- floating window blend from 0 to 100 (0 is transparent)
 }
 
 for k, v in pairs(options) do

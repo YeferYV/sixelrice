@@ -16,10 +16,10 @@ configs.setup {
     additional_vim_regex_highlighting = true,
   },
   indent = { enable = true, disable = { "python", "yaml" } },
-  context_commentstring = {
-    enable = true,
-    enable_autocmd = false,
-  },
+  -- context_commentstring = {
+  --   enable = true,
+  --   enable_autocmd = false,
+  -- },
   incremental_selection = {
     enable = true, -- you can also use a table with list of langs here (e.g. { "python", "javascript" })
     disable = { "yaml" },
@@ -218,15 +218,15 @@ configs.setup {
       },
     },
   },
-  textsubjects = {
-    enable = true,
-    prev_selection = 'Q',           -- (Optional) keymap to select the previous selection
-    keymaps = {
-      ['K'] = 'textsubjects-smart', -- useful for block of comments
-      ['aK'] = 'textsubjects-container-outer',
-      ['iK'] = 'textsubjects-container-inner',
-    },
-  },
+  -- textsubjects = {
+  --   enable = true,
+  --   prev_selection = 'Q',           -- (Optional) keymap to select the previous selection
+  --   keymaps = {
+  --     ['K'] = 'textsubjects-smart', -- useful for block of comments
+  --     ['aK'] = 'textsubjects-container-outer',
+  --     ['iK'] = 'textsubjects-container-inner',
+  --   },
+  -- },
 }
 
 -- vim.api.nvim_exec([[

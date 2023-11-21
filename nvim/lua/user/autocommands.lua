@@ -8,8 +8,13 @@ local create_command = vim.api.nvim_create_user_command
 
 ------------------------------------------------------------------------------------------------------------------------
 
--- _jump_to_last_position_on_reopen
-vim.cmd [[ au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif ]]
+-- _disable_trailspace_in_alpha
+autocmd("User", {
+  pattern = "AlphaReady",
+  callback = function()
+    require("mini.trailspace").unhighlight()
+  end,
+})
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -17,19 +22,25 @@ vim.cmd [[ au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "*",
   callback = function()
-    vim.opt.formatoptions:remove { "c", "r", "o" }
+    vim.opt.formatoptions:remove({ "c", "r", "o" })
   end,
 })
 
 ------------------------------------------------------------------------------------------------------------------------
 
--- _show_tabs_if_more_than_two
-autocmd({ "TabNew" }, { command = "set showtabline=2" })
+-- _hide_first_space_indent_level
+local hooks = require("ibl.hooks")
+hooks.register(hooks.type.WHITESPACE, hooks.builtin.hide_first_space_indent_level)
 
 ------------------------------------------------------------------------------------------------------------------------
 
--- _show_bufferline_if_more_than_two
-autocmd({ "BufAdd" }, { command = "set showtabline=2" })
+-- -- _show_tabs_if_more_than_two
+-- autocmd({ "TabNew" }, { command = "set showtabline=2" })
+
+------------------------------------------------------------------------------------------------------------------------
+
+-- -- _show_bufferline_if_more_than_two
+-- autocmd({ "BufAdd" }, { command = "set showtabline=2" })
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -44,27 +55,27 @@ autocmd({ "BufDelete" }, {
 
 ------------------------------------------------------------------------------------------------------------------------
 
--- select buffer with leader + number
-function BufPos_ActivateBuffer(num)
-  local count = 1
-  for i = 1, vim.fn.bufnr("$") do
-    if vim.fn.buflisted(i) == 1 then
-      if count == num then
-        vim.cmd("buffer " .. i)
-        return
-      end
-      count = count + 1
-    end
-  end
-end
-
-function BufPos_Initialize()
-  for i = 1, 9 do
-    vim.cmd("nnoremap <Space>" .. i .. " :lua BufPos_ActivateBuffer(" .. i .. ")<CR>")
-  end
-end
-
-vim.cmd("autocmd VimEnter * lua BufPos_Initialize()")
+-- -- select buffer with leader + number
+-- function BufPos_ActivateBuffer(num)
+--   local count = 1
+--   for i = 1, vim.fn.bufnr("$") do
+--     if vim.fn.buflisted(i) == 1 then
+--       if count == num then
+--         vim.cmd("buffer " .. i)
+--         return
+--       end
+--       count = count + 1
+--     end
+--   end
+-- end
+--
+-- function BufPos_Initialize()
+--   for i = 1, 9 do
+--     vim.cmd("nnoremap <Space>" .. i .. " :lua BufPos_ActivateBuffer(" .. i .. ")<CR>")
+--   end
+-- end
+--
+-- vim.cmd("autocmd VimEnter * lua BufPos_Initialize()")
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -98,11 +109,24 @@ function GoToParentIndent()
   )
   if ok then
     vim.api.nvim_win_set_cursor(vim.api.nvim_get_current_win(), { start, 0 })
-    vim.cmd [[normal! _]]
+    vim.cmd([[normal! _]])
   end
 end
 
 create_command("GoToParentIndent", GoToParentIndent, {})
+
+------------------------------------------------------------------------------------------------------------------------
+
+function ShowBufferline()
+  require("bufferline").setup({
+    options = {
+      offsets = { { filetype = "neo-tree", padding = 1 } },
+      show_close_icon = false,
+    },
+  })
+end
+
+create_command("ShowBufferline", ShowBufferline, {})
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -122,6 +146,36 @@ create_command("SwapWindow", SwapWindow, {})
 
 ------------------------------------------------------------------------------------------------------------------------
 
+function ToggleDiagnostics()
+  if vim.g.diagnostics_enabled then
+    vim.diagnostic.disable()
+    vim.g.diagnostics_enabled = false
+  else
+    vim.diagnostic.enable()
+    vim.g.diagnostics_enabled = true
+  end
+end
+
+create_command("ToggleDiagnostics", ToggleDiagnostics, {})
+
+------------------------------------------------------------------------------------------------------------------------
+
+function ToggleVirtualText()
+  local function bool2str(bool) return bool and "on" or "off" end
+
+  if vim.g.diagnostics_enabled then
+    vim.g.diagnostics_enabled = false
+  else
+    vim.g.diagnostics_enabled = true
+  end
+
+  vim.diagnostic.config(require("user.lsp.handlers").setup(bool2str(vim.g.diagnostics_enabled)))
+end
+
+create_command("ToggleVirtualText", ToggleDiagnostics, {})
+
+------------------------------------------------------------------------------------------------------------------------
+
 _G.FeedKeysCorrectly = function(keys)
   local feedableKeys = vim.api.nvim_replace_termcodes(keys, true, false, true)
   vim.api.nvim_feedkeys(feedableKeys, "n", true)
@@ -130,13 +184,27 @@ end
 ------------------------------------------------------------------------------------------------------------------------
 
 function GotoTextObj_Callback()
-  FeedKeysCorrectly(vim.g.dotargs)
+  -- vim.api.nvim_input(vim.g.dotargs) -- slow and has whichkey conflicts (to reproduce "vg<ii")
+  vim.api.nvim_feedkeys(vim.g.dotargs, "n", true)
 end
 
-_G.GotoTextObj = function(action)
-  vim.g.dotargs = action
+_G.GotoTextObj = function(motion, selection_char, selection_line, selection_block)
+  vim.g.dotargs = motion
+
+  if vim.fn.mode() == "v" then
+    vim.g.dotargs = selection_char
+  end
+
+  if vim.fn.mode() == "V" then
+    vim.g.dotargs = selection_line
+  end
+
+  if vim.fn.mode() == "\22" then
+    vim.g.dotargs = selection_block
+  end
+
   vim.o.operatorfunc = 'v:lua.GotoTextObj_Callback'
-  return "g@"
+  return "<esc>m'g@"
 end
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -147,6 +215,7 @@ function WhichKeyRepeat_Callback()
   if vim.g.dotthirdcmd ~= nil then vim.cmd(vim.g.dotthirdcmd) end
 end
 
+-- https://www.vikasraj.dev/blog/vim-dot-repeat
 _G.WhichkeyRepeat = function(firstcmd, secondcmd, thirdcmd)
   vim.g.dotfirstcmd = firstcmd
   vim.g.dotsecondcmd = secondcmd
@@ -162,10 +231,12 @@ end
 M.select_same_indent = function(skip_blank_line)
   local start_indent = vim.fn.indent(vim.fn.line('.'))
 
+  function is_blank_line(line) return string.match(vim.fn.getline(line), '^%s*$') end
+
   if skip_blank_line then
     match_blank_line = function(line) return false end
   else
-    match_blank_line = function(line) return string.match(vim.fn.getline(line), '^%s*$') end
+    match_blank_line = function(line) return is_blank_line(line) end
   end
 
   local prev_line = vim.fn.line('.') - 1
@@ -175,7 +246,7 @@ M.select_same_indent = function(skip_blank_line)
 
     -- exit loop if there's no indentation
     if skip_blank_line then
-      if vim.fn.indent(prev_line) == 0 and string.match(vim.fn.getline(prev_line), '^%s*$') then
+      if vim.fn.indent(prev_line) == 0 and is_blank_line(prev_line) then
         break
       end
     else
@@ -194,7 +265,7 @@ M.select_same_indent = function(skip_blank_line)
 
     -- exit loop if there's no indentation
     if skip_blank_line then
-      if vim.fn.indent(next_line) == 0 and string.match(vim.fn.getline(next_line), '^%s*$') then
+      if vim.fn.indent(next_line) == 0 and is_blank_line(next_line) then
         break
       end
     else
@@ -214,10 +285,12 @@ M.next_indent = function(next, level)
   local next_line = next and (vim.fn.line('.') + 1) or (vim.fn.line('.') - 1)
   local sign = next and '+' or '-'
 
+  function is_blank_line(line) return string.match(vim.fn.getline(line), '^%s*$') end
+
   -- scroll no_blanklines (indent = 0) when going down
-  if string.match(vim.fn.getline(current_line), '^%s*$') == nil then
+  if is_blank_line(current_line) == nil then
     if sign == '+' then
-      while vim.fn.indent(next_line) == 0 and string.match(vim.fn.getline(next_line), '^%s*$') == nil do
+      while vim.fn.indent(next_line) == 0 and is_blank_line(next_line) == nil do
         vim.cmd('+')
         next_line = vim.fn.line('.') + 1
       end
@@ -234,13 +307,13 @@ M.next_indent = function(next, level)
 
   if level == "same_level" then
     -- scroll differrent indentation (supports indent = 0, skip blacklines)
-    while vim.fn.indent(next_line) ~= -1 and (vim.fn.indent(next_line) ~= start_indent or string.match(vim.fn.getline(next_line), '^%s*$')) do
+    while vim.fn.indent(next_line) ~= -1 and (vim.fn.indent(next_line) ~= start_indent or is_blank_line(next_line)) do
       vim.cmd(sign)
       next_line = next and (vim.fn.line('.') + 1) or (vim.fn.line('.') - 1)
     end
   else -- level == "different_level"
     -- scroll blanklines (indent = -1 is when line is 0 or line is last+1 )
-    while vim.fn.indent(next_line) == 0 and string.match(vim.fn.getline(next_line), '^%s*$') do
+    while vim.fn.indent(next_line) == 0 and is_blank_line(next_line) do
       vim.cmd(sign)
       next_line = next and (vim.fn.line('.') + 1) or (vim.fn.line('.') - 1)
     end
@@ -249,12 +322,12 @@ M.next_indent = function(next, level)
   -- scroll to next indentation
   vim.cmd(sign)
 
-  -- scroll to top of indentation noblacklines
+  -- scroll to top of indentation no_blanklines
   start_indent = vim.fn.indent(vim.fn.line('.'))
   next_line = next and (vim.fn.line('.') + 1) or (vim.fn.line('.') - 1)
   if sign == '-' then
     -- next_line indent is start_indent, next_line is no_blankline
-    while vim.fn.indent(next_line) == start_indent and string.match(vim.fn.getline(next_line), '^%s*$') == nil do
+    while vim.fn.indent(next_line) == start_indent and is_blank_line(next_line) == nil do
       vim.cmd('-')
       next_line = vim.fn.line('.') - 1
     end

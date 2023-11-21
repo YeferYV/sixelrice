@@ -37,16 +37,16 @@ neotree.setup({
     "buffers",
     "git_status",
   },
+  default_source = "filesystem",
   source_selector = {
     winbar = true,                         -- toggle to show selector on winbar
     statusline = false,                    -- toggle to show selector on statusline
     show_scrolled_off_parent_node = false, -- this will replace the tabs with the parent path
     -- of the top visible node when scrolled down.
-    tab_labels = {                         -- falls back to source_name if nil
-      filesystem = " 󰉓 File ",
-      buffers = "  Bufs ",
-      git_status = "  Git ",
-      diagnostics = "  Diagnostics ",
+    sources = {                            -- table
+      { source = "filesystem", display_name = " 󰉓 File " },
+      { source = "buffers", display_name = " 󰈚 Bufs " },
+      { source = "git_status", display_name = " 󰊢 Git " },
     },
     content_layout = "start", -- only with `tabs_layout` = "equal", "focus"
     --                start  : |/ 裡 bufname     \/...
@@ -611,10 +611,10 @@ neotree.setup({
       mappings = {
         ["<bs>"] = "navigate_up",
         ["."] = "set_root",
-        ["o"] = "getchild_open",
+        ["o"] = "quit_on_open",
         ["h"] = "getparent_closenode",
         ["H"] = "toggle_hidden",
-        ["l"] = "quit_on_open",
+        ["l"] = "getchild_open",
         ["L"] = "open_unfocus",
         ["i"] = "print_path",
         ["<down>"] = "nav_down",
