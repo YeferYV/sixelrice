@@ -166,12 +166,6 @@ return {
 
   -- Motions
   {
-    "justinmk/vim-sneak",
-    commit = "93395f5b56eb203e4c8346766f258ac94ea81702",
-    event = "VeryLazy",
-    dependencies = { "tpope/vim-repeat", commit = "24afe922e6a05891756ecf331f39a1f6743d3d5a" },
-  },
-  {
     "folke/which-key.nvim",
     dependencies = {
       { "machakann/vim-columnmove", commit = "21a43d809a03ff9bf9946d983d17b3a316bf7a64" },
