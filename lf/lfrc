@@ -42,9 +42,9 @@ cmd on-cd &{{ printf "\033]0; $(basename ${PWD/~/\~}) \a" }} # CWD title
 
 cmd open ${{
   case $(file --dereference --brief --mime-type $f) in
-    text/*|*/json|*/javascript)  ( printf "\033]0; ${f##*/} \a" ) >$PTS; $EDITOR $fx ;;
-    image/*|video/*|*/pdf)         XDG_RUNTIME_DIR=/run/user/1000 mpv --vo=x11,sixel,kitty $fx ;;
-    *) for f in $fx; do $OPENER "$f" &>/dev/null & disown; done;;
+    text/*|*/json|*/javascript)  ( printf "\033]0; ${f##*/} \a" ) > $PTS;                      $EDITOR $fx ;;
+    image/*|video/*|*/pdf)       [ -e /.dockerenv ] && export XDG_RUNTIME_DIR=/run/user/1000;  mpv --vo=x11,sixel,kitty $fx ;;
+    *)                           for f in $fx;         do $OPENER "$f" &>/dev/null & disown;   done;;
   esac
 }}
 
@@ -52,19 +52,19 @@ cmd preview_in_mpv ${{
   ## https://github.com/zellij-org/zellij/issues/1963:
   # pkill --signal TSTP zellij && mpv --vo=sixel,kitty,x11 $fx && zellij attach # not working
 
-  export XDG_RUNTIME_DIR=/run/user/1000 # for audio inside docker
-  [ -z $ZELLIJ ] && [ -z $NVIM ] && [ -z $TMUX ]&& mpv --vo=sixel,kitty,x11 --really-quiet $fx || mpv --vo=tct --really-quiet $fx
+  [ -e /.dockerenv ] && export XDG_RUNTIME_DIR=/run/user/1000 # for audio inside docker
+  [ -z $ZELLIJ ] && [ -z $NVIM ] && [ -z $TMUX ] && mpv --vo=sixel,kitty,x11 --really-quiet $fx || mpv --vo=tct --really-quiet $fx
 }}
 
 cmd preview_in_pager ${{
-  [[ "$f" =~ .png|.jpg ]] && ( img2sixel "$f"            | less -r ) > $PTS && exit
-  [[ "$f" =~ .pdf      ]] && ( convert "${f}[0]" sixel:- | less -r ) > $PTS && exit
-  [[ "$f" =~ .mp4|.mkv ]] && ( mpv --ao=null --vo-image-outdir=/tmp --vo=image --start=1 --frames=1 "$f" && img2sixel /tmp/00000001.jpg | less -r ) > $PTS && exit
+  [[ "$f" =~ .png|.jpg ]] && ( img2sixel "$f"            | less -r ) && exit
+  [[ "$f" =~ .pdf      ]] && ( convert "${f}[0]" sixel:- | less -r ) && exit
+  [[ "$f" =~ .mp4|.mkv ]] && ( mpv --ao=null --vo-image-outdir=/tmp --vo=image --start=1 --frames=1 "$f" && img2sixel /tmp/00000001.jpg | less -r ) && exit
   [[ "$f" =~ .*        ]] && bat --paging=always --wrap=never "$f"
 }}
 
-map i       preview_in_pager # image doesn't render inside zellij ("ctrl+o d" to detach zellij) # open image/text files inside the terminal
-map o       preview_in_mpv   # video doesn't render inside zellij ("ctrl+o d" to detach zellij) # open multimedia files inside the terminal
+map i       preview_in_pager # image doesn't render inside zellij (workaround press LeftArrow to refresh) # open image/text files inside the terminal
+map o       preview_in_mpv   # video doesn't render inside zellij (workaround detach from zellij)         # open multimedia files inside the terminal
 map gll     $lazygit
 map gfs     fzf_cd
 map gfr     fzf_ripgrep
