@@ -286,7 +286,7 @@ local mappings = {
     C = { "<cmd>Telescope lsp_outgoing_calls initial_mode=normal<cr>", "Telescope outgoing calls" },
     d = { function() WhichkeyRepeat("lua vim.lsp.buf.definition()") end, "Goto Definition" },
     D = { function() WhichkeyRepeat("lua vim.lsp.buf.declaration()") end, "Goto Declaration" },
-    F = { function() WhichkeyRepeat("lua vim.lsp.buf.format()") end, "Format" },
+    F = { function() WhichkeyRepeat("lua vim.lsp.buf.format({ timeout_ms = 5000 })") end, "Format" },
     h = { function() WhichkeyRepeat("lua vim.lsp.buf.signature_help()") end, "Signature" },
     H = { function() WhichkeyRepeat("lua vim.lsp.buf.hover()") end, "Hover" },
     I = { function() WhichkeyRepeat("lua vim.lsp.buf.implementation()") end, "Goto Implementation" },

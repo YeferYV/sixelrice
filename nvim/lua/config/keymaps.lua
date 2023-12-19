@@ -43,7 +43,7 @@ keymap("v", "p", '"_c<c-r>+<esc>', { noremap = true, silent = true, desc = "Past
 
 -- Quick quit/write
 keymap("n", "<S-q>", "<cmd>lua vim.cmd('quit')<cr>", opts)
-keymap("n", "<S-r>", "<cmd>lua vim.lsp.buf.format() vim.cmd('silent write') <cr>", opts)
+keymap("n", "<S-r>", "<cmd>lua vim.lsp.buf.format({ timeout_ms = 5000 }) vim.cmd('silent write') <cr>", opts)
 
 -- Macros and :normal <keys> repeatable
 -- keymap("n", "!", "z", opts)

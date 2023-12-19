@@ -81,9 +81,12 @@ return {
   --   },
   -- },
 
-  -- use alpha instead of dashboard.nvim
+  -- lazyvim extra plugins
   { import = "lazyvim.plugins.extras.ui.alpha" },
   { import = "lazyvim.plugins.extras.util.project" },
+  { import = "lazyvim.plugins.extras.lsp.none-ls" },
+  { "stevearc/conform.nvim",                       enabled = false },
+  { "mfussenegger/nvim-lint",                      enabled = false },
   { "nvim-treesitter/nvim-treesitter-context",     enabled = false },
   { "folke/persistence.nvim",                      enabled = false },
 

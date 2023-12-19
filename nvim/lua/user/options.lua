@@ -61,6 +61,7 @@ vim.opt.formatoptions:remove({ "c", "r", "o" }) -- don't insert the current comm
 vim.g.codeium_no_map_tab = true
 vim.g.indent_object_ignore_blank_line = false
 vim.g.diagnostics_enabled = true -- enable diagnostics at start
+vim.g.autoformat = false
 
 -- _nvim_ufo
 vim.o.foldcolumn = "1"    -- '0' is not bad
