@@ -79,6 +79,35 @@ autocmd({ "BufDelete" }, {
 
 ------------------------------------------------------------------------------------------------------------------------
 
+-- _show_alpha_if_close_last_tab-terminal + _autoclose_tab-terminal_if_last_window
+autocmd({ "TermClose" }, {
+  group = hide_terminal_statusline,
+  callback = function()
+    local type = vim.bo.filetype
+    if type == "sp-terminal" or type == "vs-terminal" or type == "buf-terminal" or type == "tab-terminal" then
+      -- if number of tabs is equal to 1 (last tab)
+      if #vim.api.nvim_list_tabpages() == 1 then
+        vim.cmd [[ Alpha ]]
+        vim.cmd [[ bd # ]]
+      else
+        -- if number of buffers of the current tab is equal to 1 (last window)
+        if #vim.fn.getbufinfo({ buflisted = 1 }) == 1 then
+          -- FeedKeysCorrectly("<esc><esc>:close<cr>")
+          vim.cmd [[ call feedkeys("\<Esc>\<Esc>:close\<CR>") ]]
+        end
+      end
+
+      -- confirm terminal-exit-code by pressing <esc>
+      vim.cmd [[ call feedkeys("") ]]
+
+      -- alternatively close the buffer instead of confirming
+      -- vim.cmd [[ execute 'bdelete! ' . expand('<abuf>') ]]
+    end
+  end,
+})
+
+------------------------------------------------------------------------------------------------------------------------
+
 function EnableAutoNoHighlightSearch()
   vim.on_key(function(char)
     if vim.fn.mode() == "n" then

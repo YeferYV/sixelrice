@@ -60,9 +60,10 @@ export HISTFILE="$HOME/.cache/history"
 export LANG=en_US.UTF-8
 export LF_ICONS=" tw=󰉋:or=:ex=:bd=:di=󰉋:ow=󰉋:ln=:fi="
 export LS_COLORS="tw=30:or=31:ex=32:bd=33:di=34:ow=35:ln=36:fi=37"
+export NPM_CONFIG_PREFIX="$HOME/.local/share/npm"
 export OPENER="gio open"
 export PAGER="less -r --use-color -Dd+r -Du+b -DPyk -DSyk"
-export PATH="$HOME/.local/share/sixelrice:$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.local/share/sixelrice:$HOME/.local/share/npm/bin:$PATH"
 export SAVEHIST=1000000
 export SHELL="$(which zsh)"
 export TERM="xterm-256color"
