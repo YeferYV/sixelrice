@@ -99,9 +99,9 @@ end
 
 -- see https://github.com/akinsho/toggleterm.nvim/issues/66
 local temp_path = "/tmp/lfpickerpath"
-function _LF_TOGGLE(dir, openmode)
+function _LF_TOGGLE(dir, openmode, filemanager)
   Terminal:new({
-    cmd = "lf -selection-path " .. temp_path .. " " .. dir,
+    cmd = filemanager .. " " .. temp_path .. " " .. dir,
     on_close = function()
       local file = io.open(temp_path, "r")
       if file ~= nil then

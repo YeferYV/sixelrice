@@ -114,7 +114,7 @@ local mappings = {
     t = {
       function()
         vim.cmd [[ tabnew ]]
-        vim.cmd [[ BufferlineShow ]]
+        vim.cmd [[ ShowBufferline ]]
       end,
       "New Tab"
     },
@@ -166,7 +166,7 @@ local mappings = {
     t = {
       function()
         vim.cmd [[ enew ]]
-        vim.cmd [[ BufferlineShow ]]
+        vim.cmd [[ ShowBufferline ]]
       end,
       "New buffer"
     },
@@ -175,14 +175,14 @@ local mappings = {
         vim.cmd [[ setlocal nobuflisted ]]
         vim.cmd [[ bprevious ]]
         vim.cmd [[ tabe # ]]
-        vim.cmd [[ BufferlineShow ]]
+        vim.cmd [[ ShowBufferline ]]
       end,
       "buffer to Tab"
     },
     -- T = {
     --   function()
     --     vim.cmd [[ bufdo | :setlocal nobuflisted | :b# | :tabe # ]]
-    --     vim.cmd [[ BufferlineShow ]]
+    --     vim.cmd [[ ShowBufferline ]]
     --   end,
     --   "buffers to Tab"
     -- },
@@ -259,7 +259,7 @@ local mappings = {
     g = {
       function()
         _LAZYGIT_TOGGLE()
-        vim.cmd [[ BufferlineShow ]]
+        vim.cmd [[ ShowBufferline ]]
       end,
       "Tab Lazygit"
     },
@@ -452,35 +452,54 @@ local mappings = {
       function()
         vim.cmd [[ tabnew|terminal ]]
         vim.cmd [[ startinsert | set ft=tab-terminal nonumber ]]
-        vim.cmd [[ BufferlineShow ]]
+        vim.cmd [[ ShowBufferline ]]
       end,
       "Buffer Terminal (TabNew)"
     },
     f = { "<cmd>ToggleTerm direction=float<cr>", "Float ToggleTerm" },
-    l = {
+    ["ls"] = {
       function()
-        _LF_TOGGLE(vim.api.nvim_buf_get_name(0), 'vsplit')
+        _LF_TOGGLE(vim.api.nvim_buf_get_name(0), 'vsplit', 'lf -selection-path')
       end,
       "lf (TabSame)"
     },
-    L = {
+    ["ln"] = {
       function()
-        _LF_TOGGLE(vim.api.nvim_buf_get_name(0), 'tabnew')
-        vim.cmd [[ BufferlineShow ]]
+        _LF_TOGGLE(vim.api.nvim_buf_get_name(0), 'tabnew', 'lf -selection-path')
+        vim.cmd [[ ShowBufferline ]]
       end,
       "lf (TabNew)"
     },
-    r = {
+    ["ll"] = {
       function()
-        _LF_TOGGLE(vim.api.nvim_buf_get_name(0), 'tabreplace')
+        _LF_TOGGLE(vim.api.nvim_buf_get_name(0), 'tabreplace', 'lf -selection-path')
       end,
       "lf (TabReplace)"
+    },
+    ["ys"] = {
+      function()
+        _LF_TOGGLE(vim.api.nvim_buf_get_name(0), 'vsplit', 'yazi --chooser-file')
+      end,
+      "yazi (TabSame)"
+    },
+    ["yn"] = {
+      function()
+        _LF_TOGGLE(vim.api.nvim_buf_get_name(0), 'tabnew', 'yazi --chooser-file')
+        vim.cmd [[ ShowBufferline ]]
+      end,
+      "yazi (TabNew)"
+    },
+    ["yy"] = {
+      function()
+        _LF_TOGGLE(vim.api.nvim_buf_get_name(0), 'tabreplace', 'yazi --chooser-file')
+      end,
+      "yazi (TabReplace)"
     },
     t = { "<cmd>ToggleTerm <cr>", "Toggle ToggleTerm" },
     T = {
       function()
         vim.cmd [[ ToggleTerm direction=tab ]]
-        vim.cmd [[ BufferlineShow ]]
+        vim.cmd [[ ShowBufferline ]]
       end,
       "Tab ToggleTerm"
     },
@@ -515,7 +534,7 @@ local mappings = {
   u = {
     name = "UI Toggle",
     ["0"] = { "<cmd>set showtabline=0<cr>", "Hide Buffer" },
-    ["1"] = { "<cmd>BufferlineShow<cr>", "Enable Buffer offset" },
+    ["1"] = { "<cmd>ShowBufferline<cr>", "Enable Buffer offset" },
     ["2"] = {
       function()
         require('bufferline').setup {
@@ -529,7 +548,7 @@ local mappings = {
     },
     a = { "<cmd>Alpha<cr>", "Alpha (TabSame)" },
     A = { "<cmd>tabnew | Alpha<cr>", "Alpha (TabNew)" },
-    b = { "<cmd>BufferlineShow<cr>", "Show Buffer" },
+    b = { "<cmd>ShowBufferline<cr>", "Show Buffer" },
     B = {
       function()
         require('bufferline').setup {
@@ -598,7 +617,7 @@ local mappings = {
     r = {
       function()
         _RESTO_TOGGLE()
-        vim.cmd [[ BufferlineShow ]]
+        vim.cmd [[ ShowBufferline ]]
       end,
       "Rest Client"
     },
@@ -663,7 +682,7 @@ local mappings = {
       function()
         vim.cmd [[ setlocal nobuflisted ]]
         vim.cmd [[ wincmd T ]]
-        vim.cmd [[ BufferlineShow ]]
+        vim.cmd [[ ShowBufferline ]]
       end,
       "window to Tab"
     },
