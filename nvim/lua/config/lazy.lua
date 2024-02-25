@@ -12,7 +12,7 @@ require("lazy").setup({
     -- add LazyVim and import its plugins
     {
       "LazyVim/LazyVim",
-      tag = "^10",
+      -- tag = "^10",
       import = "lazyvim.plugins",
       -- opts = { defaults = { autocmds = false, keymaps = false } }
       -- config = true,

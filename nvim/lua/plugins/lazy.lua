@@ -106,7 +106,7 @@ return {
       { "hrsh7th/cmp-cmdline" },
       {
         "roobert/tailwindcss-colorizer-cmp.nvim",
-        commit = "8d91ba2dc2421a54981115f61b914974f938fa77",
+        commit = "bc25c56083939f274edcfe395c6ff7de23b67c50",
         config = function() require("tailwindcss-colorizer-cmp").setup({ color_square_width = 1 }) end,
       },
     },
