@@ -684,22 +684,22 @@
 
 <details><summary></summary>
 
-| Key Combination | mode | Description                  |
-| :-------------: | :--: | :--------------------------- |
-|    `ctrl+a`     | `n`  | increase number under cursor |
-|    `ctrl+b`     | `n`  | scroll down by page          |
-|    `ctrl+e`     | `n`  | scroll down by line          |
-|    `ctrl+d`     | `n`  | scroll down by half page     |
-|    `ctrl+f`     | `n`  | scroll up by page            |
-|    `ctrl+l`     | `n`  | clear highlight search       |
-|    `ctrl+i`     | `n`  | jump to next in `:jumps`     |
-|    `ctrl+o`     | `n`  | jump to previous in `:jumps` |
-|    `ctrl+r`     | `n`  | redo (`u` to undo)           |
-|    `ctrl+u`     | `n`  | scroll up by half page       |
-|    `ctrl+v`     | `n`  | visual block mode            |
-|    `ctrl+x`     | `n`  | decrease number under cursor |
-|    `ctrl+y`     | `n`  | scroll up by line            |
-|    `ctrl+/`     | `n`  | comment line                 |
+| Key Combination |  mode   | Description                                                                     |
+| :-------------: | :-----: | :------------------------------------------------------------------------------ |
+|    `ctrl+a`     | `n`,`v` | increase number under cursor                                                    |
+|    `ctrl+b`     | `n`,`v` | scroll down by page                                                             |
+|    `ctrl+e`     | `n`,`v` | scroll down by line                                                             |
+|    `ctrl+d`     | `n`,`v` | scroll down by half page                                                        |
+|    `ctrl+f`     | `n`,`v` | scroll up by page                                                               |
+|    `ctrl+l`     |   `n`   | clear highlight search                                                          |
+|    `ctrl+i`     |   `n`   | jump to next in `:jumps`                                                        |
+|    `ctrl+o`     |   `n`   | jump to previous in `:jumps`                                                    |
+|    `ctrl+r`     |   `n`   | redo (`u` to undo)                                                              |
+|    `ctrl+s`     | `n`,`v` | replace text (using `sed` syntax)(only replaces selected region on visual mode) |
+|    `ctrl+u`     | `n`,`v` | scroll up by half page                                                          |
+|    `ctrl+v`     | `n`,`v` | visual block mode                                                               |
+|    `ctrl+x`     | `n`,`v` | decrease number under cursor                                                    |
+|    `ctrl+y`     | `n`,`v` | scroll up by line                                                               |
 
 </details>
 
@@ -711,6 +711,7 @@
 
 |       keymap       | description                                                                |
 | :----------------: | :------------------------------------------------------------------------- |
+|        `l`         | open file or selected files with $EDITOR/mpv/$OPENER                       |
 |        `i`         | open image/text in pager (pager doesn't render images inside zellij)       |
 |        `o`         | play image/video/pdf in mpv-sixel (mpv-sixel doesn't render inside zellij) |
 |       `gll`        | open lazygit                                                               |
@@ -787,7 +788,7 @@ example: in normal mode type `:` to open vim-command-line then type `TSInstall c
 
 <details open><summary></summary>
 
-- [yeferyv/retroarch](https://github.com/yeferyv/retroarch) vscode extension with neovim text objects from A-Z + LSP whichkey + touchcursor keyboard layout
+- [yeferyv/retronvim](https://github.com/yeferyv/retronvim) vscode extension with neovim text objects from A-Z + LSP whichkey + touchcursor keyboard layout
 - [yeferyv/archrice](https://github.com/yeferyv/archrice) arch linux rice with neovim text object from A-Z, based on [neovim-from-scratch](https://github.com/LunarVim/Neovim-from-scratch)
 - [yeferyv/dotfiles](https://github.com/yeferyv/dotfiles) my dotfiles (minimal archrice + keybindings for managing windows in any desktop environment) with archlinux, debian and windows support/installer
 
