@@ -219,6 +219,7 @@ map(
 )
 
 -- goto changes:
+map({ "n", "o", "x" }, "g.", "`.", { silent = true, desc = "go to last change" })
 keymap("n", "g,", "g,", { noremap = true, silent = true, desc = "go forward in :changes" })  -- Formatting will lose track of changes
 keymap("n", "g;", "g;", { noremap = true, silent = true, desc = "go backward in :changes" }) -- Formatting will lose track of changes
 
@@ -291,7 +292,7 @@ keymap(
 )
 
 -- paste LastSearch Register:
-keymap("n", "gh", '"/p', { silent = true, desc = "paste lastSearch register" })
+keymap("n", "gH", '"/p', { silent = true, desc = "paste lastSearch register" })
 
 -- Redo Register:
 keymap("n", "gr", '"1p', { silent = true, desc = "Redo register (dot to Paste forward the rest of register)" })
@@ -372,9 +373,6 @@ map(
 
 -- _git_hunk_(next/prev_autojump_unsupported)
 map({ "o", "x" }, "gh", ":<C-U>Gitsigns select_hunk<CR>", { silent = true, desc = "Git hunk textobj" })
-
--- _jump_to_last_change
-map({ "n", "o", "x" }, "gl", "`.", { silent = true, desc = "Jump to last change" })
 
 -- https://www.reddit.com/r/vim/comments/xnuaxs/last_change_text_object
 -- map("v", 'gm', '<Esc>u<C-r>vgi', opts)            -- <left> unsupported

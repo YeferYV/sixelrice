@@ -183,12 +183,9 @@ return {
   { "echasnovski/mini.surround",                   enabled = false },
   { "echasnovski/mini.nvim",                       commit = "e8a413b1a29f05bb556a804ebee990eb54479586", },
   {
-    "kana/vim-textobj-user",
-    commit = "41a675ddbeefd6a93664a4dc52f302fe3086a933",
+    "coderifous/textobj-word-column.vim",
+    commit = "cb40e1459817a7fa23741ff6df05e4481bde5a33",
     event = "VeryLazy",
-    dependencies = {
-      { "coderifous/textobj-word-column.vim", commit = "cb40e1459817a7fa23741ff6df05e4481bde5a33" },
-    }
   },
   { "mg979/vim-visual-multi",                     commit = "724bd53adfbaf32e129b001658b45d4c5c29ca1a", event = "VeryLazy" },
   {
