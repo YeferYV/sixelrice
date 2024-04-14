@@ -181,17 +181,20 @@ return {
   { "echasnovski/mini.comment",                    enabled = false },
   { "echasnovski/mini.indentscope",                enabled = false },
   { "echasnovski/mini.surround",                   enabled = false },
-  { "echasnovski/mini.nvim",                       commit = "e8a413b1a29f05bb556a804ebee990eb54479586", },
+  { "echasnovski/mini.nvim",                       commit = "5d841fcca666bc27ca777807a63381ce2cf6e2f9" },
   {
-    "coderifous/textobj-word-column.vim",
-    commit = "cb40e1459817a7fa23741ff6df05e4481bde5a33",
+    "kana/vim-textobj-user",
+    commit = "41a675ddbeefd6a93664a4dc52f302fe3086a933",
     event = "VeryLazy",
+    dependencies = {
+      { "coderifous/textobj-word-column.vim", commit = "cb40e1459817a7fa23741ff6df05e4481bde5a33" },
+    }
   },
   { "mg979/vim-visual-multi",                     commit = "724bd53adfbaf32e129b001658b45d4c5c29ca1a", event = "VeryLazy" },
   {
     "chrisgrieser/nvim-various-textobjs",
-    commit = "c0aa3ff33eaf9e7bc827ea918f92ac47d6037118",
-    config = { useDefaultKeymaps = false, lookForwardSmall = 30, lookForwardBig = 30 },
+    commit = "6cefba253d69306004a641a11c395381ae428903",
+    opts = { useDefaultKeymaps = false, lookForwardSmall = 30, lookForwardBig = 30 },
   },
 
   -- TUI
@@ -282,7 +285,7 @@ return {
   {
     "lewis6991/gitsigns.nvim",
     version = "^0",
-    config = {
+    opts = {
       signs = {
         add          = { text = "│" },
         change       = { text = "│" },

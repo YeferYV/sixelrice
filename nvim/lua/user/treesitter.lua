@@ -28,10 +28,10 @@ configs.setup {
       -- node_incremental = "grn",       -- increment to the upper named parent
       -- scope_incremental = "grc",      -- increment to the upper scope (as defined in locals.scm)
       -- node_decremental = "grm",       -- decrement to the previous node
-      init_selection = '<c-space>',
-      node_incremental = '<c-space>',
-      scope_incremental = '<c-]>',
-      node_decremental = '<c-[>', -- showkey -a <c-backspace> outputs ^H
+      init_selection = '<space><space><space>',
+      node_incremental = '<space><space><space>',
+      scope_incremental = '<space>+',
+      node_decremental = '<space>-', -- showkey -a <c-backspace> outputs ^H
     }
   },
   textobjects = {
@@ -178,8 +178,8 @@ configs.setup {
         ['gneaA'] = '@assignment.outer',
         ['gnea='] = '@assignment.lhs',
         ['gnea#'] = '@number.outer',
-        ["gnez"] = { query = "@scope", query_group = "locals", desc = "Next scope" },
-        ["gneZ"] = { query = "@fold", query_group = "folds", desc = "Next End Fold" },
+        ["gnez"] = { query = "@fold", query_group = "folds", desc = "Next End Fold" },
+        ["gneZ"] = { query = "@scope", query_group = "locals", desc = "Next scope" },
 
         ['gneiB'] = '@block.inner',
         ['gneiq'] = '@call.inner',
