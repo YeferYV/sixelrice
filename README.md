@@ -5,6 +5,8 @@
         <a href="https://github.com/gokcehan/lf">lf</a>/
         <a href="https://github.com/mpv-player/mpv">mpv-sixel</a>/
         <a href="https://github.com/neovim/neovim">neovim</a>
+        <br>
+        (neovim integrates text objects from A-Z and is based on <a href="https://github.com/lazyvim/lazyvim">lazyvim</a>)
     </p>
 
 ---
@@ -27,7 +29,7 @@
    - [Neovim text object that starts with a/i](#neovim-text-object-that-starts-with-ai)
    - [Neovim text object that starts with g](#neovim-text-object-that-starts-with-g)
    - [Neovim Motions and Operators](#neovim-motions-and-operators)
-   - [Neovim Space TextObjects/Motions](#neovim-textobject-motions)
+   - [Neovim Space TextObjects/Motions](#neovim-space-textobject-motions)
    - [Neovim Mini.brackets](#neovim-minibrackets)
 2. Neovim Goto
    - [Neovim Go to Previous](#neovim-go-to-previous)
@@ -44,7 +46,7 @@
 4. [LF terminal file manager](#lf-terminal-file-manager)
 5. [zsh keymaps](#zsh-keymaps)
 6. Installation
-   - [Dependencies Installation](#dependencies-installation)
+   - [Dependencies Installation](#installation)
    - [Treesitter Installation](#treesitter-installation)
 7. [Vim Cheatsheets](#vim-cheatsheets)
 8. [Related projects](#related-projects)
@@ -89,7 +91,7 @@
 |             `iQ`, `aQ`             |     `.`      |         yes          | @Class                 | inside of a class                                                                         | outer includes class declaration                                              |
 |             `ir`, `ar`             |     `.`      |                      | restOfIndentation      | lines down with same or higher indentation                                                | outer: restOfParagraph                                                        |
 |             `iR`, `aR`             |     `.`      |         yes          | @Return                | inside of a Return clause                                                                 | outer includes the `return                                                    |
-|             `is`, `as`             |     `.`      |                      | \_sentence             | inside mini.ai text object (todo: overwrite it with the original sentence textobj)        | outer line wise                                                               |
+|             `is`, `as`             |     `.`      |                      | \_sentence             | inside mini.ai text object (`vi.` for sentence textobj)                                   | outer line wise                                                               |
 |             `iS`, `aS`             |     `.`      |                      | subword                | like `iw`, but treating `-`, `_`, and `.` as word delimiters _and_ only part of camelCase | outer includes trailing `_`,`-`, or space                                     |
 |             `it`, `at`             |     `.`      |         yes          | \_tag                  | inside of a html/jsx tag                                                                  | outer includes openning and closing tags                                      |
 |             `iu`, `au`             |     `.`      |         yes          | \_quotes               | inside of `` '' ""                                                                        | outer includes openning and closing quotes                                    |
@@ -99,7 +101,7 @@
 |             `iW`, `aW`             |     `.`      |                      | \_WORD                 | from cursor to end of WORD (includes punctuation)                                         | outer includes start of word                                                  |
 |             `ix`, `ax`             |     `.`      |         yes          | \_Hex                  | hexadecimal number or color                                                               | outer includes hash `#`                                                       |
 |             `iy`, `ay`             |     `.`      |                      | same_indent            | surrounding lines with only same indentation (delimited by blankspaces)                   | outer includes blankspaces                                                    |
-|             `iz`, `az`             |     `.`      |                      | fold                   | inside folds without line above neither below                                             | outer includes line above andd below                                          |
+|             `iz`, `az`             |     `.`      |                      | @fold                  | inside folds without line above neither below                                             | outer includes line above andd below                                          |
 |             `iZ`, `aZ`             |     `.`      |         yes          | closedFold             | closed fold                                                                               | outer includes one line after the last folded line                            |
 |             `i=`, `a=`             |     `.`      |         yes          | @Assignment.rhs-lhs    | assignmentt right and left without type keyword neither semicolons                        | inner: left assignment, outer: right assignment                               |
 |             `i#`, `a#`             |     `.`      |         yes          | @Number                | like `_number` but treesitter aware                                                       | inner and outer are the same (only pure digits)                               |
@@ -108,7 +110,7 @@
 |       `i[`, `i]`, `a[`, `a]`       |     `.`      |         yes          | `[` or `]`             | inside `[]`                                                                               | outer includes surroundings                                                   |
 |       `i{`, `i}`, `a{`, `a}`       |     `.`      |         yes          | `{` or `}`             | inside `{}`                                                                               | outer includes surroundings                                                   |
 |       `i<`, `i>`, `a<`, `a>`       |     `.`      |         yes          | `<` or `>`             | inside `<>`                                                                               | outer includes surroundings                                                   |
-|              i\`, a\`              |     `.`      |         yes          | apostrophe             | inside ``                                                                                 | outer includes surroundings                                                   |
+|         `` i` ``, `` a` ``         |     `.`      |         yes          | apostrophe             | inside `` ` ` ``                                                                          | outer includes surroundings                                                   |
 |             `i'`, `a'`             |     `.`      |         yes          | `'`                    | inside `''`                                                                               | outer includes surroundings                                                   |
 |             `i"`, `a"`             |     `.`      |         yes          | `"`                    | inside `""`                                                                               | outer includes surroundings                                                   |
 |             `i.`, `a.`             |     `.`      |         yes          | `.`                    | inside `..`                                                                               | outer includes surroundings                                                   |
@@ -792,11 +794,16 @@ tested on wezterm on x11/xorg with pipewire on archlinux
 
 <details open><summary></summary>
 
-Text objects that has `@` requires treesitter, sixelrice's neovim's configs installs by default treesitters for
+Text objects that has a `@` prefix requires a treesitter-grammar, sixelrice's neovim's configs installs by default treesitter-grammars for
 `python`, `bash`, `javascript`, `json`, `html`, `css`, `c`, `lua`.
-Install treesitter for your programming language with `:TSInstall <your programming language>`.
+Install treesitter-grammar for your programming language with `:TSInstall <your programming language>`.
 
-example: in normal mode type `:` to open vim-command-line then type `TSInstall cpp` (cpp requires a cpp compiler)
+example: in normal mode type `:` to open vim-command-line then type `TSInstall cpp` (cpp treesitter-grammar requires a cpp compiler)
+
+recommended: for new sixelrice releases update neovim extensions with `:Lazy update` then update all the treesitter-grammars with `:TSUpdate` then relaunch neovim
+(just in case you find warnings or text-object not working as previous release)
+
+tip: to make a clean neovim-extensions/tressitter-grammar installation remove the folder `rm -r -force ~/.local/share/nvim` and relaunch neovim
 
 </details>
 
@@ -806,6 +813,13 @@ example: in normal mode type `:` to open vim-command-line then type `TSInstall c
 
 - [devhints.io/vim](https://devhints.io/vim)
 - [viemu.com](http://www.viemu.com/a_vi_vim_graphical_cheat_sheet_tutorial.html)
+- [devhints.io/vim](https://devhints.io/vim)
+- [viemu.com](http://www.viemu.com/a_vi_vim_graphical_cheat_sheet_tutorial.html)
+- [vscode with embedded neovim](https://www.youtube.com/watch?v=g4dXZ0RQWdw) youtube tutorial most of the keybindings are similar to sixelrice's neovim
+- [treesitter text-objects demo](https://www.youtube.com/watch?v=FuYQ7M73bC0) youtube tutorial the keybindings are similar to sixelrice's neovim
+- [treesitter text-objects extended](https://www.youtube.com/watch?v=CEMPq_r8UYQ) youtube tutorial the keybindings are similar to sixelrice's neovim
+- [text-objects from A-Z](https://www.youtube.com/watch?v=JnD9Uro_oqc) youtube tutorial the keybindings are similar to sixelrice's neovim
+- [motion-operators from A-Z](https://www.youtube.com/watch?v=HhZJ1kbzkj0) youtube tutorial the keybindings are the same as to sixelrice's neovim
 
 </details>
 
