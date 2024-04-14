@@ -597,7 +597,7 @@
 |      `esc`       | revert_preview                                                |
 |       `<`        | prev_source ▕▏ 󰉓 File ▕▏ 󰈚 Bufs ▕▏ 󰊢 Git ▕▏                   |
 |       `>`        | next_source ▕▏ 󰉓 File ▕▏ 󰈚 Bufs ▕▏ 󰊢 Git ▕▏                   |
-|       `?`        | show keymaps when inside▕▏ 󰉓 File ▕▏ 󰈚 Bufs ▕▏ 󰊢 Git ▕▏       |
+|       `?`        | show keymaps▕▏ 󰉓 File ▕▏ 󰈚 Bufs ▕▏ 󰊢 Git ▕▏                   |
 |       `A`        | Create new folder (`path/to/somewhere` creates 3 folders)     |
 |       `C`        | close_node                                                    |
 |       `D`        | fuzzy_finder_directory                                        |
@@ -606,19 +606,19 @@
 |       `H`        | toggle_hidden                                                 |
 |       `J`        | Move focus down 10 times in list view                         |
 |       `K`        | Move focus up 10 times in list view                           |
-|       `L`        | open_unfocus                                                  |
+|       `L`        | quit_on_open                                                  |
 |       `O`        | system_open                                                   |
 |       `P`        | toggle_preview                                                |
 |       `R`        | refresh                                                       |
-|       `T`        | open_tabdrop_showbuffer                                       |
+|       `T`        | open in new tab and show buffer and close neotree             |
 |       `U`        | ueberzug_open_vertical                                        |
-|       `V`        | <function>                                                    |
+|       `V`        | open on horizontal split and close file explorer              |
 |       `Z`        | expand_all_nodes                                              |
 |       `[g`       | prev_git_modified                                             |
 |       `\`        | sixel_open_float                                              |
 |       `]g`       | next_git_modified                                             |
 |       `a`        | Create new file (`path/to/file` creates 2 folders and 1 file) |
-|       `c`        | copy                                                          |
+|       `c`        | copy_to                                                       |
 |       `d`        | delete                                                        |
 |       `e`        | toggle_auto_expand_width                                      |
 |   `f<letter>`    | find (by first `<letter>` of file/folder) and jump            |
@@ -631,13 +631,13 @@
 |       `gg`       | focus first file                                              |
 |       `gj`       | next_git_modified                                             |
 |       `gk`       | prev_git_modified                                             |
-|       `h`        | getparent_closenode                                           |
+|       `h`        | Collapse file tree                                            |
 |       `i`        | print_path                                                    |
 |       `j`        | Move down                                                     |
 |       `k`        | Move up                                                       |
-|       `l`        | getchild_open                                                 |
-|       `m`        | move                                                          |
-|       `o`        | quit_on_open                                                  |
+|  `l` or `enter`  | open directory/file (passing focus)                           |
+|       `m`        | move_to                                                       |
+|       `o`        | open_unfocus                                                  |
 |       `oc`       | order_by_created                                              |
 |       `od`       | order_by_diagnostics                                          |
 |       `og`       | order_by_git_status                                           |
