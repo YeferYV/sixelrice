@@ -5,7 +5,7 @@
   printf "Enter sudo password to install dependencies (deps are only installed on archlinux and debian based systems): " && read -s PASSWORD
   [ -e /bin/pacman ] && echo $PASSWORD | su -c "pacman -Sy --needed --noconfirm git less libsixel unzip xclip zsh" # npm required by Mason.nvim
   [ -e /bin/apt    ] && echo $PASSWORD | su -c "apt update -y && apt install -y curl file gcc g++ git less libarchive-tools libglib2.0-bin libsixel-bin locales make sudo unzip xclip zsh" # xz-utils required by nixpkgs
-	curl -L https://github.com/neovim/neovim/releases/download/v0.9.4/nvim.appimage                                          --create-dirs --output    "$HOME/.local/share/sixelrice/nvim" && chmod +x "$HOME/.local/share/sixelrice/nvim"
+  curl -L https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage                                         --create-dirs --output    "$HOME/.local/share/sixelrice/nvim" && chmod +x "$HOME/.local/share/sixelrice/nvim"
 	curl -L https://raw.githubusercontent.com/junegunn/fzf/master/shell/key-bindings.zsh                                     --create-dirs --output    "$HOME/.local/share/sixelrice/fzf-key-bindings/key-bindings.zsh"
 	curl -L https://github.com/junegunn/fzf/releases/download/0.42.0/fzf-0.42.0-linux_amd64.tar.gz                          | tar    -xzf- --directory="$HOME/.local/share/sixelrice/"
 	curl -L https://github.com/zellij-org/zellij/releases/download/v0.39.2/zellij-x86_64-unknown-linux-musl.tar.gz          | tar    -xzf- --directory="$HOME/.local/share/sixelrice/"
