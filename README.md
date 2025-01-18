@@ -29,20 +29,14 @@
    - [Neovim text object that starts with a/i](#neovim-text-object-that-starts-with-ai)
    - [Neovim text object that starts with g](#neovim-text-object-that-starts-with-g)
    - [Neovim Motions and Operators](#neovim-motions-and-operators)
+2. Neovim GoTo
    - [Neovim Space TextObjects/Motions](#neovim-space-textobject-motions)
-   - [Neovim Mini.brackets](#neovim-minibrackets)
-2. Neovim Goto
-   - [Neovim Go to Previous](#neovim-go-to-previous)
-   - [Neovim Go to Next](#neovim-go-to-next)
-   - [Neovim Go to Previous Start of](#neovim-go-to-previous-start-of)
-   - [Neovim Go to Next Start of](#neovim-go-to-next-start-of)
-   - [Neovim Go to Previous End of](#neovim-go-to-previous-end-of)
-   - [Neovim Go to Next End of](#neovim-go-to-next-end-of)
+   - [Neovim Go to Previous / Next](#neovim-go-to-previous--next)
+   - [Neovim Mini.bracketed](#neovim-minibracketed)
+   - [Neovim native ctrl keys](#neovim-native-ctrl-keys)
 3. Neovim keymaps.lua
-   - [Neovim Neotree File Explorer](#neovim-neotree-file-explorer)
-   - [Neovim Suggestion keymaps](#neovim-suggestion-keymaps)
    - [Neovim Editor keymaps](#neovim-editor-keymaps)
-   - [Neovim Native ctrl keys](#neovim-native-ctrl-keys)
+   - [Neovim Suggestion keymaps](#neovim-suggestion-keymaps)
 4. [LF terminal file manager](#lf-terminal-file-manager)
 5. [zsh keymaps](#zsh-keymaps)
 6. Installation
@@ -59,69 +53,51 @@
 
 <details><summary></summary>
 
-|         text-object keymap         | repeater key | finds and autojumps? | text-object name       | description                                                                               | inner / outer                                                                 |
-| :--------------------------------: | :----------: | :------------------: | :--------------------- | :---------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------- |
-|             `ia`, `aa`             |     `.`      |         yes          | \_function_args        | whole argument/parameter of a function                                                    | outer includes braces                                                         |
-|             `iA`, `aA`             |     `.`      |         yes          | @Asignment             | inner: left side of asignment without including type                                      | outer includes left and right side                                            |
-|             `ib`, `ab`             |     `.`      |         yes          | \_Braces               | inside of () [] {}                                                                        | outer includes braces                                                         |
-|             `iB`, `aB`             |     `.`      |                      | @Block                 | code block (inside of a function, loop, ...)                                              | outer includes line above                                                     |
-|             `ic`, `ac`             |     `.`      |                      | word-column            | visual block for words                                                                    | outer includes spaces                                                         |
-|             `iC`, `aC`             |     `.`      |                      | WORD-column            | visual block for WORDS                                                                    | outer includes spaces                                                         |
-|             `id`, `ad`             |     `.`      |                      | greedyOuterIndentation | outer indentation, expanded to blank lines; useful to get functions with annotations      | outer includes a blank, like `ap`/`ip`                                        |
-|             `ie`, `ae`             |     `.`      |                      | nearEoL                | from cursor position to end of line, minus one character                                  | outer includes from start of line (line wise)                                 |
-|             `if`, `af`             |     `.`      |         yes          | \_function_call        | like `function args` but only when a function is called                                   | outer includes the function called                                            |
-|             `iF`, `aF`             |     `.`      |         yes          | @Function              | inside of a function without leading comments                                             | outer includes function declaration                                           |
-|             `ig`, `ag`             |     `.`      |         yes          | @Comment               | line comment                                                                              | outer many times same as inner                                                |
-|             `iG`, `aG`             |     `.`      |         yes          | @Conditional           | inside conditional without blanklines                                                     | outer includes the start of a condition                                       |
-|             `ih`, `ah`             |     `.`      |         yes          | \_htmlAttribute        | attribute in html/xml like `href="foobar.com"`                                            | inner is only the value inside the quotes trailing comma and space            |
-|             `ii`, `ai`             |     `.`      |                      | indentation_noblanks   | surrounding lines with same or higher indentation delimited by blanklines                 | outer includes line above                                                     |
-|             `iI`, `aI`             |     `.`      |                      | indentation            | surrounding lines with same or higher indentation                                         | outer includes line above and below                                           |
-|             `ij`, `aj`             |     `.`      |         yes          | cssSelector            | class in CSS like `.my-class`                                                             | outer includes trailing comma and space                                       |
-|             `ik`, `ak`             |     `.`      |         yes          | \_key                  | key of key-value pair, or left side of a assignment                                       | outer includes spaces                                                         |
-|             `il`, `al`             |     `.`      |         yes          | +Last                  | go to last mini.ai text-object (which start with @ or \_)                                 | requires `i`/`a` example `vilk`                                               |
-|             `iL`, `aL`             |     `.`      |         yes          | @Loop                  | inside `while` or `for` clauses                                                           | outer includes blankline + comments + line above                              |
-|             `im`, `am`             |     `.`      |         yes          | chainMember            | field with the full call, like `.encode(param)`                                           | outer includes the leading `.` (or `:`)                                       |
-|             `iM`, `aM`             |     `.`      |         yes          | mdFencedCodeBlock      | markdown fenced code (enclosed by three backticks)                                        | outer includes the enclosing backticks                                        |
-|             `in`, `an`             |     `.`      |         yes          | \_number               | numbers, similar to `<C-a>`                                                               | inner: only pure digits, outer: number including minus sign and decimal point |
-|             `iN`, `aN`             |     `.`      |         yes          | +Next                  | go to Next mini.ai text-object (which start with @ or \_)                                 | requires `i`/`a` example `viNk`                                               |
-|             `io`, `ao`             |     `.`      |         yes          | \_whitespaces          | whitespace beetween characters                                                            | outer includes surroundings                                                   |
-|             `ip`, `ap`             |     `.`      |                      | \_paragraph            | blanklines can also be treat as paragraphs when focused on a blankline                    | outer includes below lines                                                    |
-|             `iP`, `aP`             |     `.`      |         yes          | @Parameter             | parameters of a function (`>,` or `<,` to interchange)                                    | outer includes commas + spaces                                                |
-|             `iq`, `aq`             |     `.`      |         yes          | @Call                  | like `function call` but treesitter aware                                                 | outer includes the function called                                            |
-|             `iQ`, `aQ`             |     `.`      |         yes          | @Class                 | inside of a class                                                                         | outer includes class declaration                                              |
-|             `ir`, `ar`             |     `.`      |                      | restOfIndentation      | lines down with same or higher indentation                                                | outer: restOfParagraph                                                        |
-|             `iR`, `aR`             |     `.`      |         yes          | @Return                | inside of a Return clause                                                                 | outer includes the `return                                                    |
-|             `is`, `as`             |     `.`      |                      | \_sentence             | inside mini.ai text object (`vi.` for sentence textobj)                                   | outer line wise                                                               |
-|             `iS`, `aS`             |     `.`      |                      | subword                | like `iw`, but treating `-`, `_`, and `.` as word delimiters _and_ only part of camelCase | outer includes trailing `_`,`-`, or space                                     |
-|             `it`, `at`             |     `.`      |         yes          | \_tag                  | inside of a html/jsx tag                                                                  | outer includes openning and closing tags                                      |
-|             `iu`, `au`             |     `.`      |         yes          | \_quotes               | inside of `` '' ""                                                                        | outer includes openning and closing quotes                                    |
-|             `iU`, `aU`             |     `.`      |         yes          | pyTripleQuotes         | python strings surrounded by three quotes (regular or f-string)                           | inner excludes the `"""` or `'''`                                             |
-|             `iv`, `av`             |     `.`      |         yes          | \_value                | value of key-value pair, or right side of a assignment                                    | outer includes trailing commas or semicolons or spaces                        |
-|             `iw`, `aw`             |     `.`      |                      | \_word                 | from cursor to end of word (delimited by punctuation or space)                            | outer includes start of word                                                  |
-|             `iW`, `aW`             |     `.`      |                      | \_WORD                 | from cursor to end of WORD (includes punctuation)                                         | outer includes start of word                                                  |
-|             `ix`, `ax`             |     `.`      |         yes          | \_Hex                  | hexadecimal number or color                                                               | outer includes hash `#`                                                       |
-|             `iy`, `ay`             |     `.`      |                      | same_indent            | surrounding lines with only same indentation (delimited by blankspaces)                   | outer includes blankspaces                                                    |
-|             `iz`, `az`             |     `.`      |                      | @fold                  | inside folds without line above neither below                                             | outer includes line above andd below                                          |
-|             `iZ`, `aZ`             |     `.`      |         yes          | closedFold             | closed fold                                                                               | outer includes one line after the last folded line                            |
-|             `i=`, `a=`             |     `.`      |         yes          | @Assignment.rhs-lhs    | assignmentt right and left without type keyword neither semicolons                        | inner: left assignment, outer: right assignment                               |
-|             `i#`, `a#`             |     `.`      |         yes          | @Number                | like `_number` but treesitter aware                                                       | inner and outer are the same (only pure digits)                               |
-|             `i?`, `a?`             |     `.`      |         yes          | \_Prompt               | will ask you for enter the delimiters of a text object (useful for dot repeteability)     | outer includes surroundings                                                   |
-|       `i(`, `i)`, `a(`, `a)`       |     `.`      |         yes          | `(` or `)`             | inside `()`                                                                               | outer includes surroundings                                                   |
-|       `i[`, `i]`, `a[`, `a]`       |     `.`      |         yes          | `[` or `]`             | inside `[]`                                                                               | outer includes surroundings                                                   |
-|       `i{`, `i}`, `a{`, `a}`       |     `.`      |         yes          | `{` or `}`             | inside `{}`                                                                               | outer includes surroundings                                                   |
-|       `i<`, `i>`, `a<`, `a>`       |     `.`      |         yes          | `<` or `>`             | inside `<>`                                                                               | outer includes surroundings                                                   |
-|         `` i` ``, `` a` ``         |     `.`      |         yes          | apostrophe             | inside `` ` ` ``                                                                          | outer includes surroundings                                                   |
-|             `i'`, `a'`             |     `.`      |         yes          | `'`                    | inside `''`                                                                               | outer includes surroundings                                                   |
-|             `i"`, `a"`             |     `.`      |         yes          | `"`                    | inside `""`                                                                               | outer includes surroundings                                                   |
-|             `i.`, `a.`             |     `.`      |         yes          | `.`                    | inside `..`                                                                               | outer includes surroundings                                                   |
-|             `i,`, `a,`             |     `.`      |         yes          | `,`                    | inside `,,`                                                                               | outer includes surroundings                                                   |
-|             `i;`, `a;`             |     `.`      |         yes          | `;`                    | inside `;;`                                                                               | outer includes surroundings                                                   |
-|             `i-`, `a-`             |     `.`      |         yes          | `-`                    | inside `--`                                                                               | outer includes surroundings                                                   |
-|             `i_`, `a_`             |     `.`      |         yes          | `_`                    | inside `__`                                                                               | outer includes surroundings                                                   |
-|             `i/`, `a/`             |     `.`      |         yes          | `/`                    | inside `//`                                                                               | outer includes surroundings                                                   |
-|            `i\|`, `a\|`            |     `.`      |         yes          | `\|`                   | inside `\|\|`                                                                             | outer includes surroundings                                                   |
-|             `i&`, `a&`             |     `.`      |         yes          | `&`                    | inside `&&`                                                                               | outer includes surroundings                                                   |
-| `i<punctuation>`, `a<punctuation>` |     `.`      |         yes          | `<punctuation>`        | inside `<punctuation><punctuation>`                                                       | outer includes surroundings                                                   |
+|         text-object keymap         | repeater key | finds and autojumps? | text-object name     | description                                                                               | inner / outer                                                                 |
+| :--------------------------------: | :----------: | :------------------: | :------------------- | :---------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------- |
+|             `ia`, `aa`             |     `.`      |         yes          | \_function_args      | whole argument/parameter of a function                                                    | outer includes braces                                                         |
+|             `iA`, `aA`             |     `.`      |         yes          | @Assignment          | inner: left side of assignment without including type                                     | outer includes left and right side                                            |
+|             `ib`, `ab`             |     `.`      |         yes          | \_Braces             | find the nearest inside of () [] {}                                                       | outer includes braces                                                         |
+|             `iB`, `aB`             |     `.`      |         yes          | greddy_Brace         | use the current inside of {}                                                              | outer includes {}                                                             |
+|             `ie`, `ae`             |     `.`      |                      | line                 | from start to end of line without beginning whitespaces (line wise)                       | outer includes begining whitespaces                                           |
+|             `if`, `af`             |     `.`      |         yes          | \_function_call      | like `function args` but only when a function is called                                   | outer includes the function called                                            |
+|             `iF`, `aF`             |     `.`      |         yes          | @Function            | inside of a function without leading comments                                             | outer includes function declaration                                           |
+|                `ag`                |     `.`      |         yes          | @Comment             | inline comment                                                                            | outer many times same as inner                                                |
+|             `iG`, `aG`             |     `.`      |         yes          | @Conditional         | inside conditional without blanklines                                                     | outer includes the start of a condition                                       |
+|             `ih`, `ah`             |     `.`      |         yes          | \_htmlAttribute      | attribute in html/xml like `href="foobar.com"`                                            | inner is only the value inside the quotes trailing comma and space            |
+|             `ii`, `ai`             |     `.`      |                      | indentation_noblanks | surrounding lines with same or higher indentation delimited by blanklines                 | outer includes line above                                                     |
+|             `iI`, `aI`             |     `.`      |                      | indentation          | surrounding lines with same or higher indentation                                         | outer includes line above and below                                           |
+|             `ik`, `ak`             |     `.`      |         yes          | \_key                | key of key-value pair, or left side of a assignment                                       | outer includes spaces                                                         |
+|             `iK`, `aK`             |     `.`      |                      | @Block               | code block (inside of a function, loop, ...)                                              | outer includes line above                                                     |
+|             `il`, `al`             |     `.`      |         yes          | +Last                | go to last mini.ai text-object (which start with @ or \_)                                 | requires `i`/`a` example `vilk`                                               |
+|             `iL`, `aL`             |     `.`      |         yes          | @Loop                | inside `while` or `for` clauses                                                           | outer includes blankline + comments + line above                              |
+|             `in`, `an`             |     `.`      |         yes          | +Next                | go to Next mini.ai text-object (which start with @ or \_)                                 | requires `i`/`a` example `viNk`                                               |
+|             `iN`, `aN`             |     `.`      |         yes          | \_number             | numbers, similar to `<C-a>`                                                               | inner: only pure digits, outer: number including minus sign and decimal point |
+|             `io`, `ao`             |     `.`      |         yes          | \_whitespaces        | whitespace beetween characters                                                            | outer includes surroundings                                                   |
+|             `ip`, `ap`             |     `.`      |                      | paragraph            | blanklines can also be treat as paragraphs when focused on a blankline                    | outer includes below lines                                                    |
+|             `iP`, `aP`             |     `.`      |         yes          | @Parameter           | parameters of a function (`>,` or `<,` to interchange)                                    | outer includes commas + spaces                                                |
+|             `iq`, `aq`             |     `.`      |         yes          | @Call                | like `function call` but treesitter aware                                                 | outer includes the function called                                            |
+|             `iQ`, `aQ`             |     `.`      |         yes          | @Class               | inside of a class                                                                         | outer includes class declaration                                              |
+|             `iR`, `aR`             |     `.`      |         yes          | @Return              | inside of a Return clause                                                                 | outer includes the `return                                                    |
+|             `is`, `as`             |     `.`      |                      | sentence             | sentence delimited by dots of blanklines                                                  | outer includes spaces                                                         |
+|             `iS`, `aS`             |     `.`      |                      | subword              | like `iw`, but treating `-`, `_`, and `.` as word delimiters _and_ only part of camelCase | outer includes trailing `_`,`-`, or space                                     |
+|             `it`, `at`             |     `.`      |         yes          | \_tag                | inside of a html/jsx tag                                                                  | outer includes openning and closing tags                                      |
+|             `iu`, `au`             |     `.`      |         yes          | \_quotes             | inside of `` '' ""                                                                        | outer includes openning and closing quotes                                    |
+|             `iv`, `av`             |     `.`      |         yes          | \_value              | value of key-value pair, or right side of a assignment                                    | outer includes trailing commas or semicolons or spaces                        |
+|             `iw`, `aw`             |     `.`      |                      | word                 | from cursor to end of word (delimited by punctuation or space)                            | outer includes start of word                                                  |
+|             `iW`, `aW`             |     `.`      |                      | WORD                 | from cursor to end of WORD (includes punctuation)                                         | outer includes start of word                                                  |
+|             `ix`, `ax`             |     `.`      |         yes          | \_Hex                | hexadecimal number or color                                                               | outer includes hash `#`                                                       |
+|             `iy`, `ay`             |     `.`      |                      | same_indent          | surrounding lines with only same indentation (delimited by blankspaces)                   | outer includes blankspaces                                                    |
+|             `iz`, `az`             |     `.`      |                      | @fold                | inside folds without line above neither below (supported only inside neovim)              | outer includes line above andd below                                          |
+|             `i=`, `a=`             |     `.`      |         yes          | @Assignment.rhs-lhs  | assignmentt right and left without type keyword neither semicolons                        | inner: left assignment, outer: right assignment                               |
+|             `i#`, `a#`             |     `.`      |         yes          | @Number              | like `_number` but treesitter aware                                                       | inner and outer are the same (only pure digits)                               |
+|             `i?`, `a?`             |     `.`      |         yes          | \_Prompt             | will ask you for enter the delimiters of a text object (useful for dot repeteability)     | outer includes surroundings                                                   |
+|       `i(`, `i)`, `a(`, `a)`       |     `.`      |         yes          | `(` or `)`           | inside `()`                                                                               | outer includes surroundings                                                   |
+|       `i[`, `i]`, `a[`, `a]`       |     `.`      |         yes          | `[` or `]`           | inside `[]`                                                                               | outer includes surroundings                                                   |
+|       `i{`, `i}`, `a{`, `a}`       |     `.`      |         yes          | `{` or `}`           | inside `{}`                                                                               | outer includes surroundings                                                   |
+|       `i<`, `i>`, `a<`, `a>`       |     `.`      |         yes          | `<` or `>`           | inside `<>`                                                                               | outer includes surroundings                                                   |
+|         `` i` ``, `` a` ``         |     `.`      |         yes          | apostrophe           | inside `` ` ` ``                                                                          | outer includes surroundings                                                   |
+| `i<punctuation>`, `a<punctuation>` |     `.`      |         yes          | `<punctuation>`      | inside `<punctuation><punctuation>`                                                       | outer includes surroundings                                                   |
 
 </details>
 
@@ -129,84 +105,71 @@
 
 <details><summary></summary>
 
-| text-object keymap |  mode   | repeater key | text-object description                                       | normal mode                              | operating-pending mode   | visual mode                  | examples in normal mode                                                          |
-| :----------------: | :-----: | :----------: | :------------------------------------------------------------ | :--------------------------------------- | :----------------------- | :--------------------------- | :------------------------------------------------------------------------------- |
-|    `g{` or `g}`    | `o`,`x` |              | braces linewise                                               |                                          | will find and jump       | will find and jump           | `vg{` will select inside braces linewise                                         |
-|    `g[` or `g]`    | `o`,`x` |              | cursor to Left/right Around (only textobj with `@`,`_`)       |                                          | followed by textobject   | uses selected region         | `vg]u` will select until quotation                                               |
-|        `g<`        | `n`,`x` |     `.`      | goto StarOf textobj                                           | followed by textobject                   |                          | selects from cursor position | `vg>iu` will select until end of quotation                                       |
-|        `g>`        | `n`,`x` |     `.`      | goto EndOf textobj                                            | followed by textobject                   |                          | selects form cursor position | `vg<iu` will select until start of quotation                                     |
-|        `g.`        | `o`,`x` |              | Jump toLastChange                                             |                                          | won't jump               | uses selection               | `vg.` will select from cursor position until last change                         |
-|        `ga`        | `n`,`x` |              | align                                                         | followed by textobject/motion            |                          | uses selected region         | `vipga=` will align a paragraph by `=`                                           |
-|        `gA`        | `n`,`x` |              | preview align (escape to cancel, enter to accept)             | followed by textobject/motion            |                          | uses selected region         | `vipgA=` will align a paraghaph by `=`                                           |
-|        `gb`        | `n`,`x` |     `.`      | add virtual cursor (select and find)                          | selects word under cursor                |                          | uses selected word           | `gb.` will select 2 same words                                                   |
-|        `gB`        | `n`,`x` |     `.`      | add virtual cursor (find selected)                            | selects last search                      |                          | uses selected word           | `gB.` will select last search (2 matches)                                        |
-|        `gc`        | `o`,`x` |     `.`      | Block comment                                                 |                                          | will find and jump       | will find and jump           | `vgc` will find and select a block of comment                                    |
-|        `gC`        | `o`,`x` |     `.`      | Rest of comment                                               |                                          | won't jump               | uses selection               | `vgc` will select from cursor position until the end of block of comment         |
-|        `gd`        | `o`,`x` |     `.`      | Diagnostic (requires LSP)                                     |                                          | will find and jump       | will find and jump           | `vgd` will select the error                                                      |
-|        `ge`        | `o`,`x` |              | Previous end of word                                          |                                          | uses cursor position     | uses selection               | `vge` will select from cursor position until previous end of word                |
-|        `gE`        | `o`,`x` |              | Previous end of WORD ('WORD' omits punctuation )              |                                          | uses cursor position     | uses selection               | `vge` will select from cursor position until previous end of WORD                |
-|        `gf`        | `o`,`x` |     `.`      | Next find                                                     |                                          | will find and jump       | uses selection               | `cgf???` will replace last search with `???` forwardly                           |
-|        `gF`        | `o`,`x` |     `.`      | Prev find                                                     |                                          | will find and jump       | uses selection               | `cgF???` will replace last search with `???` backwardly                          |
-|        `gg`        | `o`,`x` |     `.`      | First line                                                    |                                          | uses cursor position     | uses selection               | `vgg` will select until first line                                               |
-|        `gh`        | `o`,`x` |     `.`      | Git hunk                                                      |                                          | won't jump               | relesects                    | `vgh` will select modified code                                                  |
-|        `gi`        | `n`,`x` |              | Last position of cursor in insert mode                        | will find and jump                       |                          | uses selection               | `vgi` will select until last insertion                                           |
-|        `gI`        | `o`,`x` |              | select reference (under cursor)                               |                                          | select word under cursor | reselects                    | `vgI` will select word undercursor                                               |
-|        `gj`        | `o`,`x` |     `.`      | GoDown when wrapped                                           |                                          | uses cursor position     | uses selection               | `vgj` will select one line down                                                  |
-|        `gk`        | `o`,`x` |     `.`      | GoUp when wrapped                                             |                                          | uses cursor position     | uses selection               | `vgj` will select one line up                                                    |
-|        `gK`        | `o`,`x` |     `.`      | column down until indent or shorter line                      |                                          | won't jump               | uses selection               | `vgK` will select column from cursor position until indent or shorter line       |
-|        `gL`        | `o`,`x` |     `.`      | Url                                                           |                                          | will find and jump       | relesects                    | `vgL` will select url                                                            |
-|        `gm`        | `o`,`x` |              | Last change                                                   |                                          | won't jump               | reselects                    | `vgm` will select last change                                                    |
-|        `gn`        | `o`,`x` |     `.`      | +goto next (only textobj with `@`,`_`)                        |                                          | followed by textobject   | uses selection               | `vgniu` will select from cursor position until next quotation                    |
-|        `go`        | `n`,`x` |     `.`      | add virtual cursor down                                       | selects word under cursor                |                          | uses selected word           | `go.` will select word and go down then select word and go down                  |
-|        `gO`        | `n`,`x` |     `.`      | add virtual cursor up                                         | selects word under cursor                |                          | uses selected word           | `gO.` will select word and go up then select word and go up                      |
-|        `gp`        | `o`,`x` |     `.`      | +goto previous (only textobj with `@`,`_`)                    |                                          | followed by textobject   | uses selection               | `vgpiu` will select from cursor position until previous quotation                |
-|        `gq`        | `n`,`x` |     `.`      | Split/Join comments/lines 80chars (LSP overrides it)          | requires a textobject                    |                          | applies to selection         | `vipgq` will split/join a paragraph limited by 80 characters                     |
-|        `gr`        | `o`,`x` |     `.`      | RestOfWindow                                                  |                                          | uses cursor position     | uses selection               | `vgr` will select from the cursorline to the last line in the window             |
-|        `gR`        | `o`,`x` |     `.`      | VisibleWindow                                                 |                                          | uses cursor position     | uses selection               | `vgR` will select all lines visible in the current window                        |
-|        `gs`        | `n`,`x` |     `.`      | Surround (followed by a=add, d=delete, r=replace)             | followed by textobject/motion (only add) |                          | uses selection (only add)    | `viwgsa"` will add `"` to word, `gsd"` will delete `"`, `gsr"'` will replace `"` |
-|        `gS`        | `n`,`x` |     `.`      | Join/Split lines inside braces                                | will toggle inside `{}`,`[]`,`()`        |                          | followed by operator         | `vipgS` will join selected lines in one line                                     |
-|        `gt`        | `o`,`x` |              | toNextQuotationMark                                           |                                          | uses cursor position     | uses selection               | `vigt` will select from cursor to next closing `'`, `"`, or `` ` ``              |
-|        `gT`        | `o`,`x` |              | toNextClosingBracket                                          |                                          | uses cursor position     | uses selection               | `vigT` will select from cursor to next closing `]`, `)`, or `}`                  |
-|        `gu`        | `n`,`x` |     `.`      | to lowercase                                                  | requires a textobject                    |                          | applies to selection         | `vipgu` will lowercase a paragraph                                               |
-|        `gU`        | `n`,`x` |     `.`      | to Uppercase                                                  | requires a textobject                    |                          | applies to selection         | `vipgU` will uppercase a paragraph                                               |
-|        `gv`        | `n`,`x` |              | last selected                                                 | will find and jump                       |                          | reselects                    | `vgv` will select last selection                                                 |
-|        `gw`        | `n`,`x` |     `.`      | Split/Join comments/lines 80chars (preserves cursor position) | requires a textobject                    |                          | applies to selection         | `vipgw` will split/join a paragraph limited by 80 characters                     |
-|        `gW`        | `n`,`x` |              | word-column multicursor                                       | selects from cursor position             |                          | selects from cursor position | `gW` will select words until blankline                                           |
-|        `gx`        | `n`,`x` |     `.`      | Blackhole register                                            | followed by textobject/motion            |                          | deletes selection            | `vipgx` will delete a paragraph without copying                                  |
-|        `gX`        | `n`,`x` |     `.`      | Blackhole linewise                                            | textobject not required                  |                          | deletes line                 | `gX.` will delete two lines without saving it in the register                    |
-|        `gy`        | `n`,`x` |     `.`      | replace with register                                         | followed by textobject/motion            |                          | applies to selection         | `viwgy` will replace word with register (yanked text)                            |
-|        `gY`        | `n`,`x` |     `.`      | exchange text                                                 | followed by textobject/motion            |                          | uses selection               | `viwgY` will exchange word with another `viwgY`                                  |
-|        `gz`        | `n`,`x` |     `.`      | sort                                                          | followed by textobject/motion            |                          | uses selection               | `vipgz` will sort paragraph                                                      |
-|        `g+`        | `n`,`x` |     `.`      | Increment number                                              | selects number under cursor              |                          | uses selected number         | `3g+` will increment by 3                                                        |
-|        `g-`        | `n`,`x` |     `.`      | Decrement number                                              | selects number under cursor              |                          | uses selected number         | `g-..` will decrement by 3                                                       |
-|      `g<Up>`       | `n`,`x` |              | Numbers ascending                                             | selects number under cursor              |                          | uses selected number         | `g<Up>` will increase selected numbers ascendingly                               |
-|     `g<Down>`      | `n`,`x` |              | Numbers descending                                            | selects number under cursor              |                          | uses selected number         | `g<Down>` will decrease selected numbers descendingly                            |
-|        `=`         | `n`,`x` |     `.`      | autoindent                                                    | followed by text-object                  |                          | uses selection               | `==` autoindents line                                                            |
-|        `>`         | `n`,`x` |     `.`      | indent right                                                  | followed by text-object                  |                          | uses selection               | `>>` indents to right a line                                                     |
-|        `<`         | `n`,`x` |     `.`      | indent left                                                   | followed by text-object                  |                          | uses selection               | `<<` indents to left a line                                                      |
-|        `$`         |   `o`   |     `.`      | End of line                                                   |                                          |                          |                              | `d$j.` deletes two end-of-lines                                                  |
-|        `%`         |   `o`   |              | Matching character: '()', '{}', '[]'                          | won't jump                               |                          | won't jump                   | `d%` deletes until bracket                                                       |
-|        `0`         |   `o`   |     `.`      | Start of line                                                 |                                          |                          |                              | `d0` deletes until column 0                                                      |
-|        `^`         |   `o`   |     `.`      | Start of line (non-blank)                                     |                                          |                          |                              | `d^` deletes until start of line (after whitespace)                              |
-|        `(`         |   `o`   |     `.`      | Previous sentence                                             |                                          |                          |                              | `d(.` deletes until start of sentence (two times)                                |
-|        `)`         |   `o`   |     `.`      | Next sentence                                                 |                                          |                          |                              | `d).` deletes until end of sentence (two times)                                  |
-|        `{`         |   `o`   |     `.`      | Previous empty line (before a paragraph)                      |                                          |                          |                              | `d{.` deletes until next empty line (two times)                                  |
-|        `}`         |   `o`   |     `.`      | Next empty line (after a paragraph)                           |                                          |                          |                              | `d}.` deletes until previous empty line (two times)                              |
-|        `[[`        |   `o`   |     `.`      | Previous section                                              |                                          |                          |                              | `d[[` deletes until start of section                                             |
-|        `]]`        |   `o`   |     `.`      | Next section                                                  |                                          |                          |                              | `d]]` deletes until end of section                                               |
-|       `<CR>`       |   `o`   |     `.`      | Continue Last Flash search                                    |                                          |                          |                              | `d<CR><CR>` deletes until next searched text                                     |
-|        `b`         |   `o`   |     `.`      | Previous word                                                 |                                          |                          |                              | `db` deletes until start of word                                                 |
-|        `e`         |   `o`   |     `.`      | Next end of word                                              |                                          |                          |                              | `de` deletes until end of word                                                   |
-|        `f`         |   `o`   |     `.`      | Move to next char                                             |                                          |                          |                              | `df,` deletes until a next `,`                                                   |
-|        `F`         |   `o`   |     `.`      | Move to previous char                                         |                                          |                          |                              | `dF,` deletes until a previous `,`                                               |
-|        `G`         |   `o`   |     `.`      | Last line                                                     |                                          |                          |                              | `dG` deletes until last line                                                     |
-|        `R`         |   `o`   |     `.`      | Treesitter Flash Search                                       |                                          |                          |                              | `dR,<CR>` deletes next treesitter region that contains `,`                       |
-|        `s`         |   `o`   |     `.`      | Flash (search with labels in current window)                  |                                          |                          |                              | `ds,<CR>` deletes until next `,`                                                 |
-|        `S`         |   `o`   |     `.`      | Flash Treesitter                                              |                                          |                          |                              | `dS<CR>` deletes treesitter region under cursor position                         |
-|        `t`         |   `o`   |     `.`      | Move before next char                                         |                                          |                          |                              | `dt` deletes before next `,`                                                     |
-|        `T`         |   `o`   |     `.`      | Move before previous char                                     |                                          |                          |                              | `dT` deletes before previous `,`                                                 |
-|        `w`         |   `o`   |     `.`      | Next word                                                     |                                          |                          |                              | `dw.` deletes 2 words                                                            |
-|        `W`         |   `o`   |     `.`      | Next WORD                                                     |                                          |                          |                              | `dW.` deletes 2 WORDS                                                            |
+| text-object keymap |  mode   | repeater key | text-object description                                       | normal mode                              | operating-pending mode | visual mode                  | examples in normal mode                                                          |
+| :----------------: | :-----: | :----------: | :------------------------------------------------------------ | :--------------------------------------- | :--------------------- | :--------------------------- | :------------------------------------------------------------------------------- |
+|    `g[` or `g]`    | `o`,`x` |              | +cursor to Left/right Around (only textobj with `@`,`_`)      |                                          | followed by textobject | uses selected region         | `vg]u` will select until quotation                                               |
+|        `g.`        | `o`,`x` |              | Jump toLastChange                                             |                                          | won't jump             | uses selection               | `vg.` will select from cursor position until last change                         |
+|        `ga`        | `n`,`x` |              | align                                                         | followed by textobject/motion            |                        | uses selected region         | `vipga=` will align a paragraph by `=`                                           |
+|        `gA`        | `n`,`x` |              | preview align (`escape` to cancel, `enter` to accept)         | followed by textobject/motion            |                        | uses selected region         | `vipgA=` will align a paraghaph by `=`                                           |
+|        `gb`        | `n`,`x` |     `.`      | Blackhole register                                            | followed by textobject/motion            |                        | deletes selection            | `vipgb` will delete a paragraph without copying                                  |
+|        `gB`        | `n`,`x` |     `.`      | Blackhole linewise                                            | textobject not required                  |                        | deletes line                 | `gB.` will delete two lines without saving it in the register                    |
+|        `gc`        | `o`,`x` |     `.`      | comment (`vgc` in normal mode will select a block comment)    |                                          | won't jump             | uses selection               | `vipgc` will comment a paragraph                                                 |
+|        `gC`        | `o`,`x` |     `.`      | Block comment (supports selection `vgC`)                      |                                          | won't jump             | reselects                    | `vgC` will select current block of comment                                       |
+|        `gd`        | `o`,`x` |     `.`      | Diagnostic (requires LSP so only works inside neovim)         |                                          | will find and jump     | will find and jump           | `vgd` will select the error                                                      |
+|        `ge`        | `o`,`x` |              | Previous end of word                                          |                                          | uses cursor position   | uses selection               | `vge` will select from cursor position until previous end of word                |
+|        `gE`        | `o`,`x` |              | Previous end of WORD ('WORD' omits punctuation )              |                                          | uses cursor position   | uses selection               | `vge` will select from cursor position until previous end of WORD                |
+|        `gf`        | `o`,`x` |     `.`      | Next find                                                     |                                          | will find and jump     | uses selection               | `cgf???` will replace last search with `???` forwardly                           |
+|        `gF`        | `o`,`x` |     `.`      | Prev find                                                     |                                          | will find and jump     | uses selection               | `cgF???` will replace last search with `???` backwardly                          |
+|        `gg`        | `o`,`x` |     `.`      | First line                                                    |                                          | uses cursor position   | uses selection               | `vgg` will select until first line                                               |
+|        `gh`        | `n`,`x` |     `.`      | +go to start of textobj                                       | followed by textobject                   |                        | selects from cursor position | `vghiu` will select until end of quotation                                       |
+|        `gH`        |   `x`   |     `.`      | Git hunk                                                      |                                          | won't jump             | relesects                    | `vgh` will select modified code                                                  |
+|        `gi`        | `n`,`x` |              | Last position of cursor in insert mode                        | will find and jump                       |                        | uses selection               | `vgi` will select until last insertion                                           |
+|        `gj`        | `o`,`x` |     `.`      | Go down when wrapped                                          |                                          | uses cursor position   | uses selection               | `vgj` will select one line down                                                  |
+|        `gk`        | `o`,`x` |     `.`      | Go up when wrapped                                            |                                          | uses cursor position   | uses selection               | `vgj` will select one line up                                                    |
+|        `gl`        | `n`,`x` |     `.`      | +go to end of textobj                                         | followed by textobject                   |                        | selects form cursor position | `vgliu` will select until start of quotation                                     |
+|        `gm`        | `n`,`x` |              | +Multiply (duplicate text) Operator                           |                                          | won't jump             | uses selection               | `vapgm` will duplicate paragraph without replacing clipboard                     |
+|        `gn`        | `o`,`x` |     `.`      | +next (only textobj with `@`,`_`)                             |                                          | followed by textobject | uses selection               | `vgniu` will select from cursor position until next quotation                    |
+|        `gp`        | `o`,`x` |     `.`      | +previous (only textobj with `@`,`_`)                         |                                          | followed by textobject | uses selection               | `vgpiu` will select from cursor position until previous quotation                |
+|        `gq`        | `n`,`x` |     `.`      | +Format Selection/comments 80chars 80chars (LSP overrides it) | requires a textobject                    |                        | applies to selection         | `vipgq` will format a paragraph                                                  |
+|        `gr`        | `n`,`x` |     `.`      | +Replace (with register) Operator                             | followed by textobject/motion            |                        | applies to selection         | `viwgr` will replace word with register (yanked text)                            |
+|        `gs`        | `n`,`x` |     `.`      | +Sort Operator                                                | followed by textobject/motion            |                        | uses selection               | `vipgs` will sort paragraph                                                      |
+|        `gS`        | `n`,`x` |     `.`      | Join/Split lines inside braces                                | will toggle inside `{}`,`[]`,`()`        |                        | followed by operator         | `vipgS` will join selected lines in one line                                     |
+|        `gu`        | `n`,`x` |     `.`      | +tolowercase                                                  | requires a textobject                    |                        | applies to selection         | `vipgu` will lowercase a paragraph                                               |
+|        `gU`        | `n`,`x` |     `.`      | +toUppercase                                                  | requires a textobject                    |                        | applies to selection         | `vipgU` will uppercase a paragraph                                               |
+|        `gv`        | `n`,`x` |              | last selected                                                 | will find and jump                       |                        | reselects                    | `vgv` will select last selection                                                 |
+|        `gw`        | `n`,`x` |     `.`      | Split/Join comments/lines 80chars (preserves cursor position) | requires a textobject                    |                        | applies to selection         | `vipgw` will split/join a paragraph limited by 80 characters                     |
+|        `gx`        | `n`,`x` |     `.`      | +Exchange (text) Operator                                     | followed by textobject/motion            |                        | uses selection               | `viwgx` will exchange word with another `viwgY`                                  |
+|        `gz`        | `n`,`x` |     `.`      | +Surround (followed by a=add, d=delete, r=replace)            | followed by textobject/motion (only add) |                        | uses selection (only add)    | `viwgza"` will add `"` to word, `gzd"` will delete `"`, `gzr"'` will replace `"` |
+|        `g+`        | `n`,`x` |     `.`      | Increment number                                              | selects number under cursor              |                        | uses selected number         | `3g+` will increment by 3                                                        |
+|        `g-`        | `n`,`x` |     `.`      | Decrement number                                              | selects number under cursor              |                        | uses selected number         | `g-..` will decrement by 3                                                       |
+|      `g<Up>`       | `n`,`x` |              | Numbers ascending                                             | selects number under cursor              |                        | uses selected number         | `g<Up>` will increase selected numbers ascendingly                               |
+|     `g<Down>`      | `n`,`x` |              | Numbers descending                                            | selects number under cursor              |                        | uses selected number         | `g<Down>` will decrease selected numbers descendingly                            |
+|        `=`         | `n`,`x` |     `.`      | autoindent                                                    | followed by text-object                  |                        | uses selection               | `==` autoindents line                                                            |
+|        `>`         | `n`,`x` |     `.`      | indent right                                                  | followed by text-object                  |                        | uses selection               | `>>` indents to right a line                                                     |
+|        `<`         | `n`,`x` |     `.`      | indent left                                                   | followed by text-object                  |                        | uses selection               | `<<` indents to left a line                                                      |
+|        `$`         |   `o`   |     `.`      | End of line                                                   |                                          |                        |                              | `d$j.` deletes two end-of-lines                                                  |
+|        `%`         |   `o`   |              | Matching character: '()', '{}', '[]'                          | won't jump                               |                        | won't jump                   | `d%` deletes until bracket                                                       |
+|        `0`         |   `o`   |     `.`      | Start of line                                                 |                                          |                        |                              | `d0` deletes until column 0                                                      |
+|        `^`         |   `o`   |     `.`      | Start of line (non-blank)                                     |                                          |                        |                              | `d^` deletes until start of line (after whitespace)                              |
+|        `(`         |   `o`   |     `.`      | Previous sentence                                             |                                          |                        |                              | `d(.` deletes until start of sentence (two times)                                |
+|        `)`         |   `o`   |     `.`      | Next sentence                                                 |                                          |                        |                              | `d).` deletes until end of sentence (two times)                                  |
+|        `{`         |   `o`   |     `.`      | Previous empty line (before a paragraph)                      |                                          |                        |                              | `d{.` deletes until next empty line (two times)                                  |
+|        `}`         |   `o`   |     `.`      | Next empty line (after a paragraph)                           |                                          |                        |                              | `d}.` deletes until previous empty line (two times)                              |
+|        `[[`        |   `o`   |     `.`      | Previous section                                              |                                          |                        |                              | `d[[` deletes until start of section                                             |
+|        `]]`        |   `o`   |     `.`      | Next section                                                  |                                          |                        |                              | `d]]` deletes until end of section                                               |
+|       `<CR>`       |   `o`   |     `.`      | Continue Last Flash search                                    |                                          |                        |                              | `d<CR><CR>` deletes until next searched text                                     |
+|        `b`         |   `o`   |     `.`      | Previous word                                                 |                                          |                        |                              | `db` deletes until start of word                                                 |
+|        `e`         |   `o`   |     `.`      | Next end of word                                              |                                          |                        |                              | `de` deletes until end of word                                                   |
+|        `f`         |   `o`   |     `.`      | Move to next char                                             |                                          |                        |                              | `df,` deletes until a next `,`                                                   |
+|        `F`         |   `o`   |     `.`      | Move to previous char                                         |                                          |                        |                              | `dF,` deletes until a previous `,`                                               |
+|        `G`         |   `o`   |     `.`      | Last line                                                     |                                          |                        |                              | `dG` deletes until last line                                                     |
+|        `R`         |   `o`   |     `.`      | Treesitter Flash Search                                       |                                          |                        |                              | `dR,<CR>` deletes next treesitter region that contains `,`                       |
+|        `s`         |   `o`   |     `.`      | Flash (search with labels in current window)                  |                                          |                        |                              | `ds,<CR>` deletes until next `,`                                                 |
+|        `S`         |   `o`   |     `.`      | Flash Treesitter                                              |                                          |                        |                              | `dS<CR>` deletes treesitter region under cursor position                         |
+|        `t`         |   `o`   |     `.`      | Move before next char                                         |                                          |                        |                              | `dt` deletes before next `,`                                                     |
+|        `T`         |   `o`   |     `.`      | Move before previous char                                     |                                          |                        |                              | `dT` deletes before previous `,`                                                 |
+|        `w`         |   `o`   |     `.`      | Next word                                                     |                                          |                        |                              | `dw.` deletes 2 words                                                            |
+|        `W`         |   `o`   |     `.`      | Next WORD                                                     |                                          |                        |                              | `dW.` deletes 2 WORDS                                                            |
 
 </details>
 
@@ -214,84 +177,77 @@
 
 <details><summary></summary>
 
-| Motion/Operator keymap |  Mode   | Description                                              |      repeater key      | requires textobject/motion keymap? (operators requires textobjects/motion) | example when in normal mode                              |
-| :--------------------: | :-----: | :------------------------------------------------------- | :--------------------: | :------------------------------------------------------------------------: | :------------------------------------------------------- |
-|          `g[`          | `n`,`x` | +Cursor to Left Around (only textobj with `@`,`_`)       |                        |                                    yes                                     | `g]u` go to end to quotation                             |
-|          `g]`          | `n`,`x` | +Cursor to Rigth Around (only textobj with `@`,`_`)      |                        |                                    yes                                     | `g[u` go to start of quotation                           |
-|          `g<`          | `n`,`x` | +goto StarOf textobj                                     |          `.`           |                                    yes                                     | `g<iu` go to start of quotation                          |
-|          `g>`          | `n`,`x` | +goto EndOf textobj                                      |          `.`           |                                    yes                                     | `g>iu` go to end of quotation                            |
-|          `g.`          | `n`,`x` | go to last change                                        |                        |                                                                            |                                                          |
-|          `g,`          |   `n`   | go forward in `:changes`                                 |                        |                                                                            |                                                          |
-|          `g;`          |   `n`   | go backward in `:changes`                                |                        |                                                                            |                                                          |
-|          `ga`          | `n`,`x` | +align                                                   |          `.`           |                                    yes                                     | `gaip=` will align a paragraph by `=`                    |
-|          `gA`          | `n`,`x` | +preview align (escape to cancel, enter to accept)       |          `.`           |                                    yes                                     | `gAip=` will align a paragraph by `=`                    |
-|          `gb`          | `n`,`x` | add virtual cursor (select and find)                     |          `.`           |                                                                            |                                                          |
-|          `gB`          | `n`,`x` | add virtual cursor (find selected)                       |          `.`           |                                                                            |                                                          |
-|          `gc`          | `n`,`x` | +comment                                                 |          `.`           |                                    yes                                     | `gcip` comment a paragraph                               |
-|          `gd`          |   `n`   | goto definition                                          |                        |                                                                            |                                                          |
-|          `ge`          | `n`,`x` | goto previous endOfWord                                  |                        |                                                                            |                                                          |
-|          `gE`          | `n`,`x` | goto previous endOfWord                                  |                        |                                                                            |                                                          |
-|          `gf`          |   `n`   | goto file under cursor                                   |                        |                                                                            |                                                          |
-|          `gg`          | `n`,`x` | goto first line                                          |                        |                                                                            |                                                          |
-|          `gH`          |   `n`   | paste last search register                               |          `.`           |                                                                            |                                                          |
-|          `gi`          | `n`,`x` | Last position of cursor in insert mode                   |                        |                                                                            |                                                          |
-|          `gI`          | `n`,`x` | select reference (under cursor)                          |                        |                                                                            |                                                          |
-|          `gj`          | `n`,`x` | goto Down (when wrapped)                                 |                        |                                                                            |                                                          |
-|          `gJ`          | `n`,`x` | Join below Line                                          |          `.`           |                                                                            |                                                          |
-|          `gk`          | `n`,`x` | goto Up (when wrapped)                                   |                        |                                                                            |                                                          |
-|          `gm`          |   `n`   | goto mid window                                          |                        |                                                                            |                                                          |
-|          `gM`          | `n`,`x` | goto mid line                                            |                        |                                                                            |                                                          |
-|          `gn`          | `n`,`x` | +goto next (only textobj with `@`,`_`)                   | `;`forward `,`backward |                                    yes                                     | `gniu` go to next quotation                              |
-|          `go`          | `n`,`x` | add virtual cursor down (tab to extend/cursor mode)      |          `.`           |                                                                            |                                                          |
-|          `gO`          | `n`,`x` | add virtual cursor up (tab to extend/cursor mode)        |          `.`           |                                                                            |                                                          |
-|          `gp`          | `n`,`x` | +goto previous (only textobj with `@`,`_`)               | `;`forward `,`backward |                                    yes                                     | `gpiu` go to previous quotation                          |
-|          `gq`          | `n`,`x` | +SplitJoin comment/lines 80chars (overrited by LSP)      |          `.`           |                                    yes                                     | `gqip` split/join a paragraph by 80 characters           |
-|          `gr`          |   `n`   | Redo register (dot to paste forward)                     |          `.`           |                                                                            |                                                          |
-|          `gR`          |   `n`   | Redo register (dot to paste backward)                    |          `.`           |                                                                            |                                                          |
-|          `gs`          | `n`,`x` | +Surround (followed by a=add, d=delete, r=replace)       |          `.`           |                                    yes                                     | `gsaiw"` add `"`, `gsd"` delete `"`, `gsr"'` replace `"` |
-|          `gS`          | `n`,`x` | SplitJoin args                                           |          `.`           |                                                                            |                                                          |
-|          `gt`          |   `n`   | goto next tab                                            |                        |                                                                            |                                                          |
-|          `gT`          |   `n`   | goto prev tab                                            |                        |                                                                            |                                                          |
-|          `gu`          | `n`,`x` | +toLowercase                                             |          `.`           |                                    yes                                     | `guip` lowercase a paragraph                             |
-|          `gU`          | `n`,`x` | +toUppercase                                             |          `.`           |                                    yes                                     | `gUip` uppercase a paragraph                             |
-|          `gv`          | `n`,`x` | last selected                                            |                        |                                                                            |                                                          |
-|          `gw`          | `n`,`x` | +SplitJoin coments/lines 80chars (keeps cursor position) |          `.`           |                                    yes                                     | `gwip` split/join a paragraph by 80 characters           |
-|          `gW`          | `n`,`x` | word-column multicursor                                  |                        |                                                                            |                                                          |
-|          `gx`          | `n`,`x` | +Blackhole register                                      |          `.`           |                                    yes                                     | `gxip` delete a paragraph without copying                |
-|          `gX`          | `n`,`x` | Blackhole linewise                                       |          `.`           |                                    yes                                     | `gX` delete line                                         |
-|          `gy`          | `n`,`x` | +replace with register                                   |          `.`           |                                    yes                                     | `gyiw` replace word with register (yanked text)          |
-|          `gY`          | `n`,`x` | +exchange text                                           |          `.`           |                                    yes                                     | `gYiw` exchange word with another `gYiw`                 |
-|          `gz`          | `n`,`x` | +sort                                                    |          `.`           |                                    yes                                     | `gzip` sort paragraph                                    |
-|          `g+`          | `n`,`x` | Increment number                                         |          `.`           |                                    yes                                     | `10g+` increment by 10                                   |
-|          `g-`          | `n`,`x` | Decrement number                                         |          `.`           |                                    yes                                     | `g-` decrement by 1                                      |
-|          `=`           | `n`,`x` | +autoindent                                              |          `.`           |                                    yes                                     | `=ip` autoindents paragraph                              |
-|          `>`           | `n`,`x` | +indent right                                            |          `.`           |                                    yes                                     | `>ip` indents to right a paragraph                       |
-|          `<`           | `n`,`x` | +indent left                                             |          `.`           |                                    yes                                     | `<ip` indents to left a paragraph                        |
-|          `$`           | `n`,`x` | End of line                                              |                        |                                                                            |                                                          |
-|          `%`           | `n`,`x` | Matching character: '()', '{}', '[]'                     |                        |                                                                            |                                                          |
-|          `0`           | `n`,`x` | Start of line                                            |                        |                                                                            |                                                          |
-|          `^`           | `n`,`x` | Start of line (non-blank)                                |                        |                                                                            |                                                          |
-|          `(`           | `n`,`x` | Previous sentence                                        |                        |                                                                            |                                                          |
-|          `)`           | `n`,`x` | Next sentence                                            |                        |                                                                            |                                                          |
-|          `{`           | `n`,`x` | Previous empty line (paragraph)                          |                        |                                                                            |                                                          |
-|          `}`           | `n`,`x` | Next empty line (paragraph)                              |                        |                                                                            |                                                          |
-|          `[[`          | `n`,`x` | Previous section                                         |                        |                                                                            |                                                          |
-|          `]]`          | `n`,`x` | Next section                                             |                        |                                                                            |                                                          |
-|         `<CR>`         | `n`,`x` | Continue Last Flash search                               |                        |                                                                            |                                                          |
-|          `b`           | `n`,`x` | Previous word                                            |                        |                                                                            |                                                          |
-|          `e`           | `n`,`x` | Next end of word                                         |                        |                                                                            |                                                          |
-|          `f`           | `n`,`x` | Move to next char                                        |          `f`           |                                                                            |                                                          |
-|          `F`           | `n`,`x` | Move to previous char                                    |          `F`           |                                                                            |                                                          |
-|          `G`           | `n`,`x` | Last line                                                |                        |                                                                            |                                                          |
-|          `R`           |   `x`   | Treesitter Flash Search                                  |                        |                                                                            |                                                          |
-|          `s`           | `n`,`x` | Flash (search with labels in current window)             |         `<CR>`         |                                                                            |                                                          |
-|          `S`           | `n`,`x` | Flash Treesitter                                         |                        |                                                                            |                                                          |
-|          `t`           | `n`,`x` | Move before next char                                    |          `t`           |                                                                            |                                                          |
-|          `T`           | `n`,`x` | Move before previous char                                |          `T`           |                                                                            |                                                          |
-|          `U`           |   `n`   | repeat :normal <keys>                                    |                        |                                                                            |                                                          |
-|          `w`           | `n`,`x` | Next word                                                |                        |                                                                            |                                                          |
-|          `W`           | `n`,`x` | Next WORD                                                |                        |                                                                            |                                                          |
-|          `Y`           | `n`,`x` | Yank until end of line                                   |                        |                                                                            |                                                          |
+| Motion/Operator keymap |  Mode   |      repeater key      | Description                                              | requires textobject/motion keymap? (operators requires textobjects/motion) | example when in normal mode                              |
+| :--------------------: | :-----: | :--------------------: | :------------------------------------------------------- | :------------------------------------------------------------------------: | :------------------------------------------------------- |
+|          `g[`          | `n`,`x` |                        | +Cursor to Left Around (only textobj with `@`,`_`)       |                                    yes                                     | `g]u` go to end to quotation                             |
+|          `g]`          | `n`,`x` |                        | +Cursor to Rigth Around (only textobj with `@`,`_`)      |                                    yes                                     | `g[u` go to start of quotation                           |
+|          `g.`          | `n`,`x` |                        | go to last change                                        |                                                                            |                                                          |
+|          `g,`          |   `n`   |                        | go forward in `:changes`                                 |                                                                            |                                                          |
+|          `g;`          |   `n`   |                        | go backward in `:changes`                                |                                                                            |                                                          |
+|          `ga`          | `n`,`x` |          `.`           | +align                                                   |                                    yes                                     | `gaip=` will align a paragraph by `=`                    |
+|          `gA`          | `n`,`x` |          `.`           | +preview align (escape to cancel, enter to accept)       |                                    yes                                     | `gAip=` will align a paragraph by `=`                    |
+|          `gb`          | `n`,`x` |          `.`           | +Blackhole register                                      |                                    yes                                     | `gbip` delete a paragraph without copying                |
+|          `gB`          | `n`,`x` |          `.`           | Blackhole linewise                                       |                                    yes                                     | `gB` delete line                                         |
+|          `gc`          | `n`,`x` |          `.`           | +comment                                                 |                                    yes                                     | `gcip` comment a paragraph                               |
+|          `gd`          |   `n`   |                        | go to definition                                         |                                                                            |                                                          |
+|          `ge`          | `n`,`x` |                        | go to previous endOfWord                                 |                                                                            |                                                          |
+|          `gE`          | `n`,`x` |                        | go to previous endOfWord                                 |                                                                            |                                                          |
+|          `gf`          |   `n`   |                        | go to file under cursor                                  |                                                                            |                                                          |
+|          `gg`          | `n`,`x` |                        | go to first line                                         |                                                                            |                                                          |
+|          `gh`          | `n`,`x` |          `.`           | +go to start of textobj                                  |                                    yes                                     | `ghiu` go to start of quotation                          |
+|          `gi`          | `n`,`x` |                        | Last position of cursor in insert mode                   |                                                                            |                                                          |
+|          `gj`          | `n`,`x` |                        | go to Down (when wrapped)                                |                                                                            |                                                          |
+|          `gJ`          | `n`,`x` |          `.`           | Join below Line                                          |                                                                            |                                                          |
+|          `gk`          | `n`,`x` |                        | go to Up (when wrapped)                                  |                                                                            |                                                          |
+|          `gl`          | `n`,`x` |          `.`           | +go to end of textobj                                    |                                    yes                                     | `gliu` go to end of quotation                            |
+|          `gm`          | `n`,`x` |                        | +Multiply (duplicate text) Operator                      |                                                                            | `gmap` duplicate paragraph withoug modifying clipboard   |
+|          `gM`          | `n`,`x` |                        | go to mid line                                           |                                                                            |                                                          |
+|          `gn`          | `n`,`x` | `;`forward `,`backward | +next (only textobj with `@`,`_`)                        |                                    yes                                     | `gniu` go to next quotation                              |
+|          `gp`          | `n`,`x` | `;`forward `,`backward | +previous (only textobj with `@`,`_`)                    |                                    yes                                     | `gpiu` go to previous quotation                          |
+|          `gq`          | `n`,`x` |          `.`           | +Format selection/comments                               |                                    yes                                     | `gqip` format a paragraph                                |
+|          `gr`          | `n`,`x` |          `.`           | +Replace (with register) Operator                        |                                    yes                                     | `griw` replace word with register (yanked text)          |
+|          `gs`          | `n`,`x` |          `.`           | +Sort Operator                                           |                                    yes                                     | `gsip` sort paragraph                                    |
+|          `gS`          | `n`,`x` |          `.`           | SplitJoin args                                           |                                                                            |                                                          |
+|          `gt`          |   `n`   |                        | go to next tab                                           |                                                                            |                                                          |
+|          `gT`          |   `n`   |                        | go to prev tab                                           |                                                                            |                                                          |
+|          `gu`          | `n`,`x` |          `.`           | +toLowercase                                             |                                    yes                                     | `guip` lowercase a paragraph                             |
+|          `gU`          | `n`,`x` |          `.`           | +toUppercase                                             |                                    yes                                     | `gUip` uppercase a paragraph                             |
+|          `gv`          | `n`,`x` |                        | last selected                                            |                                                                            |                                                          |
+|          `gw`          | `n`,`x` |          `.`           | +SplitJoin coments/lines 80chars (keeps cursor position) |                                    yes                                     | `gwip` split/join a paragraph by 80 characters           |
+|          `gx`          | `n`,`x` |          `.`           | +Exchange (text) Operator                                |                                    yes                                     | `gxiw` exchange word with another `gxiw`                 |
+|          `gy`          |   `n`   |          `.`           | Redo register (dot to paste forward)                     |                                                                            |                                                          |
+|          `gY`          |   `n`   |          `.`           | Redo register (dot to paste backward)                    |                                                                            |                                                          |
+|          `gz`          | `n`,`x` |          `.`           | +Surround (followed by a=add, d=delete, r=replace)       |                                    yes                                     | `gzaiw"` add `"`, `gzd"` delete `"`, `gzr"'` replace `"` |
+|          `g+`          | `n`,`x` |          `.`           | Increment number                                         |                                    yes                                     | `10g+` increment by 10                                   |
+|          `g-`          | `n`,`x` |          `.`           | Decrement number                                         |                                    yes                                     | `g-` decrement by 1                                      |
+|          `=`           | `n`,`x` |          `.`           | +autoindent                                              |                                    yes                                     | `=ip` autoindents paragraph                              |
+|          `>`           | `n`,`x` |          `.`           | +indent right                                            |                                    yes                                     | `>ip` indents to right a paragraph                       |
+|          `<`           | `n`,`x` |          `.`           | +indent left                                             |                                    yes                                     | `<ip` indents to left a paragraph                        |
+|          `$`           | `n`,`x` |                        | End of line                                              |                                                                            |                                                          |
+|          `%`           | `n`,`x` |                        | Matching character: '()', '{}', '[]'                     |                                                                            |                                                          |
+|          `0`           | `n`,`x` |                        | Start of line                                            |                                                                            |                                                          |
+|          `^`           | `n`,`x` |                        | Start of line (non-blank)                                |                                                                            |                                                          |
+|          `(`           | `n`,`x` |                        | Previous sentence                                        |                                                                            |                                                          |
+|          `)`           | `n`,`x` |                        | Next sentence                                            |                                                                            |                                                          |
+|          `{`           | `n`,`x` |                        | Previous empty line (paragraph)                          |                                                                            |                                                          |
+|          `}`           | `n`,`x` |                        | Next empty line (paragraph)                              |                                                                            |                                                          |
+|          `[[`          | `n`,`x` |                        | Previous section                                         |                                                                            |                                                          |
+|          `]]`          | `n`,`x` |                        | Next section                                             |                                                                            |                                                          |
+|         `<CR>`         | `n`,`x` |                        | Continue Last Flash search                               |                                                                            |                                                          |
+|          `b`           | `n`,`x` |                        | Previous word                                            |                                                                            |                                                          |
+|          `e`           | `n`,`x` |                        | Next end of word                                         |                                                                            |                                                          |
+|          `f`           | `n`,`x` |          `f`           | Move to next char                                        |                                                                            |                                                          |
+|          `F`           | `n`,`x` |          `F`           | Move to previous char                                    |                                                                            |                                                          |
+|          `G`           | `n`,`x` |                        | Last line                                                |                                                                            |                                                          |
+|          `R`           |   `x`   |                        | Treesitter Flash Search                                  |                                                                            |                                                          |
+|          `s`           | `n`,`x` |         `<CR>`         | Flash (search with labels in current window)             |                                                                            |                                                          |
+|          `S`           | `n`,`x` |                        | Flash Treesitter                                         |                                                                            |                                                          |
+|          `t`           | `n`,`x` |          `t`           | Move before next char                                    |                                                                            |                                                          |
+|          `T`           | `n`,`x` |          `T`           | Move before previous char                                |                                                                            |                                                          |
+|          `U`           |   `n`   |                        | repeat `:normal <keys>` or `:<commands>`                 |                                                                            |                                                          |
+|          `w`           | `n`,`x` |                        | Next word                                                |                                                                            |                                                          |
+|          `W`           | `n`,`x` |                        | Next WORD                                                |                                                                            |                                                          |
+|          `Y`           | `n`,`x` |                        | Yank until end of line                                   |                                                                            |                                                          |
 
 </details>
 
@@ -299,380 +255,106 @@
 
 <details><summary></summary>
 
-|       Keymap       |    Mode     | Description                                |                                                repeater key                                                 |
-| :----------------: | :---------: | :----------------------------------------- | :---------------------------------------------------------------------------------------------------------: |
-|     `<space>`      |     `n`     | show whichkey menu                         | `.` [supported `WhichkeyRepeat`](https://github.com/YeferYV/sixelrice/blob/main/nvim/lua/user/whichkey.lua) |
-| `<space><space>f`  | `n`,`x`,`o` | ColumnMove_f                               |                                           `;`forward `,`backward                                            |
-| `<space><space>t`  | `n`,`x`,`o` | ColumnMove_t                               |                                           `;`forward `,`backward                                            |
-| `<space><space>F`  | `n`,`x`,`o` | ColumnMove_F                               |                                           `;`forward `,`backward                                            |
-| `<space><space>T`  | `n`,`x`,`o` | ColumnMove_T                               |                                           `;`forward `,`backward                                            |
-| `<space><space>;`  | `n`,`x`,`o` | Next ColumnMove\_;                         |                                           `;`forward `,`backward                                            |
-| `<space><space>,`  | `n`,`x`,`o` | Prev ColumnMove\_,                         |                                           `;`forward `,`backward                                            |
-| `<space><space>a`  | `n`,`x`,`o` | End Indent with_blankline                  |                                           `;`forward `,`backward                                            |
-| `<space><space>i`  | `n`,`x`,`o` | Start Indent with_blankline                |                                           `;`forward `,`backward                                            |
-| `<space><space>A`  | `n`,`x`,`o` | End Indent skip_blankline                  |                                           `;`forward `,`backward                                            |
-| `<space><space>I`  | `n`,`x`,`o` | Start Indent skip_blankline                |                                           `;`forward `,`backward                                            |
-| `<space><space>w`  | `n`,`x`,`o` | Next ColumnMove_w                          |                                           `;`forward `,`backward                                            |
-| `<space><space>b`  | `n`,`x`,`o` | Prev ColumnMove_b                          |                                           `;`forward `,`backward                                            |
-| `<space><space>e`  | `n`,`x`,`o` | Next ColumnMove_e                          |                                           `;`forward `,`backward                                            |
-| `<space><space>ge` | `n`,`x`,`o` | Prev ColumnMove_ge                         |                                           `;`forward `,`backward                                            |
-| `<space><space>W`  | `n`,`x`,`o` | Next ColumnMove_W                          |                                           `;`forward `,`backward                                            |
-| `<space><space>B`  | `n`,`x`,`o` | Prev ColumnMove_B                          |                                           `;`forward `,`backward                                            |
-| `<space><space>E`  | `n`,`x`,`o` | Next ColumnMove_E                          |                                           `;`forward `,`backward                                            |
-| `<space><space>gE` | `n`,`x`,`o` | Prev ColumnMove_gE                         |                                           `;`forward `,`backward                                            |
-| `<space><space>}`  | `n`,`x`,`o` | Next Blankline                             |                                           `;`forward `,`backward                                            |
-| `<space><space>{`  | `n`,`x`,`o` | Prev Blankline                             |                                           `;`forward `,`backward                                            |
-| `<space><space>)`  | `n`,`x`,`o` | Next Paragraph                             |                                           `;`forward `,`backward                                            |
-| `<space><space>(`  | `n`,`x`,`o` | Prev Paragraph                             |                                           `;`forward `,`backward                                            |
-| `<space><space>]`  | `n`,`x`,`o` | End Fold                                   |                                           `;`forward `,`backward                                            |
-| `<space><space>[`  | `n`,`x`,`o` | Start Fold                                 |                                           `;`forward `,`backward                                            |
-| `<space><space>+`  | `n`,`x`,`o` | next startline                             |                                           `;`forward `,`backward                                            |
-| `<space><space>-`  | `n`,`x`,`o` | Prev StartLine                             |                                           `;`forward `,`backward                                            |
-| `<space><space>p`  |   `n`,`x`   | Paste after (secondary clipboard)          |                                                     `.`                                                     |
-| `<space><space>P`  |   `n`,`x`   | Paste before (secondary clipboard)         |                                                     `.`                                                     |
-| `<space><space>y`  |   `n`,`x`   | Yank (secondary clipboard)                 |                                                                                                             |
-| `<space><space>Y`  |   `n`,`x`   | Yank until EndOfLine (secondary clipboard) |                                                                                                             |
+|      Keymap       |    Mode     |      repeater key      | Description                                |
+| :---------------: | :---------: | :--------------------: | :----------------------------------------- |
+| `<space><space>p` |   `n`,`x`   |          `.`           | Paste after (secondary clipboard)          |
+| `<space><space>P` |   `n`,`x`   |          `.`           | Paste before (secondary clipboard)         |
+| `<space><space>y` |   `n`,`x`   |                        | Yank (secondary clipboard)                 |
+| `<space><space>Y` |   `n`,`x`   |                        | Yank until EndOfLine (secondary clipboard) |
+| `<space><space>j` | `n`,`x`,`o` | `;`forward `,`backward | prev ColumnMove                            |
+| `<space><space>k` | `n`,`x`,`o` | `;`forward `,`backward | next ColumnMove                            |
 
 </details>
 
-## Neovim Mini.brackets
+## Neovim Go to Previous / Next
 
 <details><summary></summary>
 
-|       keymap        |    mode     | description                     |
-| :-----------------: | :---------: | :------------------------------ |
-| `[b`/`]b`/`[B`/`]B` | `n`,`o`,`x` | prev/next/first/last buffer     |
-| `[c`/`]c`/`[C`/`]C` | `n`,`o`,`x` | prev/next/first/last comment    |
-| `[x`/`]x`/`[X`/`]X` | `n`,`o`,`x` | prev/next/first/last conflict   |
-| `[d`/`]d`/`[D`/`]D` | `n`,`o`,`x` | prev/next/first/last diagnostic |
-| `[f`/`]f`/`[F`/`]F` | `n`,`o`,`x` | prev/next/first/last file       |
-| `[i`/`]i`/`[I`/`]I` | `n`,`o`,`x` | prev/next/first/last indent     |
-| `[j`/`]j`/`[J`/`]J` | `n`,`o`,`x` | prev/next/first/last jump       |
-| `[l`/`]l`/`[L`/`]L` | `n`,`o`,`x` | prev/next/first/last location   |
-| `[o`/`]o`/`[O`/`]O` | `n`,`o`,`x` | prev/next/first/last oldfile    |
-| `[q`/`]q`/`[Q`/`]Q` | `n`,`o`,`x` | prev/next/first/last quickfix   |
-| `[t`/`]t`/`[T`/`]T` | `n`,`o`,`x` | prev/next/first/last treesitter |
-| `[u`/`]u`/`[U`/`]U` | `n`,`o`,`x` | prev/next/first/last undo       |
-| `[w`/`]w`/`[W`/`]W` | `n`,`o`,`x` | prev/next/first/last window     |
-| `[y`/`]y`/`[Y`/`]Y` | `n`,`o`,`x` | prev/next/first/last yank       |
+|     Keymap      |    Mode     |      repeater key      | Description                            |
+| :-------------: | :---------: | :--------------------: | :------------------------------------- |
+|  `gpc` / `gnc`  | `n`,`o`,`x` | `;`forward `,`backward | previous/next comment                  |
+|  `gpd` / `gnd`  | `n`,`o`,`x` | `;`forward `,`backward | previous/next diagnostic               |
+|  `gph` / `gnh`  | `n`,`o`,`x` | `;`forward `,`backward | previous/next git hunk                 |
+| `gpaK` / `gnaK` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of outer @block          |
+| `gpaq` / `gnaq` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of outer @call           |
+| `gpaQ` / `gnaQ` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of outer @class          |
+| `gpag` / `gnag` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of outer @comment        |
+| `gpaG` / `gnaG` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of outer @conditional    |
+| `gpaF` / `gnaF` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of outer @function       |
+| `gpaL` / `gnaL` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of outer @loop           |
+| `gpaP` / `gnaP` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of outer @parameter      |
+| `gpaR` / `gnaR` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of outer @return         |
+| `gpaA` / `gnaA` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of outer @assignment     |
+| `gpa=` / `gna=` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of outer @assignment.lhs |
+| `gpa#` / `gna#` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of outer @number         |
+| `gpaf` / `gnaf` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of outer \_function      |
+| `gpah` / `gnah` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of outer \_htmlAttribute |
+| `gpak` / `gnak` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of outer \_key           |
+| `gpaN` / `gnaN` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of outer \_number        |
+| `gpau` / `gnau` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of outer \_quote         |
+| `gpax` / `gnax` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of outer \_Hex           |
+| `gpik` / `gnik` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of inner @block          |
+| `gpiq` / `gniq` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of inner @call           |
+| `gpiQ` / `gniQ` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of inner @class          |
+| `gpig` / `gnig` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of inner @comment        |
+| `gpiG` / `gniG` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of inner @conditional    |
+| `gpiF` / `gniF` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of inner @function       |
+| `gpiL` / `gniL` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of inner @loop           |
+| `gpiP` / `gniP` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of inner @parameter      |
+| `gpiR` / `gniR` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of inner @return         |
+| `gpiA` / `gniA` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of inner @assignment     |
+| `gpi=` / `gni=` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of inner @assignment.rhs |
+| `gpi#` / `gni#` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of inner @number         |
+| `gpif` / `gnif` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of inner \_function      |
+| `gpih` / `gnih` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of inner \_htmlAttribute |
+| `gpik` / `gnik` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of inner \_key           |
+| `gpin` / `gnin` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of inner \_number        |
+| `gpiu` / `gniu` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of inner \_quote         |
+| `gpix` / `gnix` | `n`,`o`,`x` | `;`forward `,`backward | previous/next of inner \_Hex           |
 
 </details>
 
-## Neovim Go to Previous
+## Neovim Mini.bracketed
 
 <details><summary></summary>
 
-| Keymap |    Mode     | Description                  |      repeater key      |
-| :----: | :---------: | :--------------------------- | :--------------------: |
-| `gpc`  | `n`,`o`,`x` | go to previous comment       | `;`forward `,`backward |
-| `gpd`  | `n`,`o`,`x` | go to previous diagnostic    | `;`forward `,`backward |
-| `gph`  | `n`,`o`,`x` | go to previous git hunk      | `;`forward `,`backward |
-| `gpiy` | `n`,`o`,`x` | go to previous same_indent   | `;`forward `,`backward |
-| `gpr`  | `n`,`o`,`x` | go to previous reference     | `;`forward `,`backward |
-| `gpz`  | `n`,`o`,`x` | go to previous start of fold | `;`forward `,`backward |
-| `gpZ`  | `n`,`o`,`x` | go to previous start scope   | `;`forward `,`backward |
+|       keymap        |    mode     | description                                          |
+| :-----------------: | :---------: | :--------------------------------------------------- |
+| `[b`/`]b`/`[B`/`]B` | `n`,`o`,`x` | prev/next/first/last buffer                          |
+| `[c`/`]c`/`[C`/`]C` | `n`,`o`,`x` | prev/next/first/last comment                         |
+| `[x`/`]x`/`[X`/`]X` | `n`,`o`,`x` | prev/next/first/last conflict (only inside neovim)   |
+| `[d`/`]d`/`[D`/`]D` | `n`,`o`,`x` | prev/next/first/last diagnostic (only inside neovim) |
+| `[f`/`]f`/`[F`/`]F` | `n`,`o`,`x` | prev/next/first/last file                            |
+| `[i`/`]i`/`[I`/`]I` | `n`,`o`,`x` | prev/next/first/last indent                          |
+| `[j`/`]j`/`[J`/`]J` | `n`,`o`,`x` | prev/next/first/last jump                            |
+| `[l`/`]l`/`[L`/`]L` | `n`,`o`,`x` | prev/next/first/last location (only inside neovim)   |
+| `[o`/`]o`/`[O`/`]O` | `n`,`o`,`x` | prev/next/first/last oldfile                         |
+| `[q`/`]q`/`[Q`/`]Q` | `n`,`o`,`x` | prev/next/first/last quickfix (only inside neovim)   |
+| `[t`/`]t`/`[T`/`]T` | `n`,`o`,`x` | prev/next/first/last treesitter                      |
+| `[w`/`]w`/`[W`/`]W` | `n`,`o`,`x` | prev/next/first/last window (only inside neovim)     |
+| `[y`/`]y`/`[Y`/`]Y` | `n`,`o`,`x` | prev/next/first/last yank                            |
 
 </details>
 
-## Neovim Go to Next
+## Neovim native ctrl keys
 
 <details><summary></summary>
 
-| Keymap |    Mode     | Description              |      repeater key      |
-| :----: | :---------: | :----------------------- | :--------------------: |
-| `gnc`  | `n`,`o`,`x` | go to next comment       | `;`forward `,`backward |
-| `gnd`  | `n`,`o`,`x` | go to next diagnostic    | `;`forward `,`backward |
-| `gnh`  | `n`,`o`,`x` | go to next git hunk      | `;`forward `,`backward |
-| `gniy` | `n`,`o`,`x` | go to next same_indent   | `;`forward `,`backward |
-| `gnr`  | `n`,`o`,`x` | go to next reference     | `;`forward `,`backward |
-| `gnz`  | `n`,`o`,`x` | go to next start of fold | `;`forward `,`backward |
-| `gnZ`  | `n`,`o`,`x` | go to next start scope   | `;`forward `,`backward |
-
-</details>
-
-## Neovim Go to Previous Start of
-
-<details><summary></summary>
-
-| Keymap | Mode        | Description           | Repeater Key           |
-| ------ | ----------- | --------------------- | ---------------------- |
-| `gpaB` | `n`,`o`,`x` | @block.outer          | `;`forward `,`backward |
-| `gpaq` | `n`,`o`,`x` | @call.outer           | `;`forward `,`backward |
-| `gpaQ` | `n`,`o`,`x` | @class.outer          | `;`forward `,`backward |
-| `gpag` | `n`,`o`,`x` | @comment.outer        | `;`forward `,`backward |
-| `gpaG` | `n`,`o`,`x` | @conditional.outer    | `;`forward `,`backward |
-| `gpaF` | `n`,`o`,`x` | @function.outer       | `;`forward `,`backward |
-| `gpaL` | `n`,`o`,`x` | @loop.outer           | `;`forward `,`backward |
-| `gpaP` | `n`,`o`,`x` | @parameter.outer      | `;`forward `,`backward |
-| `gpaR` | `n`,`o`,`x` | @return.outer         | `;`forward `,`backward |
-| `gpaA` | `n`,`o`,`x` | @assignment.outer     | `;`forward `,`backward |
-| `gpa=` | `n`,`o`,`x` | @assignment.lhs       | `;`forward `,`backward |
-| `gpa#` | `n`,`o`,`x` | @number.outer         | `;`forward `,`backward |
-| `gpaf` | `n`,`o`,`x` | outer \_function      | `;`forward `,`backward |
-| `gpah` | `n`,`o`,`x` | outer \_htmlAttribute | `;`forward `,`backward |
-| `gpak` | `n`,`o`,`x` | outer \_key           | `;`forward `,`backward |
-| `gpan` | `n`,`o`,`x` | outer \_number        | `;`forward `,`backward |
-| `gpau` | `n`,`o`,`x` | outer \_quote         | `;`forward `,`backward |
-| `gpax` | `n`,`o`,`x` | outer \_Hex           | `;`forward `,`backward |
-| `gpz`  | `n`,`o`,`x` | Previous Start Fold   | `;`forward `,`backward |
-| `gpZ`  | `n`,`o`,`x` | Prev scope            | `;`forward `,`backward |
-| `gpiB` | `n`,`o`,`x` | @block.inner          | `;`forward `,`backward |
-| `gpiq` | `n`,`o`,`x` | @call.inner           | `;`forward `,`backward |
-| `gpiQ` | `n`,`o`,`x` | @class.inner          | `;`forward `,`backward |
-| `gpig` | `n`,`o`,`x` | @comment.inner        | `;`forward `,`backward |
-| `gpiG` | `n`,`o`,`x` | @conditional.inner    | `;`forward `,`backward |
-| `gpiF` | `n`,`o`,`x` | @function.inner       | `;`forward `,`backward |
-| `gpiL` | `n`,`o`,`x` | @loop.inner           | `;`forward `,`backward |
-| `gpiP` | `n`,`o`,`x` | @parameter.inner      | `;`forward `,`backward |
-| `gpiR` | `n`,`o`,`x` | @return.inner         | `;`forward `,`backward |
-| `gpiA` | `n`,`o`,`x` | @assignment.inner     | `;`forward `,`backward |
-| `gpi=` | `n`,`o`,`x` | @assignment.rhs       | `;`forward `,`backward |
-| `gpi#` | `n`,`o`,`x` | @number.inner         | `;`forward `,`backward |
-| `gpif` | `n`,`o`,`x` | inner \_function      | `;`forward `,`backward |
-| `gpih` | `n`,`o`,`x` | inner \_htmlAttribute | `;`forward `,`backward |
-| `gpik` | `n`,`o`,`x` | inner \_key           | `;`forward `,`backward |
-| `gpin` | `n`,`o`,`x` | inner \_number        | `;`forward `,`backward |
-| `gpiu` | `n`,`o`,`x` | inner \_quote         | `;`forward `,`backward |
-| `gpix` | `n`,`o`,`x` | inner \_Hex           | `;`forward `,`backward |
-
-</details>
-
-## Neovim Go to Next Start of
-
-<details><summary></summary>
-
-| Keymap | Mode        | Description           | Repeater Key           |
-| ------ | ----------- | --------------------- | ---------------------- |
-| `gnaB` | `n`,`o`,`x` | @block.outer          | `;`forward `,`backward |
-| `gnaq` | `n`,`o`,`x` | @call.outer           | `;`forward `,`backward |
-| `gnaQ` | `n`,`o`,`x` | @class.outer          | `;`forward `,`backward |
-| `gnag` | `n`,`o`,`x` | @comment.outer        | `;`forward `,`backward |
-| `gnaG` | `n`,`o`,`x` | @conditional.outer    | `;`forward `,`backward |
-| `gnaF` | `n`,`o`,`x` | @function.outer       | `;`forward `,`backward |
-| `gnaL` | `n`,`o`,`x` | @loop.outer           | `;`forward `,`backward |
-| `gnaP` | `n`,`o`,`x` | @parameter.outer      | `;`forward `,`backward |
-| `gnaR` | `n`,`o`,`x` | @return.outer         | `;`forward `,`backward |
-| `gnaA` | `n`,`o`,`x` | @assignment.outer     | `;`forward `,`backward |
-| `gna=` | `n`,`o`,`x` | @assignment.lhs       | `;`forward `,`backward |
-| `gna#` | `n`,`o`,`x` | @number.outer         | `;`forward `,`backward |
-| `gnaf` | `n`,`o`,`x` | outer \_function      | `;`forward `,`backward |
-| `gnah` | `n`,`o`,`x` | outer \_htmlAttribute | `;`forward `,`backward |
-| `gnak` | `n`,`o`,`x` | outer \_key           | `;`forward `,`backward |
-| `gnan` | `n`,`o`,`x` | outer \_number        | `;`forward `,`backward |
-| `gnau` | `n`,`o`,`x` | outer \_quote         | `;`forward `,`backward |
-| `gnax` | `n`,`o`,`x` | outer \_Hex           | `;`forward `,`backward |
-| `gnz`  | `n`,`o`,`x` | Next Start Fold       | `;`forward `,`backward |
-| `gnZ`  | `n`,`o`,`x` | Next scope            | `;`forward `,`backward |
-| `gniB` | `n`,`o`,`x` | @block.inner          | `;`forward `,`backward |
-| `gniq` | `n`,`o`,`x` | @call.inner           | `;`forward `,`backward |
-| `gniQ` | `n`,`o`,`x` | @class.inner          | `;`forward `,`backward |
-| `gnig` | `n`,`o`,`x` | @comment.inner        | `;`forward `,`backward |
-| `gniG` | `n`,`o`,`x` | @conditional.inner    | `;`forward `,`backward |
-| `gniF` | `n`,`o`,`x` | @function.inner       | `;`forward `,`backward |
-| `gniL` | `n`,`o`,`x` | @loop.inner           | `;`forward `,`backward |
-| `gniP` | `n`,`o`,`x` | @parameter.inner      | `;`forward `,`backward |
-| `gniR` | `n`,`o`,`x` | @return.inner         | `;`forward `,`backward |
-| `gniA` | `n`,`o`,`x` | @assignment.inner     | `;`forward `,`backward |
-| `gni=` | `n`,`o`,`x` | @assignment.rhs       | `;`forward `,`backward |
-| `gni#` | `n`,`o`,`x` | @number.inner         | `;`forward `,`backward |
-| `gnif` | `n`,`o`,`x` | inner \_function      | `;`forward `,`backward |
-| `gnih` | `n`,`o`,`x` | inner \_htmlAttribute | `;`forward `,`backward |
-| `gnik` | `n`,`o`,`x` | inner \_key           | `;`forward `,`backward |
-| `gnin` | `n`,`o`,`x` | inner \_number        | `;`forward `,`backward |
-| `gniu` | `n`,`o`,`x` | inner \_quote         | `;`forward `,`backward |
-| `gnix` | `n`,`o`,`x` | inner \_Hex           | `;`forward `,`backward |
-
-</details>
-
-## Neovim Go to Previous End of
-
-<details><summary></summary>
-
-| Keymap  | Mode        | Description           | Repeater Key           |
-| ------- | ----------- | --------------------- | ---------------------- |
-| `gpeaB` | `n`,`o`,`x` | @block.outer          | `;`forward `,`backward |
-| `gpeaq` | `n`,`o`,`x` | @call.outer           | `;`forward `,`backward |
-| `gpeaQ` | `n`,`o`,`x` | @class.outer          | `;`forward `,`backward |
-| `gpeag` | `n`,`o`,`x` | @comment.outer        | `;`forward `,`backward |
-| `gpeaG` | `n`,`o`,`x` | @conditional.outer    | `;`forward `,`backward |
-| `gpeaF` | `n`,`o`,`x` | @function.outer       | `;`forward `,`backward |
-| `gpeaL` | `n`,`o`,`x` | @loop.outer           | `;`forward `,`backward |
-| `gpeaP` | `n`,`o`,`x` | @parameter.outer      | `;`forward `,`backward |
-| `gpeaR` | `n`,`o`,`x` | @return.outer         | `;`forward `,`backward |
-| `gpeaA` | `n`,`o`,`x` | @assignment.lhs       | `;`forward `,`backward |
-| `gpea=` | `n`,`o`,`x` | @assignment.outer     | `;`forward `,`backward |
-| `gpea#` | `n`,`o`,`x` | @number.outer         | `;`forward `,`backward |
-| `gpeaf` | `n`,`o`,`x` | outer \_function      | `;`forward `,`backward |
-| `gpeah` | `n`,`o`,`x` | outer \_htmlAttribute | `;`forward `,`backward |
-| `gpeak` | `n`,`o`,`x` | outer \_key           | `;`forward `,`backward |
-| `gpean` | `n`,`o`,`x` | outer \_number        | `;`forward `,`backward |
-| `gpeau` | `n`,`o`,`x` | outer \_quote         | `;`forward `,`backward |
-| `gpeax` | `n`,`o`,`x` | outer \_Hex           | `;`forward `,`backward |
-| `gpez`  | `n`,`o`,`x` | Previous End Fold     | `;`forward `,`backward |
-| `gpeZ`  | `n`,`o`,`x` | Next scope            | `;`forward `,`backward |
-| `gpeiB` | `n`,`o`,`x` | @block.inner          | `;`forward `,`backward |
-| `gpeiq` | `n`,`o`,`x` | @call.inner           | `;`forward `,`backward |
-| `gpeiQ` | `n`,`o`,`x` | @class.inner          | `;`forward `,`backward |
-| `gpeig` | `n`,`o`,`x` | @comment.inner        | `;`forward `,`backward |
-| `gpeiG` | `n`,`o`,`x` | @conditional.inner    | `;`forward `,`backward |
-| `gpeiF` | `n`,`o`,`x` | @function.inner       | `;`forward `,`backward |
-| `gpeiL` | `n`,`o`,`x` | @loop.inner           | `;`forward `,`backward |
-| `gpeiP` | `n`,`o`,`x` | @parameter.inner      | `;`forward `,`backward |
-| `gpeiR` | `n`,`o`,`x` | @return.inner         | `;`forward `,`backward |
-| `gpeiA` | `n`,`o`,`x` | @assignment.inner     | `;`forward `,`backward |
-| `gpei=` | `n`,`o`,`x` | @assignment.rhs       | `;`forward `,`backward |
-| `gpei#` | `n`,`o`,`x` | @number.inner         | `;`forward `,`backward |
-| `gpeif` | `n`,`o`,`x` | inner \_function      | `;`forward `,`backward |
-| `gpeih` | `n`,`o`,`x` | inner \_htmlAttribute | `;`forward `,`backward |
-| `gpeik` | `n`,`o`,`x` | inner \_key           | `;`forward `,`backward |
-| `gpein` | `n`,`o`,`x` | inner \_number        | `;`forward `,`backward |
-| `gpeiu` | `n`,`o`,`x` | inner \_quote         | `;`forward `,`backward |
-| `gpeix` | `n`,`o`,`x` | inner \_Hex           | `;`forward `,`backward |
-
-</details>
-
-## Neovim Go to Next End of
-
-<details><summary></summary>
-
-| Keymap  | Mode        | Description           | Repeater Key           |
-| ------- | ----------- | --------------------- | ---------------------- |
-| `gneaB` | `n`,`o`,`x` | @block.outer          | `;`forward `,`backward |
-| `gneaq` | `n`,`o`,`x` | @call.outer           | `;`forward `,`backward |
-| `gneaQ` | `n`,`o`,`x` | @class.outer          | `;`forward `,`backward |
-| `gneag` | `n`,`o`,`x` | @comment.outer        | `;`forward `,`backward |
-| `gneaG` | `n`,`o`,`x` | @conditional.outer    | `;`forward `,`backward |
-| `gneaF` | `n`,`o`,`x` | @function.outer       | `;`forward `,`backward |
-| `gneaL` | `n`,`o`,`x` | @loop.outer           | `;`forward `,`backward |
-| `gneaP` | `n`,`o`,`x` | @parameter.outer      | `;`forward `,`backward |
-| `gneaR` | `n`,`o`,`x` | @return.outer         | `;`forward `,`backward |
-| `gneaA` | `n`,`o`,`x` | @assignment.outer     | `;`forward `,`backward |
-| `gnea=` | `n`,`o`,`x` | @assignment.lhs       | `;`forward `,`backward |
-| `gnea#` | `n`,`o`,`x` | @number.outer         | `;`forward `,`backward |
-| `gneaf` | `n`,`o`,`x` | outer \_function      | `;`forward `,`backward |
-| `gneah` | `n`,`o`,`x` | outer \_htmlAttribute | `;`forward `,`backward |
-| `gneak` | `n`,`o`,`x` | outer \_key           | `;`forward `,`backward |
-| `gnean` | `n`,`o`,`x` | outer \_number        | `;`forward `,`backward |
-| `gneau` | `n`,`o`,`x` | outer \_quote         | `;`forward `,`backward |
-| `gneax` | `n`,`o`,`x` | outer \_Hex           | `;`forward `,`backward |
-| `gnez`  | `n`,`o`,`x` | Next scope            | `;`forward `,`backward |
-| `gneZ`  | `n`,`o`,`x` | Next End Fold         | `;`forward `,`backward |
-| `gneiB` | `n`,`o`,`x` | @block.inner          | `;`forward `,`backward |
-| `gneiq` | `n`,`o`,`x` | @call.inner           | `;`forward `,`backward |
-| `gneiQ` | `n`,`o`,`x` | @class.inner          | `;`forward `,`backward |
-| `gneig` | `n`,`o`,`x` | @comment.inner        | `;`forward `,`backward |
-| `gneiG` | `n`,`o`,`x` | @conditional.inner    | `;`forward `,`backward |
-| `gneiF` | `n`,`o`,`x` | @function.inner       | `;`forward `,`backward |
-| `gneiL` | `n`,`o`,`x` | @loop.inner           | `;`forward `,`backward |
-| `gneiP` | `n`,`o`,`x` | @parameter.inner      | `;`forward `,`backward |
-| `gneiR` | `n`,`o`,`x` | @return.inner         | `;`forward `,`backward |
-| `gneiA` | `n`,`o`,`x` | @assignment.inner     | `;`forward `,`backward |
-| `gnei=` | `n`,`o`,`x` | @assignment.rhs       | `;`forward `,`backward |
-| `gnei#` | `n`,`o`,`x` | @number.inner         | `;`forward `,`backward |
-| `gneif` | `n`,`o`,`x` | inner \_function      | `;`forward `,`backward |
-| `gneih` | `n`,`o`,`x` | inner \_htmlAttribute | `;`forward `,`backward |
-| `gneik` | `n`,`o`,`x` | inner \_key           | `;`forward `,`backward |
-| `gnein` | `n`,`o`,`x` | inner \_number        | `;`forward `,`backward |
-| `gneiu` | `n`,`o`,`x` | inner \_quote         | `;`forward `,`backward |
-| `gneix` | `n`,`o`,`x` | inner \_Hex           | `;`forward `,`backward |
-
-</details>
-
-## Neovim neotree File Explorer
-
-<details><summary></summary>
-
-| Key Combination  | Description                                                   |
-| :--------------: | :------------------------------------------------------------ |
-|       `#`        | fuzzy_sorter                                                  |
-|       `.`        | set_root                                                      |
-|       `/`        | fuzzy_finder                                                  |
-|       `0`        | focus_preview                                                 |
-| `<double-click>` | open                                                          |
-|   `backspace`    | navigate_up                                                   |
-|     `ctrl+x`     | clear_filter                                                  |
-|     `enter`      | Open                                                          |
-|      `Down`      | navigate down                                                 |
-|       `Up`       | navigate up                                                   |
-|      `esc`       | revert_preview                                                |
-|       `<`        | prev_source ▕▏ 󰉓 File ▕▏ 󰈚 Bufs ▕▏ 󰊢 Git ▕▏                   |
-|       `>`        | next_source ▕▏ 󰉓 File ▕▏ 󰈚 Bufs ▕▏ 󰊢 Git ▕▏                   |
-|       `?`        | show keymaps▕▏ 󰉓 File ▕▏ 󰈚 Bufs ▕▏ 󰊢 Git ▕▏                   |
-|       `A`        | Create new folder (`path/to/somewhere` creates 3 folders)     |
-|       `C`        | close_node                                                    |
-|       `D`        | fuzzy_finder_directory                                        |
-|       `F`        | filter_on_submit                                              |
-|       `G`        | focus last file                                               |
-|       `H`        | toggle_hidden                                                 |
-|       `J`        | Move focus down 10 times in list view                         |
-|       `K`        | Move focus up 10 times in list view                           |
-|       `L`        | quit_on_open                                                  |
-|       `O`        | system_open                                                   |
-|       `P`        | toggle_preview                                                |
-|       `R`        | refresh                                                       |
-|       `T`        | open in new tab and show buffer and close neotree             |
-|       `U`        | ueberzug_open_vertical                                        |
-|       `V`        | open on horizontal split and close file explorer              |
-|       `Z`        | expand_all_nodes                                              |
-|       `[g`       | prev_git_modified                                             |
-|       `\`        | sixel_open_float                                              |
-|       `]g`       | next_git_modified                                             |
-|       `a`        | Create new file (`path/to/file` creates 2 folders and 1 file) |
-|       `c`        | copy_to                                                       |
-|       `d`        | delete                                                        |
-|       `e`        | toggle_auto_expand_width                                      |
-|   `f<letter>`    | find (by first `<letter>` of file/folder) and jump            |
-|       `ga`       | git_add_file (only when inside ▕▏ 󰊢 Git ▕▏)                   |
-|       `gc`       | git_commit (only when inside ▕▏ 󰊢 Git ▕▏)                     |
-|       `gg`       | git_commit_and_push (only when inside ▕▏ 󰊢 Git ▕▏)            |
-|       `gp`       | git_push (only when inside ▕▏ 󰊢 Git ▕▏)                       |
-|       `gr`       | git_revert_file (only when inside ▕▏ 󰊢 Git ▕▏)                |
-|       `gu`       | git_unstage_file (only when inside ▕▏ 󰊢 Git ▕▏)               |
-|       `gg`       | focus first file                                              |
-|       `gj`       | next_git_modified                                             |
-|       `gk`       | prev_git_modified                                             |
-|       `h`        | Collapse file tree                                            |
-|       `i`        | print_path                                                    |
-|       `j`        | Move down                                                     |
-|       `k`        | Move up                                                       |
-|  `l` or `enter`  | open directory/file (passing focus)                           |
-|       `m`        | move_to                                                       |
-|       `o`        | open_unfocus                                                  |
-|       `oc`       | order_by_created                                              |
-|       `od`       | order_by_diagnostics                                          |
-|       `og`       | order_by_git_status                                           |
-|       `om`       | order_by_modified                                             |
-|       `on`       | order_by_name                                                 |
-|       `os`       | order_by_size                                                 |
-|       `ot`       | order_by_type                                                 |
-|       `p`        | paste_from_clipboard                                          |
-|       `q`        | close_window                                                  |
-|       `r`        | rename                                                        |
-|       `t`        | open on new tab and show buffer                               |
-|       `u`        | open image with ueberzugpp on floating window                 |
-|       `v`        | open on vertical split and close file explorer                |
-|       `w`        | open image with imgcat on wezterm vertical pane               |
-|       `x`        | cut_to_clipboard                                              |
-|       `y`        | copy_to_clipboard                                             |
-|       `z`        | close_all_nodes                                               |
-
-</details>
-
-## Neovim Suggestion keymaps
-
-<details><summary></summary>
-
-| Key Combination | mode | Description                     |
-| :-------------: | :--: | :------------------------------ |
-|  `ctrl+space`   | `i`  | Toggle suggestion widget        |
-|     `alt+j`     | `i`  | Show next inline suggestion     |
-|     `alt+k`     | `i`  | Show previous inline suggestion |
-|     `alt+l`     | `i`  | Commit inline suggestion        |
-|    `ctrl+j`     | `i`  | Select next suggestion          |
-|    `ctrl+k`     | `i`  | Select previous suggestion      |
-|    `ctrl+l`     | `i`  | Accept selected suggestion      |
-|    `ctrl+d`     | `i`  | scroll suggestion details       |
-|    `ctrl+u`     | `i`  | scroll suggestion details       |
+| Key Combination |  mode   | Description                                                                     |
+| :-------------: | :-----: | :------------------------------------------------------------------------------ |
+|    `ctrl+a`     | `n`,`v` | increase number under cursor                                                    |
+|    `ctrl+b`     | `n`,`v` | scroll down by page                                                             |
+|    `ctrl+e`     | `n`,`v` | scroll down by line                                                             |
+|    `ctrl+d`     | `n`,`v` | scroll down by half page                                                        |
+|    `ctrl+f`     | `n`,`v` | scroll up by page                                                               |
+|    `ctrl+i`     |   `n`   | jump to next in `:jumps`                                                        |
+|    `ctrl+o`     |   `n`   | jump to previous in `:jumps`                                                    |
+|    `ctrl+r`     |   `n`   | redo (`u` to undo)                                                              |
+|    `ctrl+s`     | `n`,`v` | replace text (using `sed` syntax)(only replaces selected region on visual mode) |
+|    `ctrl+u`     | `n`,`v` | scroll up by half page                                                          |
+|    `ctrl+v`     | `n`,`v` | visual block mode                                                               |
+|    `ctrl+x`     | `n`,`v` | decrease number under cursor                                                    |
+|    `ctrl+y`     | `n`,`v` | scroll up by line                                                               |
 
 </details>
 
@@ -683,6 +365,7 @@
 |     Key Combination      |  mode   | Description                                               |
 | :----------------------: | :-----: | :-------------------------------------------------------- |
 |         `ctrl+\`         |   `n`   | Toggle (terminal) visibility                              |
+|         `<esc>`          |   `n`   | clear search highlight                                    |
 |       `<esc><esc>`       |   `t`   | terminal normal-mode (when inside neovim's terminal)      |
 |           `i`            |   `t`   | terminal exit normal-mode (when inside neovim's terminal) |
 |        `<space>`         |   `n`   | Show whichkey menu                                        |
@@ -707,26 +390,16 @@
 
 </details>
 
-## Neovim native ctrl keys
+## Neovim Suggestion keymaps
 
 <details><summary></summary>
 
-| Key Combination |  mode   | Description                                                                     |
-| :-------------: | :-----: | :------------------------------------------------------------------------------ |
-|    `ctrl+a`     | `n`,`v` | increase number under cursor                                                    |
-|    `ctrl+b`     | `n`,`v` | scroll down by page                                                             |
-|    `ctrl+e`     | `n`,`v` | scroll down by line                                                             |
-|    `ctrl+d`     | `n`,`v` | scroll down by half page                                                        |
-|    `ctrl+f`     | `n`,`v` | scroll up by page                                                               |
-|    `ctrl+l`     |   `n`   | clear highlight search                                                          |
-|    `ctrl+i`     |   `n`   | jump to next in `:jumps`                                                        |
-|    `ctrl+o`     |   `n`   | jump to previous in `:jumps`                                                    |
-|    `ctrl+r`     |   `n`   | redo (`u` to undo)                                                              |
-|    `ctrl+s`     | `n`,`v` | replace text (using `sed` syntax)(only replaces selected region on visual mode) |
-|    `ctrl+u`     | `n`,`v` | scroll up by half page                                                          |
-|    `ctrl+v`     | `n`,`v` | visual block mode                                                               |
-|    `ctrl+x`     | `n`,`v` | decrease number under cursor                                                    |
-|    `ctrl+y`     | `n`,`v` | scroll up by line                                                               |
+| Key Combination | mode | Description                     |
+| :-------------: | :--: | :------------------------------ |
+|  `ctrl+space`   | `i`  | Toggle suggestion widget        |
+|     `alt+j`     | `i`  | Show next inline suggestion     |
+|     `alt+k`     | `i`  | Show previous inline suggestion |
+|     `alt+l`     | `i`  | Commit inline suggestion        |
 
 </details>
 
@@ -760,16 +433,20 @@
 
 <details><summary></summary>
 
-|  keymap  | description                            |
-| :------: | :------------------------------------- |
-| `alt+o`  | open lf                                |
-| `alt+y`  | open yazi                              |
-| `alt+h`  | enter vim mode                         |
-| `alt+j`  | previous history and enter vim-mode    |
-| `alt+k`  | next history and enter vim-mode        |
-| `alt+l`  | complete suggestion and enter vim-mode |
-| `ctrl+r` | search history with fzf                |
-| `ctrl+l` | clear screen                           |
+|    keymap    | description                                                |
+| :----------: | :--------------------------------------------------------- |
+|   `<tab>`    | show (dash/path) options or complete path                  |
+| `<tab><tab>` | enter completion menu                                      |
+| `<esc><esc>` | tmux-copy-mode-like / normal-mode (inside neovim terminal) |
+|   `alt+o`    | open yazi (even while writing commands)                    |
+|   `alt+y`    | open yazi                                                  |
+|   `alt+h`    | enter vim mode                                             |
+|   `alt+j`    | previous history and enter vim-mode                        |
+|   `alt+k`    | next history and enter vim-mode                            |
+|   `alt+l`    | complete suggestion and enter vim-mode                     |
+|   `ctrl+r`   | search history with fzf                                    |
+|   `ctrl+l`   | clear screen                                               |
+| `ctrl+alt+l` | clear screen (inside neovim terminal)                      |
 
 </details>
 
@@ -790,20 +467,17 @@ tested on wezterm on x11/xorg with pipewire on archlinux
 
 </details>
 
-## Treesitter Installation
+## Treesitter Installation (optional)
 
 <details open><summary></summary>
 
-Text objects that has a `@` prefix requires a treesitter-grammar, sixelrice's neovim's configs installs by default treesitter-grammars for
-`python`, `bash`, `javascript`, `json`, `html`, `css`, `c`, `lua`.
-Install treesitter-grammar for your programming language with `:TSInstall <your programming language>`.
+- Text objects that has a `@` prefix requires a treesitter parser, neovim version `0.10` or newer comes with treesitter parsers for
+  `c`, `lua`, `markdown`.
+  Install treesitter parser for your programming language with `:TSInstall <your programming language>`
 
-example: in normal mode type `:` to open vim-command-line then type `TSInstall cpp` (cpp treesitter-grammar requires a cpp compiler)
+- Example: in normal mode type `:` to open vim-command-line then type `TSInstall cpp`
 
-recommended: for new sixelrice releases update neovim extensions with `:Lazy update` then update all the treesitter-grammars with `:TSUpdate` then relaunch neovim
-(just in case you find warnings or text-object not working as previous release)
-
-tip: to make a clean neovim-extensions/tressitter-grammar installation remove the folder `rm -r -force ~/.local/share/nvim` and relaunch neovim
+- Tip: to make a clean tressitter parser installation remove the folder.
 
 </details>
 
@@ -811,10 +485,8 @@ tip: to make a clean neovim-extensions/tressitter-grammar installation remove th
 
 <details open><summary></summary>
 
-- [devhints.io/vim](https://devhints.io/vim)
-- [viemu.com](http://www.viemu.com/a_vi_vim_graphical_cheat_sheet_tutorial.html)
-- [devhints.io/vim](https://devhints.io/vim)
-- [viemu.com](http://www.viemu.com/a_vi_vim_graphical_cheat_sheet_tutorial.html)
+- [devhints.io/vim](https://devhints.io/vim) most used vim keys
+- [viemu.com](http://www.viemu.com/a_vi_vim_graphical_cheat_sheet_tutorial.html) vim keys from A-Z
 - [vscode with embedded neovim](https://www.youtube.com/watch?v=g4dXZ0RQWdw) youtube tutorial most of the keybindings are similar to sixelrice's neovim
 - [treesitter text-objects demo](https://www.youtube.com/watch?v=FuYQ7M73bC0) youtube tutorial the keybindings are similar to sixelrice's neovim
 - [treesitter text-objects extended](https://www.youtube.com/watch?v=CEMPq_r8UYQ) youtube tutorial the keybindings are similar to sixelrice's neovim
@@ -828,7 +500,7 @@ tip: to make a clean neovim-extensions/tressitter-grammar installation remove th
 <details open><summary></summary>
 
 - [yeferyv/retronvim](https://github.com/yeferyv/retronvim) vscode extension with neovim text objects from A-Z + LSP whichkey + touchcursor keyboard layout
-- [yeferyv/archrice](https://github.com/yeferyv/archrice) arch linux rice with neovim text object from A-Z, based on [neovim-from-scratch](https://github.com/LunarVim/Neovim-from-scratch)
+- [yeferyv/archrice](https://github.com/yeferyv/archrice) arch linux rice with neovim text object from A-Z, based on [mini.nvim](https://github.com/echasnovski/mini.nvim)
 - [yeferyv/dotfiles](https://github.com/yeferyv/dotfiles) my dotfiles (minimal archrice + keybindings for managing windows in any desktop environment) with archlinux, debian and windows support/installer
 
 </details>

@@ -86,7 +86,7 @@ source $HOME/.local/share/sixelrice/fzf-key-bindings/key-bindings.zsh
 
 precmd () { printf "\033]0; $(basename ${PWD/~/\~}) \a" } # tmux/wezterm CWD(current working directory) status/title
 lfcd () { cd "$(command lf -print-last-dir $@)";                 zle reset-prompt }
-yacd () { yazi --cwd-file=$HOME/.yazi $@; cd $(cat $HOME/.yazi); zle reset-prompt }
+yacd () { yazi --cwd-file=$HOME/.yazi $@ < /dev/tty; cd "$(cat $HOME/.yazi)"; zle reset-prompt; echo -ne "\e[6 q"; }
 zle -N lfcd
 zle -N yacd
 bindkey '\eo' 'lfcd' # \eo = alt + o

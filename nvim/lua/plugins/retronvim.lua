@@ -81,21 +81,46 @@ return {
           o = { "%S()%s+()%S" },                                                                                                  -- whitespace textobj
           S = { { '%u[%l%d]+%f[^%l%d]', '%f[%S][%l%d]+%f[^%l%d]', '%f[%P][%l%d]+%f[^%l%d]', '^[%l%d]+%f[^%l%d]', }, '^().*()$' }, -- sub word textobj https://github.com/echasnovski/mini.nvim/blob/main/doc/mini-ai.txt
           u = { { "%b''", '%b""', '%b``' }, '^.().*().$' },                                                                       -- quote textobj
-          i = function()                                                                                                          -- Indent no_blacklines textobj
+
+          -- https://thevaluable.dev/vim-create-text-objects
+          -- select indent by the same or mayor level delimited by blank-lines
+          i = function()
             local start_indent = vim.fn.indent(vim.fn.line('.'))
-            local get_comment_regex = "^%s*" .. string.gsub(vim.bo.commentstring, "%%s", ".*") .. "%s*$"
-            local is_blank_line = function(line) return string.match(vim.fn.getline(line), '^%s*$') end
-            local is_comment_line = function(line) return string.find(vim.fn.getline(line), get_comment_regex) end
 
             local prev_line = vim.fn.line('.') - 1
             while vim.fn.indent(prev_line) >= start_indent do
-              if is_comment_line(prev_line) or is_blank_line(prev_line) then break end
               prev_line = prev_line - 1
             end
 
             local next_line = vim.fn.line('.') + 1
             while vim.fn.indent(next_line) >= start_indent do
-              if is_comment_line(next_line) or is_blank_line(next_line) then break end
+              next_line = next_line + 1
+            end
+
+            return { from = { line = prev_line + 1, col = 1 }, to = { line = next_line - 1, col = 100 }, vis_mode = 'V' }
+          end,
+
+          -- select indent by the same level delimited by comment-lines (outer: includes blank-lines)
+          y = function()
+            local start_indent = vim.fn.indent(vim.fn.line('.'))
+            local get_comment_regex = "^%s*" .. string.gsub(vim.bo.commentstring, "%%s", ".*") .. "%s*$"
+            local is_blank_line = function(line) return string.match(vim.fn.getline(line), '^%s*$') end
+            local is_comment_line = function(line) return string.find(vim.fn.getline(line), get_comment_regex) end
+            local is_out_of_range = function(line) return vim.fn.indent(line) == -1 end
+
+            local prev_line = vim.fn.line('.') - 1
+            while vim.fn.indent(prev_line) == start_indent or is_blank_line(prev_line) do
+              if is_out_of_range(prev_line) then break end
+              if is_comment_line(prev_line) then break end
+              if is_blank_line(prev_line) and _G.skip_blank_line then break end
+              prev_line = prev_line - 1
+            end
+
+            local next_line = vim.fn.line('.') + 1
+            while vim.fn.indent(next_line) == start_indent or is_blank_line(next_line) do
+              if is_out_of_range(next_line) then break end
+              if is_comment_line(next_line) then break end
+              if is_blank_line(next_line) and _G.skip_blank_line then break end
               next_line = next_line + 1
             end
 
@@ -219,6 +244,7 @@ return {
       map({ "n", "v", "t" }, "<M-Right>", "<cmd>vertical resize +2<cr>", { desc = "vertical expand" })
       map({ "n", "v", "t" }, "<M-Up>", "<cmd>resize -2<cr>", { desc = "horizontal shrink" })
       map({ "n", "v", "t" }, "<M-Down>", "<cmd>resize +2<cr>", { desc = "horizontal shrink" })
+      map({ "n" }, "<esc>", "<esc><cmd>lua vim.cmd.nohlsearch()<cr>", { desc = "escape and clear search highlight" })
       map({ "t" }, "<esc><esc>", "<C-\\><C-n>", { desc = "normal mode inside terminal" })
       map({ "n" }, "<C-s>", ":%s//g<Left><Left>", { desc = "Replace in Buffer" })
       map({ "x" }, "<C-s>", ":s//g<Left><Left>", { desc = "Replace in Visual_selected" })
@@ -230,7 +256,7 @@ return {
       map({ "n" }, "<right>", ":bnext<CR>", { desc = "next buffer" })
       map({ "n" }, "<left>", ":bprevious<CR>", { desc = "prev buffer" })
       map({ "n" }, "<leader>x", ":bp | bd! #<CR>", { desc = "Close Buffer" }) -- `bd!` forces closing terminal buffer
-      map({ "n" }, "<leader>X", ":tabclose<CR>", { desc = "Close Tab" })
+      map({ "n" }, "<leader>;", ":buffer #<cr>", { desc = "Recent buffer" })
       map({ "n" }, "Q", "<cmd>lua vim.cmd('quit')<cr>")
       map({ "n" }, "R", "<cmd>lua vim.lsp.buf.format({ timeout_ms = 5000 }) vim.cmd('silent write') <cr>")
 
@@ -360,10 +386,11 @@ return {
       map("n", "<leader>o", ":lua MiniFiles.open()<cr>", { desc = "Open Explorer (CWD)" })
       map("n", "<leader>O", ":lua MiniFiles.open(vim.api.nvim_buf_get_name(0))<cr>", { desc = "Open Explorer" })
       map("n", "<leader>f", "", { desc = "+Find" })
-      map("n", "<leader>f/", ":Pick files<cr>", { desc = "Pick Files (tab to preview)" })
-      map("n", "<leader>fF", ":Pick grep_live<cr>", { desc = "Pick Grep (tab to preview)" })
-      map("n", "<leader>f'", ":Pick marks<cr>", { desc = "Pick Marks (tab to preview)" })
-      map("n", "<leader>fR", ":Pick registers<cr>", { desc = "Pick register" })
+      map("n", "<leader>ff", ":Pick files<cr>", { desc = "Files (tab to preview)" })
+      map("n", "<leader>f/", ":Pick git_files<cr>", { desc = "Git/hidden files (tab to preview)" })
+      map("n", "<leader>fg", ":Pick grep_live<cr>", { desc = "Grep (tab to preview)" })
+      map("n", "<leader>f'", ":Pick marks<cr>", { desc = "Marks (tab to preview)" })
+      map("n", '<leader>f"', ":Pick registers<cr>", { desc = "register (:help quote)" })
       map("n", "<leader>fn", ":lua MiniNotify.show_history()<cr>", { desc = "Notify history" })
       map("n", "<leader>g", "", { desc = "+Git" })
       map("n", "<leader>gg", ":lua vim.cmd[[terminal lazygit]] vim.cmd[[set ft=terminal]]<cr>", { desc = "lazygit" })
@@ -465,7 +492,26 @@ return {
 
       map({ "o", "x" }, "iI", function() require("mini.indentscope").textobject(false) end, { desc = "indent blank" })
       map({ "o", "x" }, "aI", function() require("mini.indentscope").textobject(true) end, { desc = "indent blank" })
-      map({ "x", "o" }, "ai", "iik", { desc = "indent" })
+      map({ "o", "x" }, "ii", function() require("mini.ai").select_textobject("i", "i") end, { desc = "indent" })
+      map({ "o", "x" }, "ai", ":normal Viik<cr>", { desc = "indent" })
+      map(
+        { "o", "x" },
+        "iy",
+        function()
+          _G.skip_blank_line = true
+          require("mini.ai").select_textobject("i", "y")
+        end,
+        { desc = "same_indent" }
+      )
+      map(
+        { "o", "x" },
+        "ay",
+        function()
+          _G.skip_blank_line = false
+          require("mini.ai").select_textobject("i", "y")
+        end,
+        { desc = "same_indent" }
+      )
       map({ "x" }, "iz", ":<c-u>normal! [zjV]zk<cr>", { desc = "inner fold" })
       map({ "o" }, "iz", ":normal Viz<CR>", { desc = "inner fold" })
       map({ "x" }, "az", ":<c-u>normal! [zV]z<cr>", { desc = "outer fold" })
