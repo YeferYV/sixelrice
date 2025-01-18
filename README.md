@@ -457,10 +457,12 @@
 <details open><summary></summary>
 
 ```bash
-git clone https://github.com/YeferYV/sixelrice.git ~/.config/nvim
-ln -s ~/.config/nvim/lf ~/.config/lf
-ln -s ~/.config/nvim/.zshrc ~/.config/.zshrc
-source ~/.zshrc # to download the dependencies (only for archlinux and debian) in ~/.local/share/sixelrice
+git clone --recursive https://github.com/YeferYV/sixelrice ~/.config/nvim
+ln -s  ~/.config/nvim/lf                                   ~/.config/lf
+ln -s  ~/.config/nvim/mpv                                  ~/.config/mpv
+ln -s  ~/.config/nvim/zsh                                  ~/.config/zsh
+ln -s  ~/.config/nvim/zsh/.zshrc                           ~/.zshrc
+source ~/.zshrc # to download the dependencies using pixi # wezterm can display icons by default
 ```
 
 tested on wezterm on x11/xorg with pipewire on archlinux

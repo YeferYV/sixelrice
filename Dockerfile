@@ -12,8 +12,8 @@
 
 #===================================== Dockerfile ======================================#
 
-# FROM ubuntu
-FROM archlinux:base-devel
+# FROM archlinux:base-devel
+FROM ubuntu
 
 SHELL ["/bin/bash","-c"]
 
@@ -36,13 +36,13 @@ ENV USER="drksl"
 # copy repository:
 COPY --chown=drksl . $HOME/.config/sixelrice
 
-# create symlinks:
-RUN ln -s $HOME/.config/sixelrice/nvim    $HOME/.config/nvim; \
-    ln -s $HOME/.config/sixelrice/lf      $HOME/.config/lf; \
-    ln -s $HOME/.config/sixelrice/.zshrc  $HOME/.zshrc;
-
-# install dependencies:
+# installation
 RUN echo toor | su -c "chown -R drksl:drksl $HOME/.config"; \
+    ln -s $HOME/.config/sixelrice/nvim        $HOME/.config/nvim; \
+    ln -s $HOME/.config/sixelrice/mpv         $HOME/.config/mpv; \
+    ln -s $HOME/.config/sixelrice/lf          $HOME/.config/lf; \
+    ln -s $HOME/.config/sixelrice/zsh         $HOME/.config/zsh; \
+    ln -s $HOME/.config/sixelrice/zsh/.zshrc  $HOME/.zshrc; \
     echo toor | source $HOME/.zshrc
 
 # ssh daemon:
@@ -52,4 +52,4 @@ RUN echo toor | su -c "chown -R drksl:drksl $HOME/.config"; \
 #     echo toor | su -c "/usr/bin/ssh-keygen -A"; \
 #     echo "sudo /sbin/sshd" >>/home/drksl/.zprofile
 
-CMD ["/bin/zsh","-l"]
+CMD ["/home/drksl/.pixi/bin/zsh","-l"]
