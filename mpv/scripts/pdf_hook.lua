@@ -1,0 +1,1 @@
+../plugins/mpv-pdf/pdf_hook.lua

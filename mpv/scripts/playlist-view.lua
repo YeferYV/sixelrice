@@ -1,0 +1,1 @@
+../plugins/mpv-gallery-view/scripts/playlist-view.lua
