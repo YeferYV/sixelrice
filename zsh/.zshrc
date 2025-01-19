@@ -10,7 +10,7 @@
 
   curl -fsSL https://pixi.sh/install.sh | bash
   export PATH="$HOME/.pixi/bin:$PATH"
-  pixi global install bat exa fzf ghostscript git imagemagick lazygit less lf nvim poppler ripgrep starship zellij zsh # pnpm nix xclip yazi
+  pixi global install bat eza fzf ghostscript git imagemagick lazygit less lf nvim poppler ripgrep starship zellij zsh # pnpm nix xclip yazi
 
   starship config format "(\$battery)(\$sudo)(\$username)(\$directory)(\$git_branch)(\$git_status)(\$cmd_duration)(\$status)(\$character)"
   starship config add_newline false
@@ -46,7 +46,7 @@ export APPIMAGE_EXTRACT_AND_RUN=1
 export BAT_THEME="base16"
 export DISPLAY=:0
 export EDITOR="nvim"
-export EXA_COLORS="reset:uu=0:ur=0:uw=0:ux=0:ue=0:gu=0:gr=0:gw=0:gx=0:tr=0:tw=0:tx=0:da=0:sn=0:di=34"
+export EZA_COLORS="reset:uu=0:ur=0:uw=0:ux=0:ue=0:gu=0:gr=0:gw=0:gx=0:tr=0:tw=0:tx=0:da=0:sn=0:di=34"
 export FZF_DEFAULT_OPTS="--preview 'bat --color=always {}' --preview-window 'hidden' --bind '?:toggle-preview'"
 export HISTFILE="$HOME/.cache/history"
 export LANG=en_US.UTF-8 # `locale-gen` if zsh doens't erase some characters
@@ -81,5 +81,5 @@ bindkey '\ey' 'yacd' # \ey = alt + y
 source $ZDOTDIR/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
 source $ZDOTDIR/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 which fzf      >/dev/null 2>&1 && source <(fzf --zsh)
-which exa      >/dev/null 2>&1 && alias ls="exa --all --icons --group-directories-first"
+which eza      >/dev/null 2>&1 && alias ls="eza --all --icons --group-directories-first"
 which starship >/dev/null 2>&1 && eval "$(starship init zsh)"
