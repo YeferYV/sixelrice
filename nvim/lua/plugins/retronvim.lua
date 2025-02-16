@@ -1,11 +1,26 @@
 return {
 
   -- { "folke/lazydev.nvim", enabled = false }, -- throws error by blink
-  { "akinsho/bufferline.nvim",     enabled = false },
-  { "nvim-neo-tree/neo-tree.nvim", enabled = false },
-  { "MunifTanjim/nui.nvim",        enabled = false },
-  { "nvim-lua/plenary.nvim",       enabled = false },
-  { "folke/noice.nvim",            enabled = false },
+  { "akinsho/bufferline.nvim",      enabled = false },
+  { "nvim-neo-tree/neo-tree.nvim",  enabled = false },
+  { "MunifTanjim/nui.nvim",         enabled = false },
+  { "nvim-lua/plenary.nvim",        enabled = false },
+  { "folke/noice.nvim",             enabled = false },
+  { "rafamadriz/friendly-snippets", enabled = false }, --no contains a valid JSON object for mini.snippets
+  { "williamboman/mason.nvim",      opts = function() return { ensure_installed = {} } end, },
+
+  -- https://www.lazyvim.org/plugins/lsp
+  {
+    "neovim/nvim-lspconfig",
+    opts = function()
+      -- disable "K" keymap, use instead "<leader>lH"
+      local ok, keymaps = pcall(require, "lazyvim.plugins.lsp.keymaps")
+      if not ok then return end
+      local keys = keymaps.get()
+      keys[#keys + 1] = { "K", false }
+    end,
+  },
+
   {
     "folke/flash.nvim",
     version = "v2.1.0",
@@ -64,9 +79,25 @@ return {
   },
   {
     "echasnovski/mini.nvim",
-    commit = "3a3178419ce9947f55708966dabf030eca40735a",
+    version = "v0.15.0",
     lazy = false,
     config = function()
+      -- ╭──────────────╮
+      -- │ Autocommands │
+      -- ╰──────────────╯
+
+      local autocmd = vim.api.nvim_create_autocmd
+      local map = vim.keymap.set
+
+      autocmd('LspAttach', {
+        callback = function()
+          map({ "n" }, "J", "10gj")
+          map({ "n" }, "K", "10gk")
+          map({ "n" }, "H", "10h")
+          map({ "n" }, "L", "10l")
+        end
+      })
+
       -- ╭──────╮
       -- │ Mini │
       -- ╰──────╯
@@ -278,13 +309,12 @@ return {
       require('mini.extra').setup()
       require('mini.misc').setup_auto_root()
       require('mini.misc').setup_restore_cursor()
-      require('mini.notify').setup()
       require('mini.pairs').setup()
       require("mini.tabline").setup()
-      vim.notify = MiniNotify.make_notify() -- `vim.print = MiniNotify.make_notify()` conflicts with `:=vim.opt.number`
-      vim.opt.virtualedit = "all"           -- allow cursor bypass end of line
-      vim.opt.relativenumber = false        -- normal numbering
-      vim.opt.cmdheight = 0                 -- more space in the neovim command line for displaying messages
+      vim.opt.virtualedit = "all"    -- allow cursor bypass end of line
+      vim.opt.relativenumber = false -- normal numbering
+      vim.opt.cmdheight = 0          -- more space in the neovim command line for displaying messages
+      vim.opt.cursorline = false     -- highlight the current line
 
       -- ╭────────────╮
       -- │ Navigation │
@@ -375,7 +405,6 @@ return {
         function() require("snacks").picker.grep({ layout = "ivy_split", filter = { cwd = true }, }) end,
         { desc = "ripgrep" }
       )
-      map("n", "<leader>fn", function() MiniNotify.show_history() end, { desc = "Notify history" })
       map("n", "<leader>fp", function() require("snacks").picker.projects() end, { desc = "projects" })
       map("n", "<leader>fq", function() require("snacks").picker.qflist() end, { desc = "quickfix list" })
       map("n", "<leader>fr", function() require("snacks").picker.recent() end, { desc = "recent files" })
