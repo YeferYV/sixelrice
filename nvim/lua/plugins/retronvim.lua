@@ -1,5 +1,11 @@
 return {
 
+  -- { "folke/lazydev.nvim", enabled = false }, -- throws error by blink
+  { "akinsho/bufferline.nvim",     enabled = false },
+  { "nvim-neo-tree/neo-tree.nvim", enabled = false },
+  { "MunifTanjim/nui.nvim",        enabled = false },
+  { "nvim-lua/plenary.nvim",       enabled = false },
+  { "folke/noice.nvim",            enabled = false },
   {
     "folke/flash.nvim",
     version = "v2.1.0",
@@ -8,7 +14,7 @@ return {
   },
   {
     "lewis6991/gitsigns.nvim",
-    version = "0.9.0",
+    -- version = "0.9.0",
     opts = {
       signs = {
         add          = { text = "│" },
@@ -21,17 +27,28 @@ return {
     }
   },
   {
-    "nvim-treesitter/nvim-treesitter",
-    version = "v0.9.3",
-    event = "VeryLazy",
-    build = ":TSUpdate", -- treesitter works with specific versions of language parsers (required if upgrading treesitter)
-    dependencies = { { "nvim-treesitter/nvim-treesitter-textobjects", commit = "ad8f0a472148c3e0ae9851e26a722ee4e29b1595" } },
-    config = function()
-      require("nvim-treesitter.configs").setup({
-        indent = { enable = true },    -- https://www.reddit.com/r/neovim/comments/14n6iiy/if_you_have_treesitter_make_sure_to_disable_smartindent
-        highlight = { enable = true }, -- https://github.com/nvim-treesitter/nvim-treesitter/issues/5264
-      })
-    end
+    "folke/snacks.nvim",
+    -- version = "v2.21.0",
+    commit = "f3cdd02620bd5075e453be7451a260dbbee68cab",
+    lazy = false,
+    cond = not vim.g.vscode,
+    opts = {
+      scroll = { enabled = false },
+      explorer = { replace_netrw = true },
+      image = {},
+      indent = {},
+      input = {},
+      picker = { sources = { explorer = { hidden = true } } },
+      styles = {
+        input = {
+          title_pos = "left",
+          relative = "cursor",
+          row = 1,
+          col = -1,
+          width = 30,
+        },
+      },
+    },
   },
   {
     "supermaven-inc/supermaven-nvim",
@@ -48,39 +65,24 @@ return {
   {
     "echasnovski/mini.nvim",
     commit = "3a3178419ce9947f55708966dabf030eca40735a",
-    event = "VeryLazy",
+    lazy = false,
     config = function()
       -- ╭──────╮
       -- │ Mini │
       -- ╰──────╯
-
-      local spec_treesitter = require("mini.ai").gen_spec.treesitter
-      local gen_ai_spec = require('mini.extra').gen_ai_spec
+      local gen_ai_spec = require("mini.extra").gen_ai_spec
 
       require("mini.ai").setup({
         custom_textobjects = {
-          K = spec_treesitter({ a = "@block.outer", i = "@block.inner" }),
-          q = spec_treesitter({ a = "@call.outer", i = "@call.inner" }),
-          Q = spec_treesitter({ a = "@class.outer", i = "@class.inner" }),
-          g = spec_treesitter({ a = "@comment.outer", i = "@comment.inner" }),
-          G = spec_treesitter({ a = "@conditional.outer", i = "@conditional.inner" }),
-          F = spec_treesitter({ a = "@function.outer", i = "@function.inner" }),
-          L = spec_treesitter({ a = "@loop.outer", i = "@loop.inner" }),
-          P = spec_treesitter({ a = "@parameter.outer", i = "@parameter.inner" }),
-          R = spec_treesitter({ a = "@return.outer", i = "@return.inner" }),
-          ["A"] = spec_treesitter({ a = "@assignment.outer", i = "@assignment.inner" }),
-          ["="] = spec_treesitter({ a = "@assignment.rhs", i = "@assignment.lhs" }),
-          ["#"] = spec_treesitter({ a = "@number.outer", i = "@number.inner" }),
           d = gen_ai_spec.diagnostic(),                                                                                           -- diagnostic textobj
           e = gen_ai_spec.line(),                                                                                                 -- line textobj
           h = { { "<(%w-)%f[^<%w][^<>]->.-</%1>" }, { "%f[%w]%w+=()%b{}()", '%f[%w]%w+=()%b""()', "%f[%w]%w+=()%b''()" } },       -- html attribute textobj
           k = { { "\n.-[=:]", "^.-[=:]" }, "^%s*()().-()%s-()=?[!=<>\\+-\\*]?[=:]" },                                             -- key textobj
           v = { { "[=:]()%s*().-%s*()[;,]()", "[=:]=?()%s*().*()().$" } },                                                        -- value textobj
-          N = gen_ai_spec.number(),                                                                                               -- number(inside string) textobj { '[-+]?()%f[%d]%d+()%.?%d*' }
+          m = gen_ai_spec.number(),                                                                                               -- number(inside string) textobj { '[-+]?()%f[%d]%d+()%.?%d*' }
           x = { '#()%x%x%x%x%x%x()' },                                                                                            -- hexadecimal textobj
           o = { "%S()%s+()%S" },                                                                                                  -- whitespace textobj
-          S = { { '%u[%l%d]+%f[^%l%d]', '%f[%S][%l%d]+%f[^%l%d]', '%f[%P][%l%d]+%f[^%l%d]', '^[%l%d]+%f[^%l%d]', }, '^().*()$' }, -- sub word textobj https://github.com/echasnovski/mini.nvim/blob/main/doc/mini-ai.txt
-          u = { { "%b''", '%b""', '%b``' }, '^.().*().$' },                                                                       -- quote textobj
+          u = { { '%u[%l%d]+%f[^%l%d]', '%f[%S][%l%d]+%f[^%l%d]', '%f[%P][%l%d]+%f[^%l%d]', '^[%l%d]+%f[^%l%d]', }, '^().*()$' }, -- sub word textobj https://github.com/echasnovski/mini.nvim/blob/main/doc/mini-ai.txt
 
           -- https://thevaluable.dev/vim-create-text-objects
           -- select indent by the same or mayor level delimited by blank-lines
@@ -130,6 +132,15 @@ return {
         n_lines = 500, -- search range and required by functions less than 500 LOC
       })
 
+      require('mini.indentscope').setup({
+        options = { indent_at_cursor = false, },
+        mappings = {
+          object_scope = 'iI',
+          object_scope_with_border = 'aI',
+        },
+        symbol = '',
+      })
+
       require('mini.surround').setup({
         mappings = {
           add = 'gza',            -- Add surrounding in Normal and Visual modes
@@ -142,48 +153,47 @@ return {
         },
       })
 
-      require("mini.files").setup({
-        windows = {
-          max_number = math.huge,
-          preview = true,
-          width_focus = 30,
-          width_nofocus = 15,
-          width_preview = 60,
-        },
-      })
+      require('mini.align').setup()
+      require('mini.bracketed').setup({ undo = { suffix = '' } })
+      require('mini.operators').setup()
+      require('mini.splitjoin').setup()
+      require('mini.trailspace').setup()
 
       require('mini.base16').setup({
-        -- `:Inspect` and `:hi <@treesitter>` to reverse engineering a colorscheme
+        -- `:Inspect` to reverse engineering a colorscheme
+        -- `:hi <@treesitter>` to view colors of `:Inspect` output
+        -- `:lua require("snacks").picker.highlights()` to view generated colorscheme
         -- https://github.com/NvChad/base46/tree/v2.5/lua/base46/themes for popular colorscheme palettes
+        -- https://github.com/echasnovski/mini.nvim/discussions/36 community palettes
         palette = {
-          -- nvchad tokyonight
-          base00 = "#1a1b26", -- default bg
-          base01 = "#16161e", -- line number bg
-          base02 = "#2f3549", -- statusline bg, selection bg
-          base03 = "#444b6a", -- line number fg, comments
-          base04 = "#787c99", -- statusline fg
-          base05 = "#a9b1d6", -- default fg, delimiters
-          base06 = "#cbccd1", -- light fg (not often used)
-          base07 = "#d5d6db", -- light bg (not often used)
-          base08 = "#7aa2f7", -- variables, tags, Diff delete
-          base09 = "#ff9e64", -- integers, booleans, constants, search fg
-          base0A = "#0db9d7", -- classes, search bg
-          base0B = "#73daca", -- strings, Diff insert
-          base0C = "#2ac3de", -- builtins, regex
-          base0D = "#7aa2f7", -- functions
-          base0E = "#bb9af7", -- keywords, Diff changed
-          base0F = "#7aa2f7", -- punctuation, indentscope
+          -- nvchad poimandres
+          base00 = "#1b1e28", -- default bg, terminal_color_0
+          base01 = "#171922", -- line number bg, popup bg
+          base02 = "#32384a", -- statusline bg, tabline bg, selection bg
+          base03 = "#3b4258", -- line number fg, comments, terminal_color_8
+          base04 = "#48506a", -- statusline fg, tabline inactive fg
+          base05 = "#A6ACCD", -- default fg, tabline fg, terminal_color_7
+          base06 = "#b6d7f4", -- unused
+          base07 = "#ffffff", -- terminal_color_15
+          base08 = "#A6ACCD", -- return, Diff delete, Diagnostic Error
+          base09 = "#D0679D", -- integers, booleans, constants, search
+          base0A = "#5DE4C7", -- classes, search, tag signs/attributes
+          base0B = "#5DE4C7", -- strings, Diff added
+          base0C = "#89DDFF", -- builtins, Diagnostic Info
+          base0D = "#ADD7FF", -- functions, Diagnostic Hint
+          base0E = "#91B4D5", -- keywords (def, for), Diff changed, Diagnostic Warn
+          base0F = "#FFFFFF", -- punctuation, regex, indentscope
         },
         use_cterm = true,     -- required if `vi -c 'Pick files'`
       })
 
-      vim.api.nvim_set_hl(0, "@property", { fg = "#7aa2f7" })
-      vim.api.nvim_set_hl(0, "@field", { fg = "#7aa2f7" })
-      vim.api.nvim_set_hl(0, "@keyword", { fg = "#9d7cd8" })
-      vim.api.nvim_set_hl(0, "@keyword.function", { fg = "#6e51a2" })
+      -- poimandres transparency
       vim.api.nvim_set_hl(0, "Normal", { bg = "NONE" })
       vim.api.nvim_set_hl(0, "NormalNC", { bg = "NONE" })
-      vim.api.nvim_set_hl(0, "FoldColumn", { bg = "NONE" })
+      vim.api.nvim_set_hl(0, "MsgArea", { bg = "NONE" })
+      vim.api.nvim_set_hl(0, "MiniClueBorder", { bg = "NONE" })
+      vim.api.nvim_set_hl(0, "MiniClueTitle", { bg = "NONE" })
+      vim.api.nvim_set_hl(0, "MiniClueDescSingle", { link = "Pmenu" })
       vim.api.nvim_set_hl(0, "MiniStatuslineFilename", { bg = "NONE" })
       vim.api.nvim_set_hl(0, "MiniCursorwordCurrent", { underline = false, bg = "#1c1c2c" })
       vim.api.nvim_set_hl(0, "MiniCursorword", { bg = "#1c1c2c" })
@@ -191,34 +201,98 @@ return {
       vim.api.nvim_set_hl(0, "SignColumn", { bg = "NONE" })
       vim.api.nvim_set_hl(0, "Statusline", { bg = "NONE" })
       vim.api.nvim_set_hl(0, "StatuslineNC", { bg = "NONE" })
+
+      -- poimandres custom colors
+      vim.api.nvim_set_hl(0, "Comment", { fg = "#5c5c5c", })
+      vim.api.nvim_set_hl(0, "Visual", { bg = "#2c2c2c" })
+      vim.api.nvim_set_hl(0, "diffAdded", { fg = "#009900" })
+      vim.api.nvim_set_hl(0, "diffChanged", { fg = "#3C3CFf" })
+      vim.api.nvim_set_hl(0, "diffRemoved", { fg = "#ff0000" })
+      vim.api.nvim_set_hl(0, "DiffAdd", { fg = "#009900" })
+      vim.api.nvim_set_hl(0, "DiffChange", { fg = "#3C3CFf" })
+      vim.api.nvim_set_hl(0, "DiffDelete", { fg = "#990000" })
+      vim.api.nvim_set_hl(0, "DiffText", { bg = "#3C3CFf", fg = "#ffffff" })
       vim.api.nvim_set_hl(0, "GitSignsAdd", { fg = "#009900" })
       vim.api.nvim_set_hl(0, "GitSignsChange", { fg = "#3C3CFf" })
       vim.api.nvim_set_hl(0, "GitSignsDelete", { fg = "#990000" })
-      vim.api.nvim_set_hl(0, "PmenuSel", { fg = "NONE", bg = "#2c2c2c" })
 
-      require('mini.align').setup()
-      require('mini.bracketed').setup({ undo = { suffix = '' } })
-      require('mini.completion').setup({ delay = { completion = 10 ^ 7, info = 100, signature = 50 }, })
+      -- poimandres same as the original
+      vim.api.nvim_set_hl(0, "DiagnosticError", { fg = "#D0679D" })
+      vim.api.nvim_set_hl(0, "DiagnosticHint", { fg = "#89DDFF" })
+      vim.api.nvim_set_hl(0, "DiagnosticInfo", { fg = "#91B4D5" })
+      vim.api.nvim_set_hl(0, "DiagnosticWarn", { fg = "#FFFAC2" })
+      vim.api.nvim_set_hl(0, "DiagnosticSignError", { fg = "#D0679D" })
+      vim.api.nvim_set_hl(0, "DiagnosticSignHint", { fg = "#89DDFF" })
+      vim.api.nvim_set_hl(0, "DiagnosticSignInfo", { fg = "#91B4D5" })
+      vim.api.nvim_set_hl(0, "DiagnosticSignWarn", { fg = "#FFFAC2" })
+      vim.api.nvim_set_hl(0, "DiagnosticUnderlineError", { underline = true, sp = "#D0679D" })
+      vim.api.nvim_set_hl(0, "DiagnosticUnderlineHint", { underline = true, sp = "#89DDFF" })
+      vim.api.nvim_set_hl(0, "DiagnosticUnderlineInfo", { underline = true, sp = "#91B4D5" })
+      vim.api.nvim_set_hl(0, "DiagnosticUnderlineWarn", { underline = true, sp = "#FFFAC2" })
+      vim.api.nvim_set_hl(0, "Number", { fg = "#5de4c7" })
+      vim.api.nvim_set_hl(0, "Constant", { fg = "#5de4c7" })
+      vim.api.nvim_set_hl(0, "Boolean", { fg = "#5de4c7" })
+      vim.api.nvim_set_hl(0, "Search", { fg = "#FFFFFF", bg = "#506477" })
+      vim.api.nvim_set_hl(0, "CurSearch", { fg = "#171922", bg = "#ADD7FF" })
+      vim.api.nvim_set_hl(0, "IncSearch", { fg = "#171922", bg = "#ADD7FF" })
+      vim.api.nvim_set_hl(0, "Special", { fg = "#767c9d" })
+      vim.api.nvim_set_hl(0, "Type", { fg = "#a6accd" })
+
+      local function add_vscode_snippets_to_rtp()
+        local extensions_dir = vim.fs.joinpath(vim.env.HOME, '.vscode', 'extensions')
+
+        -- Get all snippet directories using glob
+        local snippet_dirs = vim.fn.globpath(
+          extensions_dir,
+          '*/snippets', -- Matches any extension/snippets directory
+          true,         -- recursive
+          true          -- return as list
+        )
+
+        -- Add to runtimepath (with nil checks)
+        for _, dir in ipairs(snippet_dirs) do
+          if vim.fn.isdirectory(dir) == 1 then
+            -- Normalize the path to handle OS-specific separators
+            local normalized_dir = vim.fs.normalize(dir)
+
+            local parent_dir = normalized_dir:gsub("/snippets$", "")
+            -- ~/.vscode/extensions/emranweb.daisyui-snippet-1.0.3/snippets/snippetshtml.code-snippets no contains a valid JSON object
+            -- ~/.vscode/extensions/imgildev.vscode-nextjs-generator-2.6.0/snippets/trpc.code-snippets no contains a valid JSON object
+            vim.opt.rtp:append(parent_dir)
+          end
+        end
+      end
+
+      add_vscode_snippets_to_rtp()
+      local gen_loader = require('mini.snippets').gen_loader
+      require('mini.snippets').setup({
+        snippets = { gen_loader.from_runtime("*") },
+        mappings = {
+          expand = '<a-.>',
+          jump_next = '<a-;>',
+          jump_prev = '<a-,>',
+        }
+      })
+
       require('mini.cursorword').setup()
       require('mini.extra').setup()
       require('mini.misc').setup_auto_root()
-      require('mini.operators').setup()
+      require('mini.misc').setup_restore_cursor()
+      require('mini.notify').setup()
       require('mini.pairs').setup()
-      require('mini.pick').setup()
-      require('mini.splitjoin').setup()
-      vim.opt.cmdheight = 0                                                        -- more space in the neovim command line for displaying messages
-      vim.opt.relativenumber = false                                               -- lazyvim uses relativenumber by default
-      vim.opt.virtualedit = "all"                                                  -- allow cursor bypass end of line
-      if vim.fn.has('nvim-0.11') == 1 then vim.opt.completeopt:append('fuzzy') end -- it should be after require("mini.completion").setup())
+      require("mini.tabline").setup()
+      vim.notify = MiniNotify.make_notify() -- `vim.print = MiniNotify.make_notify()` conflicts with `:=vim.opt.number`
+      vim.opt.virtualedit = "all"           -- allow cursor bypass end of line
+      vim.opt.relativenumber = false        -- normal numbering
+      vim.opt.cmdheight = 0                 -- more space in the neovim command line for displaying messages
 
       -- ╭────────────╮
       -- │ Navigation │
       -- ╰────────────╯
 
-      local map = vim.keymap.set
       local flash = require("flash")
       local gs = require("gitsigns")
-      local ts_repeat_move = require("nvim-treesitter.textobjects.repeatable_move")
+      local map = vim.keymap.set
 
       map({ "i" }, "jk", "<ESC>")
       map({ "i" }, "kj", "<ESC>")
@@ -239,7 +313,8 @@ return {
       map({ "v" }, "<", "<gv", { desc = "continious indent" })
       map({ "v" }, ">", ">gv", { desc = "continious indent" })
       map("i", "<Tab>", [[pumvisible() ? "\<C-n>" : "\<Tab>"]], { expr = true, desc = "next completion when no lsp" })
-      map("i", "<S-Tab>", [[pumvisible() ? "\<C-p>" : "\<S-Tab>"]], { expr = true, desc = "prev completion when no lsp" })
+      map("i", "<S-Tab>", [[pumvisible() ? "\<C-p>" : "\<S-Tab>"]],
+        { expr = true, desc = "prev completion when no lsp" })
       map({ "n", "v", "t" }, "<M-Left>", "<cmd>vertical resize -2<cr>", { desc = "vertical shrink" })
       map({ "n", "v", "t" }, "<M-Right>", "<cmd>vertical resize +2<cr>", { desc = "vertical expand" })
       map({ "n", "v", "t" }, "<M-Up>", "<cmd>resize -2<cr>", { desc = "horizontal shrink" })
@@ -253,163 +328,101 @@ return {
       map({ "t", "n" }, "<C-k>", "<C-\\><C-n><C-w>k", { desc = "up window" })
       map({ "t", "n" }, "<C-l>", "<C-\\><C-n><C-w>l", { desc = "right window" })
       map({ "t", "n" }, "<C-;>", "<C-\\><C-n><C-6>", { desc = "go to last buffer" })
-      map({ "n" }, "<right>", ":bnext<CR>", { desc = "next buffer" })
-      map({ "n" }, "<left>", ":bprevious<CR>", { desc = "prev buffer" })
-      map({ "n" }, "<leader>x", ":bp | bd! #<CR>", { desc = "Close Buffer" }) -- `bd!` forces closing terminal buffer
-      map({ "n" }, "<leader>;", ":buffer #<cr>", { desc = "Recent buffer" })
+      map({ "n" }, "<right>", "<cmd>bnext<CR>", { desc = "next buffer" })
+      map({ "n" }, "<left>", "<cmd>bprevious<CR>", { desc = "prev buffer" })
+      map({ "n" }, "<leader>x", "<cmd>bp | bd! #<CR>", { desc = "Close Buffer" }) -- `bd!` forces closing terminal buffer
+      map({ "n" }, "<leader>;", "<cmd>buffer #<cr>", { desc = "Recent buffer" })
       map({ "n" }, "Q", "<cmd>lua vim.cmd('quit')<cr>")
-      map({ "n" }, "R", "<cmd>lua vim.lsp.buf.format({ timeout_ms = 5000 }) vim.cmd('silent write') <cr>")
+      map({ "n" }, "R", "<cmd>lua vim.lsp.buf.format{ timeout_ms = 5000 } MiniTrailspace.trim() vim.cmd.write() <cr>")
 
       -- ╭────────────────╮
       -- │ leader keymaps │
       -- ╰────────────────╯
 
-      -- LSP
-      require("mason").setup()
-
-      -- https://github.com/NvChad/ui/blob/v3.0/lua/nvchad/mason/names.lua
-      local masonames = {
-        angularls = "angular-language-server",
-        astro = "astro-language-server",
-        bashls = "bash-language-server",
-        cmake = "cmake-language-server",
-        csharp_ls = "csharp-language-server",
-        css_variables = "css-variables-language-server",
-        cssls = "css-lsp",
-        cssmodules_ls = "cssmodules-language-server",
-        denols = "deno",
-        docker_compose_language_service = "docker-compose-language-service",
-        dockerls = "dockerfile-language-server",
-        emmet_language_server = "emmet-language-server",
-        emmet_ls = "emmet-ls",
-        eslint = "eslint-lsp",
-        graphql = "graphql-language-service-cli",
-        gitlab_ci_ls = "gitlab-ci-ls",
-        gopls = "gopls",
-        html = "html-lsp",
-        htmx = "htmx-lsp",
-        java_language_server = "java-language-server",
-        jdtls = "jdtls",
-        jsonls = "json-lsp",
-        lua_ls = "lua-language-server",
-        neocmake = "neocmakelsp",
-        nginx_language_server = "nginx-language-server",
-        omnisharp = "omnisharp",
-        prismals = "prisma-language-server",
-        pylsp = "python-lsp-server",
-        pylyzer = "pylyzer",
-        quick_lint_js = "quick-lint-js",
-        r_language_server = "r-languageserver",
-        ruby_lsp = "ruby-lsp",
-        ruff_lsp = "ruff-lsp",
-        rust_analyzer = "rust-analyzer",
-        svelte = "svelte-language-server",
-        tailwindcss = "tailwindcss-language-server",
-        ts_ls = "typescript-language-server",
-        volar = "vue-language-server",
-        vuels = "vetur-vls",
-        yamlls = "yaml-language-server",
-      }
-
-      -- extract installed lsp servers from mason.nvim
-      local servers = {}
-      local pkgs = require("mason-registry").get_installed_packages()
-      for _, pkgvalue in pairs(pkgs) do
-        if pkgvalue.spec.categories[1] == "LSP" then
-          table.insert(servers, pkgvalue.name)
-        end
-      end
-
-      -- update incompatible mason's lsp names according to nvim-lspconfig
-      -- https://github.com/NvChad/ui/blob/v3.0/lua/nvchad/mason/init.lua
-      for masonkey, masonvalue in pairs(masonames) do
-        for serverkey, servervalue in pairs(servers) do
-          if masonvalue == servervalue then
-            servers[serverkey] = masonkey
-          end
-        end
-      end
-
-      -- autoconfigure lsp servers installed by mason
-      for _, server in pairs(servers) do
-        local capabilities = vim.lsp.protocol.make_client_capabilities()
-        capabilities.textDocument.completion.completionItem.snippetSupport = true
-        local opts = { capabilities = capabilities }
-
-        require("lspconfig")[server].setup(opts)
-      end
-
-      -- https://github.com/creativenull/efmls-configs-nvim/tree/v1.9.0/lua/efmls-configs/formatters
-      -- https://github.com/creativenull/efmls-configs-nvim/tree/v1.9.0/lua/efmls-configs/linters
-      if vim.tbl_contains(servers, "efm") then
-        require("lspconfig").efm.setup {
-          init_options = { documentFormatting = true },
-          settings = {
-            rootMarkers = { ".git/" },
-            languages = {
-              python = { { formatCommand = "black -", formatStdin = true } },
-              javascript = { { formatCommand = "prettier --stdin-filepath '${INPUT}'", formatStdin = true } },
-              javascriptreact = { { formatCommand = "prettier --stdin-filepath '${INPUT}'", formatStdin = true } },
-              typescript = { { formatCommand = "prettier --stdin-filepath '${INPUT}'", formatStdin = true } },
-              typescriptreact = { { formatCommand = "prettier --stdin-filepath '${INPUT}'", formatStdin = true } },
-              css = { { formatCommand = "prettier --stdin-filepath '${INPUT}'", formatStdin = true } },
-              html = { { formatCommand = "prettier --stdin-filepath '${INPUT}'", formatStdin = true } },
-              json = { { formatCommand = "prettier --stdin-filepath '${INPUT}'", formatStdin = true } },
-              markdown = { { formatCommand = "prettier --stdin-filepath '${INPUT}'", formatStdin = true } },
-              yaml = { { formatCommand = "prettier --stdin-filepath '${INPUT}'", formatStdin = true } },
-            }
-          }
-        }
-      end
-
       map("n", "<leader>l", "", { desc = "+LSP" })
       map("n", "<leader>lA", function() vim.lsp.buf.code_action() end, { desc = "Code Action" })
       map("n", "<leader>lc", function() vim.lsp.buf.incoming_calls() end, { desc = "Incoming Calls" })
       map("n", "<leader>lC", function() vim.lsp.buf.outcoming_calls() end, { desc = "Outcoming Calls" })
-      map("n", "<leader>ld", ":Pick lsp scope='definition'<cr>", { desc = "Goto Definition" })
-      map("n", "<leader>lD", ":Pick lsp scope='declaration'<cr>", { desc = "Goto Declaration" })
+      map("n", "<leader>ld", function() require("snacks").picker.lsp_definitions() end, { desc = "Pick Definition" })
+      map("n", "<leader>lD", function() require("snacks").picker.lsp_declarations() end, { desc = "Pick Declaration" })
       map("n", "<leader>lF", function() vim.lsp.buf.format({ timeout_ms = 5000 }) end, { desc = "Format" })
       map("n", "<leader>lh", function() vim.lsp.buf.signature_help() end, { desc = "Signature" })
       map("n", "<leader>lH", function() vim.lsp.buf.hover() end, { desc = "Hover" })
-      map("n", "<leader>lI", ":Pick lsp scope='implementation'<cr>", { desc = "Goto Implementation" })
-      map("n", "<leader>lm", ":Mason<cr>", { desc = "Mason" })
-      map("n", "<leader>ln", function() vim.diagnostic.jump { count = 1, float = true } end, { desc = "next diagnostic" })
+      map("n", "<leader>lI", function() require("snacks").picker.lsp_implementations() end,
+        { desc = "Pick Implementation" })
+      map("n", "<leader>lm", function() vim.cmd("Mason") end, { desc = "Mason" })
+      map("n", "<leader>lM", function() vim.cmd("checkhealth vim.lsp") end, { desc = "LspInfo" })
+      map("n", "<leader>ln", function() vim.diagnostic.jump({ count = 1, float = true }) end,
+        { desc = "Next Diagnostic" })
       map("n", "<leader>lo", function() vim.diagnostic.open_float() end, { desc = "Open Diagnostic" })
-      map("n", "<leader>lp", function() vim.diagnostic.jump { count = -1, float = true } end, { desc = "prev diagnostc" })
-      map("n", "<leader>lq", ":Pick diagnostic<cr>", { desc = "Diagnostic List" })
-      map("n", "<leader>lr", ":Pick lsp scope='references'<cr>", { desc = "References" })
+      map("n", "<leader>lp", function() vim.diagnostic.jump({ count = -1, float = true }) end,
+        { desc = "Prev Diagnostic" })
+      map("n", "<leader>lq", function() require("snacks").picker.loclist() end, { desc = "Pick LocList" })
+      map("n", "<leader>lr", function() require("snacks").picker.lsp_references() end, { desc = "Pick References" })
       map("n", "<leader>lR", function() vim.lsp.buf.rename() end, { desc = "Rename" })
-      map("n", "<leader>ls", ":Pick lsp scope='document_symbol'<cr>", { desc = "Document symbols" })
-      map("n", "<leader>ls", ":Pick lsp scope='workspace_symbol'<cr>", { desc = "Workspace symbol" })
-      map("n", "<leader>lt", ":Pick lsp scope='type_definition'<cr>", { desc = "Goto TypeDefinition" })
-      map("n", "<leader>l0", ":LspStop<cr>", { desc = "lsp stop" })
-      map("n", "<leader>o", ":lua MiniFiles.open()<cr>", { desc = "Open Explorer (CWD)" })
-      map("n", "<leader>O", ":lua MiniFiles.open(vim.api.nvim_buf_get_name(0))<cr>", { desc = "Open Explorer" })
+      map("n", "<leader>ls", function() require("snacks").picker.lsp_symbols() end, { desc = "Pick symbols" })
+      map("n", "<leader>lt", function() require("snacks").picker.lsp_type_definitions() end,
+        { desc = "Pick TypeDefinition" })
       map("n", "<leader>f", "", { desc = "+Find" })
-      map("n", "<leader>ff", ":Pick files<cr>", { desc = "Files (tab to preview)" })
-      map("n", "<leader>f/", ":Pick git_files<cr>", { desc = "Git/hidden files (tab to preview)" })
-      map("n", "<leader>fg", ":Pick grep_live<cr>", { desc = "Grep (tab to preview)" })
-      map("n", "<leader>f'", ":Pick marks<cr>", { desc = "Marks (tab to preview)" })
-      map("n", '<leader>f"', ":Pick registers<cr>", { desc = "register (:help quote)" })
-      map("n", "<leader>fn", ":lua MiniNotify.show_history()<cr>", { desc = "Notify history" })
+      map("n", "<leader>fb", function() require("snacks").picker.grep() end, { desc = "buffers" })
+      map("n", "<leader>fB", function() require("snacks").picker.grep() end, { desc = "ripgrep on buffers" })
+      map("n", "<leader>fc", function() require("snacks").picker.colorschemes() end, { desc = "colorscheme" })
+      map("n", "<leader>fk", function() require("snacks").picker.keymaps() end, { desc = "keymaps" })
+      map("n", "<leader>ff", function() require("snacks").picker.files() end, { desc = "files" })
+      map(
+        "n",
+        "<leader>fg",
+        function() require("snacks").picker.grep({ layout = "ivy_split", filter = { cwd = true }, }) end,
+        { desc = "ripgrep" }
+      )
+      map("n", "<leader>fn", function() MiniNotify.show_history() end, { desc = "Notify history" })
+      map("n", "<leader>fp", function() require("snacks").picker.projects() end, { desc = "projects" })
+      map("n", "<leader>fq", function() require("snacks").picker.qflist() end, { desc = "quickfix list" })
+      map("n", "<leader>fr", function() require("snacks").picker.recent() end, { desc = "recent files" })
+      map("n", '<leader>f"', function() require("snacks").picker.registers() end, { desc = "register (:help quote)" })
+      map("n", "<leader>f/", function() require("snacks").picker.git_files() end, { desc = "find git (sorted) files" })
+      map("n", "<leader>f;", function() require("snacks").picker.jumps() end, { desc = "jumps" })
+      map("n", "<leader>f'", function() require("snacks").picker.marks() end, { desc = "marks" })
+      map("n", "<leader>f.", function() require("snacks").picker.resume() end, { desc = "resume" })
       map("n", "<leader>g", "", { desc = "+Git" })
-      map("n", "<leader>gg", ":lua vim.cmd[[terminal lazygit]] vim.cmd[[set ft=terminal]]<cr>", { desc = "lazygit" })
+      map("n", "<leader>gg", "<cmd>term lazygit<cr><cmd>set ft=terminal<cr>", { desc = "lazygit" })
       map("n", "<leader>gp", ":Gitsigns preview_hunk<cr>", { silent = true, desc = "Preview GitHunk" })
       map("n", "<leader>gr", ":Gitsigns reset_hunk<cr>", { silent = true, desc = "Reset GitHunk" })
       map("n", "<leader>gs", ":Gitsigns stage_hunk<cr>", { silent = true, desc = "Stage GitHunk" })
       map("n", "<leader>gS", ":Gitsigns undo_stage_hunk<cr>", { silent = true, desc = "Undo stage GitHunk" })
+      map(
+        "n",
+        "<leader>gd",
+        "<cmd>diffthis | vertical new | diffthis | read !git show HEAD^:#<cr>",
+        { desc = "git difftool -t nvimdiff" }
+      )
+      map("n", "<leader>e", "<cmd>lua Snacks.explorer()<cr>", { desc = "Toggle Explorer" })
+      map(
+        "n",
+        "<leader>o",
+        function()
+          Snacks.explorer.open({ auto_close = true, layout = { preset = 'default', preview = true } })
+        end,
+        { desc = "Explorer with preview" }
+      )
       map("n", "<leader>u", "", { desc = "+UI toggle" })
-      map("n", "<leader>u0", ":set showtabline=0<cr>", { desc = "Buffer Hide" })
-      map("n", "<leader>u2", ":set showtabline=2<cr>", { desc = "Buffer Show" })
-      map("n", "<leader>um", ":SupermavenStop<cr>", { desc = "Supermaven stop" })
-      map("n", "<leader>uM", ":SupermavenStart<cr>", { desc = "Supermaven start" })
-      map("n", "<leader>us", ":set laststatus=0<cr>", { desc = "StatusBar Hide" })
-      map("n", "<leader>uS", ":set laststatus=3<cr>", { desc = "StatusBar Show" })
+      map("n", "<leader>u0", "<cmd>set showtabline=0<cr>", { desc = "Buffer Hide" })
+      map("n", "<leader>u2", "<cmd>set showtabline=2<cr>", { desc = "Buffer Show" })
+      map("n", "<leader>uf", "<cmd>lua vim.o.foldmethod='indent'<cr>", { desc = "fold by indent" })
+      map("n", "<leader>uF", "<cmd>lua vim.o.foldmethod='expr'<cr>", { desc = "fold by lsp" })
+      map("n", "<leader>ul", "<cmd>set cursorline!<cr>", { desc = "toggle cursorline" })
+      map("n", "<leader>um", "<cmd>SupermavenStop<cr>", { desc = "Supermaven stop" })
+      map("n", "<leader>uM", "<cmd>SupermavenStart<cr>", { desc = "Supermaven start" })
+      map("n", "<leader>us", "<cmd>set laststatus=0<cr>", { desc = "StatusBar Hide" })
+      map("n", "<leader>uS", "<cmd>set laststatus=3<cr>", { desc = "StatusBar Show" })
       map("n", "<leader>t", "", { desc = "+Terminal" })
-      map("n", "<leader>tt", ":lua vim.cmd [[ terminal ]] <cr>", { desc = "buffer terminal" })
-      map("n", "<leader>ty", ":lua vim.cmd [[ terminal yazi]] vim.cmd[[set filetype=terminal]]<cr>", { desc = "yazi" })
-      map("n", "<leader>v", ":lua vim.cmd [[ split  | terminal ]] <cr>", { desc = "vertical terminal" })
-      map("n", "<leader>V", ":lua vim.cmd [[ vsplit | terminal ]] <cr>", { desc = "horizontal terminal" })
+      map("n", "<leader>tt", "<cmd>terminal <cr>", { desc = "buffer terminal" })
+      map("n", "<leader>ty", "<cmd>terminal yazi<cr><cmd>set ft=terminal<cr>", { desc = "yazi" })
+      map("n", "<leader>v", "<cmd>vsplit | terminal<cr>", { desc = "vertical terminal" })
+      map("n", "<leader>V", "<cmd>split  | terminal<cr>", { desc = "horizontal terminal" })
+      map("n", "<leader>w", "", { desc = "+Window" })
+      map("n", "<leader>wv", "<cmd>vsplit<cr>", { desc = "vertical window" })
+      map("n", "<leader>wV", "<cmd>split<cr>", { desc = "horizontal window" })
       map("n", "<leader><leader>p", '"*p', { desc = "Paste after (second_clip)" })
       map("n", "<leader><leader>P", '"*P', { desc = "Paste before (second_clip)" })
       map("x", "<leader><leader>p", '"*p', { desc = "Paste (second_clip)" })           -- "Paste after (second_clip)"
@@ -426,7 +439,7 @@ return {
       -- https://vi.stackexchange.com/questions/22570/is-there-a-way-to-move-to-the-beginning-of-the-next-text-object
       map(
         { "n", "x" },
-        "gh",
+        "gT",
         function()
           local ok1, tobj_id1 = pcall(vim.fn.getcharstr)
           local ok2, tobj_id2 = pcall(vim.fn.getcharstr)
@@ -442,7 +455,7 @@ return {
       )
       map(
         { "n", "x" },
-        "gl",
+        "gt",
         function()
           local ok1, tobj_id1 = pcall(vim.fn.getcharstr)
           local ok2, tobj_id2 = pcall(vim.fn.getcharstr)
@@ -475,25 +488,23 @@ return {
       map({ "x" }, "g<Down>", "g<c-x>", { desc = "numbers descending" })
       map({ "n", "x" }, "g+", "<C-a>", { desc = "Increment number (dot to repeat)" })
       map({ "n", "x" }, "g-", "<C-x>", { desc = "Decrement number (dot to repeat)" })
+      map({ "o", "x" }, "gh", ":<c-u>Gitsigns select_hunk<cr>", { desc = "Git hunk textobj" })
 
       -- ╭───────────────────────────────────────╮
       -- │ Text Objects with "g" (dot to repeat) │
       -- ╰───────────────────────────────────────╯
 
       map({ "n" }, "vgc", "<cmd>lua require('mini.comment').textobject()<cr>", { desc = "select BlockComment" })
-      map({ "o", "x" }, "gC", ":<c-u>lua require('mini.comment').textobject()<cr>", { desc = "BlockComment textobj" })
-      map({ "o", "x" }, "gf", "gn", { desc = "Next find textobj" })
-      map({ "o", "x" }, "gF", "gN", { desc = "Prev find textobj" })
-      map({ "o", "x" }, "gh", ":<c-u>Gitsigns select_hunk<cr>", { desc = "Git hunk textobj" })
+      map({ "o", "x" }, "gC", function() require('mini.comment').textobject() end, { desc = "BlockComment textobj" })
+      map({ "o", "x" }, "g>", "gn", { desc = "Next find textobj" })
+      map({ "o", "x" }, "g<", "gN", { desc = "Prev find textobj" })
 
       -- ╭───────────────────────────────────────╮
       -- │ Text Objects with a/i (dot to repeat) │
       -- ╰───────────────────────────────────────╯
 
-      map({ "o", "x" }, "iI", function() require("mini.indentscope").textobject(false) end, { desc = "indent blank" })
-      map({ "o", "x" }, "aI", function() require("mini.indentscope").textobject(true) end, { desc = "indent blank" })
-      map({ "o", "x" }, "ii", function() require("mini.ai").select_textobject("i", "i") end, { desc = "indent" })
-      map({ "o", "x" }, "ai", ":normal Viik<cr>", { desc = "indent" })
+      map({ "o", "x" }, "ii", function() require("mini.ai").select_textobject("i", "i") end, { desc = "indent_noblanks" })
+      map({ "o", "x" }, "ai", "<cmd>normal Viik<cr>", { desc = "indent_noblanks" })
       map(
         { "o", "x" },
         "iy",
@@ -512,38 +523,85 @@ return {
         end,
         { desc = "same_indent" }
       )
-      map({ "x" }, "iz", ":<c-u>normal! [zjV]zk<cr>", { desc = "inner fold" })
-      map({ "o" }, "iz", ":normal Viz<CR>", { desc = "inner fold" })
-      map({ "x" }, "az", ":<c-u>normal! [zV]z<cr>", { desc = "outer fold" })
-      map({ "o" }, "az", ":normal Vaz<cr>", { desc = "outer fold" })
+      map({ "x" }, "iz", ":<c-u>normal! [zjV]z<cr>", { silent = true, desc = "inner fold" })
+      map({ "o" }, "iz", ":normal Viz<CR>", { silent = true, desc = "inner fold" })
+      map({ "x" }, "az", ":<c-u>normal! [zV]z<cr>", { silent = true, desc = "outer fold" })
+      map({ "o" }, "az", ":normal Vaz<cr>", { silent = true, desc = "outer fold" })
+
+      -- ╭──────────────────────────────────────────╮
+      -- │ Repeatable Pair - motions using <leader> │
+      -- ╰──────────────────────────────────────────╯
+
+      local M = {}
+      M.last_move = {}
+
+      -- https://github.com/nvim-treesitter/nvim-treesitter-textobjects/blob/master/lua/nvim-treesitter/textobjects/repeatable_move.lua
+      M.repeat_last_move = function(opts_extend)
+        if M.last_move then
+          local opts = vim.tbl_deep_extend("force", {}, M.last_move.opts, opts_extend)
+          M.last_move.func(opts, unpack(M.last_move.additional_args))
+        end
+      end
+
+      map({ "n", "x", "o" }, ";", function() M.repeat_last_move { forward = true } end, { desc = "Next TS textobj" })
+      map({ "n", "x", "o" }, ",", function() M.repeat_last_move { forward = false } end, { desc = "Prev TS textobj" })
+
+      M.make_repeatable_move_pair = function(forward_move_fn, backward_move_fn)
+        local set_last_move = function(move_fn, opts, ...)
+          M.last_move = { func = move_fn, opts = vim.deepcopy(opts), additional_args = { ... } }
+        end
+
+        local general_repeatable_move_fn = function(opts, ...)
+          if opts.forward then
+            forward_move_fn(...)
+          else
+            backward_move_fn(...)
+          end
+        end
+
+        local repeatable_forward_move_fn = function(...)
+          set_last_move(general_repeatable_move_fn, { forward = true }, ...)
+          forward_move_fn(...)
+        end
+
+        local repeatable_backward_move_fn = function(...)
+          set_last_move(general_repeatable_move_fn, { forward = false }, ...)
+          backward_move_fn(...)
+        end
+
+        return repeatable_forward_move_fn, repeatable_backward_move_fn
+      end
+
+      local next_columnmove, prev_columnmove = M.make_repeatable_move_pair(
+        function() M.ColumnMove(1) end,
+        function() M.ColumnMove(-1) end
+      )
+      map({ "n", "x", "o" }, "<leader><leader>j", next_columnmove, { desc = "Next ColumnMove" })
+      map({ "n", "x", "o" }, "<leader><leader>k", prev_columnmove, { desc = "Prev ColumnMove" })
 
       -- ╭──────────────────────────────────────────────────╮
       -- │ Repeatable Pair - textobj navigation using gn/gp │
       -- ╰──────────────────────────────────────────────────╯
 
-      -- _nvim-treesitter-textobjs_repeatable
-      map({ "n", "x", "o" }, ";", ts_repeat_move.repeat_last_move_next, { silent = true, desc = "Next TS textobj" })
-      map({ "n", "x", "o" }, ",", ts_repeat_move.repeat_last_move_previous, { silent = true, desc = "Prev TS textobj" })
-
-      local next_diagnostic, prev_diagnostic = ts_repeat_move.make_repeatable_move_pair(
+      local next_diagnostic, prev_diagnostic = M.make_repeatable_move_pair(
         function() vim.diagnostic.jump({ count = 1, float = true }) end,
         function() vim.diagnostic.jump({ count = -1, float = true }) end
       )
-      map({ "n", "x", "o" }, "gnd", next_diagnostic, { desc = "Next Diagnostic" })
-      map({ "n", "x", "o" }, "gpd", prev_diagnostic, { desc = "Prev Diagnostic" })
+      map({ "n", "x", "o" }, "gnd", next_diagnostic, { desc = "Diagnostic" })
+      map({ "n", "x", "o" }, "gpd", prev_diagnostic, { desc = "Diagnostic" })
 
-      local next_hunk_repeat, prev_hunk_repeat = ts_repeat_move.make_repeatable_move_pair(gs.next_hunk, gs.prev_hunk)
+      local next_hunk_repeat, prev_hunk_repeat = M.make_repeatable_move_pair(gs.next_hunk, gs.prev_hunk)
       map({ "n", "x", "o" }, "gnh", next_hunk_repeat, { silent = true, desc = "Next GitHunk" })
       map({ "n", "x", "o" }, "gph", prev_hunk_repeat, { silent = true, desc = "Prev GitHunk" })
 
-      local next_comment, prev_comment = ts_repeat_move.make_repeatable_move_pair(
+      local next_comment, prev_comment = M.make_repeatable_move_pair(
         function() require("mini.bracketed").comment("forward") end,
         function() require("mini.bracketed").comment("backward") end
       )
-      map({ "n", "x", "o" }, "gnc", next_comment, { desc = "Next Comment" })
-      map({ "n", "x", "o" }, "gpc", prev_comment, { desc = "Prev Comment" })
+      map({ "n", "x", "o" }, "gnc", next_comment, { desc = "Comment" })
+      map({ "n", "x", "o" }, "gpc", prev_comment, { desc = "Comment" })
 
-      local next_fold, prev_fold = ts_repeat_move.make_repeatable_move_pair(
+      local next_fold, prev_fold = M.make_repeatable_move_pair(
         function() vim.cmd([[ normal ]z ]]) end,
         function() vim.cmd([[ normal [z ]]) end
       )
@@ -551,7 +609,7 @@ return {
       map({ "n", "x", "o" }, "gpf", prev_fold, { desc = "Fold beginning" })
 
       local repeat_mini_ai = function(inner_or_around, key, desc)
-        local next, prev = ts_repeat_move.make_repeatable_move_pair(
+        local next, prev = M.make_repeatable_move_pair(
           function() require("mini.ai").move_cursor("left", inner_or_around, key, { search_method = "next" }) end,
           function() require("mini.ai").move_cursor("left", inner_or_around, key, { search_method = "prev" }) end
         )
@@ -559,42 +617,32 @@ return {
         map({ "n", "x", "o" }, "gp" .. inner_or_around .. key, prev, { desc = desc })
       end
 
-      repeat_mini_ai("i", "f", "function call")
-      repeat_mini_ai("a", "f", "function call")
-      repeat_mini_ai("i", "h", "html atrib")
-      repeat_mini_ai("a", "h", "html atrib")
+      repeat_mini_ai("i", "a", "argument")
+      repeat_mini_ai("a", "a", "argument")
+      repeat_mini_ai("i", "b", "brace")
+      repeat_mini_ai("a", "b", "brace")
+      repeat_mini_ai("i", "f", "func_call")
+      repeat_mini_ai("a", "f", "func_call")
+      repeat_mini_ai("i", "h", "html_atrib")
+      repeat_mini_ai("a", "h", "html_atrib")
       repeat_mini_ai("i", "k", "key")
       repeat_mini_ai("a", "k", "key")
-      repeat_mini_ai("i", "n", "number")
-      repeat_mini_ai("a", "n", "number")
-      repeat_mini_ai("i", "u", "quote")
-      repeat_mini_ai("a", "u", "quote")
+      repeat_mini_ai("i", "m", "number")
+      repeat_mini_ai("a", "m", "number")
+      repeat_mini_ai("i", "o", "whitespace")
+      repeat_mini_ai("a", "o", "whitespace")
+      repeat_mini_ai("i", "q", "quote")
+      repeat_mini_ai("a", "q", "quote")
+      repeat_mini_ai("i", "t", "tag")
+      repeat_mini_ai("a", "t", "tag")
+      repeat_mini_ai("i", "u", "subword")
+      repeat_mini_ai("a", "u", "subword")
       repeat_mini_ai("i", "v", "value")
       repeat_mini_ai("a", "v", "value")
       repeat_mini_ai("i", "x", "hexadecimal")
       repeat_mini_ai("a", "x", "hexadecimal")
-      repeat_mini_ai("i", "K", "@block.inner")
-      repeat_mini_ai("a", "K", "@block.outer")
-      repeat_mini_ai("i", "Q", "@call.inner")
-      repeat_mini_ai("a", "Q", "@call.outer")
-      repeat_mini_ai("i", "g", "@comment.inner")
-      repeat_mini_ai("a", "g", "@comment.outer")
-      repeat_mini_ai("i", "G", "@conditional.inner")
-      repeat_mini_ai("a", "G", "@conditional.outer")
-      repeat_mini_ai("i", "F", "@function.inner")
-      repeat_mini_ai("a", "F", "@function.outer")
-      repeat_mini_ai("i", "L", "@loop.inner")
-      repeat_mini_ai("a", "L", "@loop.outer")
-      repeat_mini_ai("i", "P", "@parameter.inner")
-      repeat_mini_ai("a", "P", "@parameter.outer")
-      repeat_mini_ai("i", "R", "@return.inner")
-      repeat_mini_ai("a", "R", "@return.outer")
-      repeat_mini_ai("i", "A", "@assignment.inner")
-      repeat_mini_ai("a", "A", "@assignment.outer")
-      repeat_mini_ai("i", "=", "@assignment.lhs")
-      repeat_mini_ai("a", "=", "@assignment.rhs")
-      repeat_mini_ai("i", "#", "@number.inner")
-      repeat_mini_ai("a", "#", "@number.outer")
-    end
+      repeat_mini_ai("i", "?", "user_prompt")
+      repeat_mini_ai("a", "?", "user_prompt")
+    end,
   },
 }
