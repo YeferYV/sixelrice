@@ -1,0 +1,15 @@
+#!/bin/bash
+
+yellow=$(tput setaf 3) # 3 = yellow text
+reset=$(tput sgr0)     # white text by default
+
+clear
+echo $yellow
+echo -e "usage:"
+echo -e "export APPIMAGE_EXTRACT_AND_RUN=1"
+echo -e "./zsh.appimage \n\n\n"
+echo $reset
+
+$APPDIR/usr/environment.sh -o $APPDIR/usr
+export ZDOTDIR="$APPDIR/usr/home/user/.config/zsh"
+exec "$APPDIR/usr/env/bin/zsh" "$@"

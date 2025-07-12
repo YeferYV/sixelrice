@@ -1,5 +1,0 @@
-#!/bin/bash
-
-pkill --signal SIGWINCH lf
-rm /tmp/imagemagick.png # if root writes it then non-root user can't overwrite it so delete it
-rm /tmp/00000001.jpg    # if root writes it then non-root user can't overwrite it so delete it

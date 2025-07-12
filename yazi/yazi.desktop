@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Yazi
+Exec=yazi %F
+Terminal=true
+Type=Application
+Icon=yazi
+Categories=Utility;FileManager;

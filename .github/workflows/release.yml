@@ -1,0 +1,126 @@
+# ╭──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+# │ systemctl start docker && act -s VSCE_TOKEN -s GITHUB_TOKEN="$(gh auth token)" -j upload-release --artifact-server-path ./artifacts --action-offline-mode --action-cache-path "$HOME/.cache/act" │
+# ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+# https://github.com/nektos/act/issues/2433
+name: Upload_Release
+
+on:
+  push:
+    branches:
+      - main
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  upload-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      # https://www.youtube.com/watch?v=P0wAXh5UOnM
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          release-type: node
+
+      - name: Checkout 🛬
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/checkout@v4
+
+      - name: Build Appimages 🚀
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+
+          #####################################################################################################################################################################################################################################################################################################################################################################
+
+          git submodule update --init --recursive
+          rm -rf .config/_gitmodules/retronvim/nvim/plugins/site/pack/deps/opt/snacks.nvim/tests
+          rm -rf .config/_gitmodules/retronvim/nvim/plugins/site/pack/deps/start/mini.nvim/tests
+
+          curl -L pixi.sh/install.sh | bash
+          export PATH="$HOME/.pixi/bin:$PATH"
+
+          curl  -o appimagetool -L https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool
+
+          #####################################################################################################################################################################################################################################################################################################################################################################
+
+          (
+            mkdir -p kanata/usr/bin
+            curl  -o kanata/usr/bin/kanata -L https://github.com/jtroo/kanata/releases/download/v1.9.0/kanata_cmd_allowed
+            chmod +x kanata/usr/bin/kanata
+            mkdir -p kanata/usr/home/user/.config
+            cp    -r .config/_gitmodules/retronvim/kanata kanata/usr/home/user/.config
+          )
+          (
+            mkdir -p mpv_appimage
+            cd       mpv_appimage
+            curl  -s https://api.github.com/repos/ivan-hc/MPV-appimage/releases/latest | grep -m1 browser_download_url | cut --delimiter='"' --fields=4 | xargs -I {} curl -o mpv.appimage -L {}
+            chmod +x mpv.appimage
+            ./mpv.appimage --appimage-extract
+            cp    -r squashfs-root/{.junest,.local,AppRun}                  ../mpv/
+            ENV=$(cat ../mpv/env)
+            sed   -i "1s|$|\n$ENV|"                                         ../mpv/AppRun
+            cp    -r ../.config/_gitmodules/mpv-gallery-view/script-modules ../mpv/usr/home/user/.config/mpv
+            cp    -r ../.config/_gitmodules/mpv-gallery-view/scripts        ../mpv/usr/home/user/.config/mpv
+          )
+          (
+            mkdir -p nvim_appimage
+            cd       nvim_appimage
+            curl  -o nvim.appimage -L https://github.com/neovim/neovim/releases/download/v0.11.3/nvim-linux-x86_64.appimage
+            chmod +x nvim.appimage
+            ./nvim.appimage --appimage-extract
+            mkdir -p ../nvim/usr/home/user/.config
+            cp    -r squashfs-root/usr/* ../nvim/usr
+            cp    -r ../.config/_gitmodules/retronvim/nvim ../nvim/usr/home/user/.config
+            rm    -r ../nvim/usr/share/metainfo
+          )
+          (
+            pixi global install bat=0.25.0 fzf=0.62.0 lazygit=0.52.0 p7zip=16.02 ripgrep=14.1.1 yazi=25.5.31
+            mkdir -p yazi/usr/bin
+            mkdir -p yazi/usr/home/user/.config
+            cp    -r ~/.pixi/envs/bat/bin/bat           yazi/usr/bin/
+            cp    -r ~/.pixi/envs/fzf/bin/fzf           yazi/usr/bin/
+            cp    -r ~/.pixi/envs/lazygit/bin/lazygit   yazi/usr/bin/
+            cp    -r ~/.pixi/envs/p7zip/bin/7z          yazi/usr/bin/
+            cp    -r ~/.pixi/envs/ripgrep/bin/rg        yazi/usr/bin/
+            cp    -r ~/.pixi/envs/yazi/bin/yazi         yazi/usr/bin/
+            cp    -r ~/.pixi/envs/p7zip/lib             yazi/usr/lib
+            cp    -r .config/_gitmodules/retronvim/yazi yazi/usr/home/user/.config
+          )
+          (
+            mkdir -p zsh_appimage
+            cd       zsh_appimage
+            pixi init
+            pixi global install pixi-pack=0.7.1
+            pixi add  --platform linux-64 eza=0.21.4 starship=1.22.1 zsh=5.9
+            pixi-pack --platform linux-64 --create-executable
+            mkdir -p ../zsh/usr/home/user/.config
+            cp    -r environment.sh ../zsh/usr/
+            cp    -r ../.config/_gitmodules/retronvim/zsh ../zsh/usr/home/user/.config
+          )
+          (
+            ARCH=x86_64 ./appimagetool kanata kanata.appimage
+            ARCH=x86_64 ./appimagetool mpv    mpv.appimage
+            ARCH=x86_64 ./appimagetool nvim   nvim.appimage
+            ARCH=x86_64 ./appimagetool yazi   yazi.appimage
+            ARCH=x86_64 ./appimagetool zsh    zsh.appimage
+          )
+
+          #####################################################################################################################################################################################################################################################################################################################################################################
+
+      - name: Github release 📦
+        if: ${{ steps.release.outputs.release_created }}
+        run: gh release upload ${{ steps.release.outputs.tag_name }} *.appimage
+
+      - name: Upload files to `./artifacts` 📤
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-release
+          path: *.appimagge

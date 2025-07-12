@@ -1,0 +1,1 @@
+export MPV_HOME="$APPDIR/usr/home/user/.config/mpv"

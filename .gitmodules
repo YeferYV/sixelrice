@@ -1,12 +1,6 @@
-[submodule "zsh/plugins/fast-syntax-highlighting"]
-	path = zsh/plugins/fast-syntax-highlighting
-	url = https://github.com/zdharma-continuum/fast-syntax-highlighting
-[submodule "zsh/plugins/zsh-autosuggestions"]
-	path = zsh/plugins/zsh-autosuggestions
-	url = https://github.com/zsh-users/zsh-autosuggestions
-[submodule "mpv/plugins/mpv-gallery-view"]
-	path = mpv/plugins/mpv-gallery-view
+[submodule ".config/_gitmodules/mpv-gallery-view"]
+	path = .config/_gitmodules/mpv-gallery-view
 	url = https://github.com/occivink/mpv-gallery-view
-[submodule "mpv/plugins/mpv-pdf"]
-	path = mpv/plugins/mpv-pdf
-	url = https://github.com/jgreco/mpv-pdf
+[submodule ".config/_gitmodules/retronvim"]
+	path = .config/_gitmodules/retronvim
+	url = https://github.com/yeferyv/retronvim

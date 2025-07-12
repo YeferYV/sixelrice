@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Kanata
+Exec=kanata %F
+Terminal=true
+Type=Application
+Icon=kanata
+Categories=Utility;

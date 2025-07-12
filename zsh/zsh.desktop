@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Zsh
+Exec=zsh %F
+Terminal=true
+Type=Application
+Icon=zsh
+Categories=Utility;

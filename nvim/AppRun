@@ -1,0 +1,5 @@
+#!/bin/bash
+
+unset ARGV0
+export VIMINIT="lua vim.cmd.source(vim.env.APPDIR .. [[/usr/home/user/.config/nvim/init.lua]])"
+exec "$(dirname "$(readlink  -f "${0}")")/usr/bin/nvim" ${@+"$@"}
