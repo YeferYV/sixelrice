@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.2](https://github.com/YeferYV/sixelrice/compare/v0.0.1...v0.0.2) (2025-07-16)
+
+### Bug Fixes
+
+* Error: release-please failed: You do not have permission to create labels on this repository.: {"resource":"Repository","field":"label","code":"unauthorized"} ([e424f50](https://github.com/YeferYV/sixelrice/commit/e424f50c31fa03c78c0d429ac0a9514bbe4a8e54))
+
 ## 0.0.1 (2025-07-16)
 
 ### Features
