@@ -13,15 +13,11 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# https://josh-ops.com/posts/gh-auth-login-in-actions/
-# https://stackoverflow.com/questions/76830110/github-cli-from-github-actions-workflow
-# https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#secrets-context
-env:
-  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # setting GH_TOKEN for the entire workflow
-
+# GitHub requires issues: write permission for label management since labels are shared between issues and pull requests
 permissions:
   contents: write
   pull-requests: write
+  issues: write
 
 jobs:
   upload-release:
