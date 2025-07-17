@@ -1,6 +1,6 @@
-# ╭──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-# │ systemctl start docker && act -s VSCE_TOKEN -s GITHUB_TOKEN="$(gh auth token)" -j upload-release --artifact-server-path ./artifacts --action-offline-mode --action-cache-path "$HOME/.cache/act" │
-# ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+# ╭────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+# │ systemctl start docker && act -s GITHUB_TOKEN="$(gh auth token)" -j upload-release --artifact-server-path ./artifacts --action-offline-mode --action-cache-path "$HOME/.cache/act" │
+# ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 
 # https://github.com/nektos/act/issues/2433
 name: Upload_Release
@@ -17,7 +17,7 @@ on:
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # setting GH_TOKEN for the entire workflow
 
-# GitHub requires issues: write permission for label management since labels are shared between issues and pull requests
+# GitHub requires `issues: write` permission for label management since labels are shared between issues and pull requests
 permissions:
   contents: write
   pull-requests: write

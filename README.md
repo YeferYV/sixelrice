@@ -10,7 +10,6 @@
         <br>
     </p>
 </div>
----
 
 **Install appimages from github releases**
 
@@ -32,4 +31,4 @@
   ```
 
 - `export APPIMAGE_EXTRACT_AND_RUN=1` to run `zsh.appimage` it's also required if you are inside docker
-- `sudo kanata & disown` to run `kanata` in the background
+- `sudo ./kanata.appimage & disown` to run `kanata` in the background
