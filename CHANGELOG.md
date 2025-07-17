@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.3](https://github.com/YeferYV/sixelrice/compare/v0.0.2...v0.0.3) (2025-07-17)
+
+
+### Bug Fixes
+
+* **release.yaml:** GH_TOKEN required by `gh release upload` ([66f64fc](https://github.com/YeferYV/sixelrice/commit/66f64fcc77377d1c69577802db3abfe7806d6ea3))
+
 ## [0.0.2](https://github.com/YeferYV/sixelrice/compare/v0.0.1...v0.0.2) (2025-07-16)
 
 ### Bug Fixes
