@@ -14,19 +14,19 @@
 **Install appimages from github releases**
 
   ```bash
-  curl  -s https://api.github.com/repos/yeferyv/sixelrice/releases/latest | grep -oE "https.*yazi.appimage" | curl -LO @-
+  curl  -s https://api.github.com/repos/yeferyv/sixelrice/releases/latest | grep -oE "https.*yazi.appimage" | xargs -I {} curl -LO {}
   chmod +x yazi.appimage
 
-  curl  -s https://api.github.com/repos/yeferyv/sixelrice/releases/latest | grep -oE "https.*mpv.appimage" | curl -LO @-
+  curl  -s https://api.github.com/repos/yeferyv/sixelrice/releases/latest | grep -oE "https.*mpv.appimage" | xargs -I {} curl -LO {}
   chmod +x mpv.appimage
 
-  curl  -s https://api.github.com/repos/yeferyv/sixelrice/releases/latest | grep -oE "https.*nvim.appimage" | curl -LO @-
+  curl  -s https://api.github.com/repos/yeferyv/sixelrice/releases/latest | grep -oE "https.*nvim.appimage" | xargs -I {} curl -LO {}
   chmod +x nvim.appimage
 
-  curl  -s https://api.github.com/repos/yeferyv/sixelrice/releases/latest | grep -oE "https.*zsh.appimage" | curl -LO @-
+  curl  -s https://api.github.com/repos/yeferyv/sixelrice/releases/latest | grep -oE "https.*zsh.appimage" | xargs -I {} curl -LO {}
   chmod +x zsh.appimage
 
-  curl  -s https://api.github.com/repos/yeferyv/sixelrice/releases/latest | grep -oE "https.*kanata.appimage" | curl -LO @-
+  curl  -s https://api.github.com/repos/yeferyv/sixelrice/releases/latest | grep -oE "https.*kanata.appimage" | xargs -I {} curl -LO {}
   chmod +x kanata.appimage
   ```
 

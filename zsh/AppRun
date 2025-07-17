@@ -12,4 +12,5 @@ echo $reset
 
 $APPDIR/usr/environment.sh -o $APPDIR/usr
 export ZDOTDIR="$APPDIR/usr/home/user/.config/zsh"
+export PATH="$APPDIR/usr/env/bin:$PATH"
 exec "$APPDIR/usr/env/bin/zsh" "$@"
