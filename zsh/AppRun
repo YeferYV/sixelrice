@@ -10,7 +10,7 @@ echo -e "export APPIMAGE_EXTRACT_AND_RUN=1"
 echo -e "./zsh.appimage \n\n\n"
 echo $reset
 
-$APPDIR/usr/environment.sh -o $APPDIR/usr
+$APPDIR/usr/environment.sh -o $APPDIR/usr && clear
 export ZDOTDIR="$APPDIR/usr/home/user/.config/zsh"
 export PATH="$APPDIR/usr/env/bin:$PATH"
 exec "$APPDIR/usr/env/bin/zsh" "$@"

@@ -102,6 +102,19 @@ jobs:
             cp    -r .config/_gitmodules/retronvim/yazi yazi/usr/home/user/.config
           )
           (
+            mkdir -p wezterm_appimage
+            cd       wezterm_appimage
+            curl  -o wezterm.appimage -L https://github.com/wezterm/wezterm/releases/download/nightly/WezTerm-nightly-Ubuntu20.04.AppImage
+            chmod +x wezterm.appimage
+            ./wezterm.appimage --appimage-extract
+            mkdir -p ../wezterm/usr/home/user/.config/wezterm
+            cp    -r squashfs-root/usr/* ../wezterm/usr
+            curl  -o ../wezterm/usr/bin/pixi -L https://github.com/prefix-dev/pixi/releases/download/v0.49.0/pixi-x86_64-unknown-linux-musl
+            chmod +x ../wezterm/usr/bin/pixi
+            cp    -r ../.config/_gitmodules/retronvim/zsh/wezterm.lua ../wezterm/usr/home/user/.config/wezterm
+            rm    -r ../wezterm/usr/share/metainfo
+          )
+          (
             mkdir -p zsh_appimage
             cd       zsh_appimage
             pixi init
@@ -113,11 +126,16 @@ jobs:
             cp    -r ../.config/_gitmodules/retronvim/zsh ../zsh/usr/home/user/.config
           )
           (
-            ARCH=x86_64 ./appimagetool kanata kanata.appimage
-            ARCH=x86_64 ./appimagetool mpv    mpv.appimage
-            ARCH=x86_64 ./appimagetool nvim   nvim.appimage
-            ARCH=x86_64 ./appimagetool yazi   yazi.appimage
-            ARCH=x86_64 ./appimagetool zsh    zsh.appimage
+            ARCH=x86_64 ./appimagetool kanata  kanata.appimage
+            ARCH=x86_64 ./appimagetool mpv     mpv.appimage
+            ARCH=x86_64 ./appimagetool nvim    nvim.appimage
+            ARCH=x86_64 ./appimagetool yazi    yazi.appimage
+            ARCH=x86_64 ./appimagetool zsh     zsh.appimage
+
+            cp ./zsh.appimage                  wezterm/usr/bin/zsh
+            cp ./nvim.appimage                 wezterm/usr/bin/nvim
+            cp ./yazi.appimage                 wezterm/usr/bin/yazi
+            ARCH=x86_64 ./appimagetool wezterm wezterm.appimage
           )
 
           #####################################################################################################################################################################################################################################################################################################################################################################
