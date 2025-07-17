@@ -1,6 +1,6 @@
 <div align="center">
     <p>
-        appimages generated from <a href="https://github.com/yeferyv/retronvim">retronvim</a>)
+        appimages generated from <a href="https://github.com/yeferyv/retronvim">retronvim</a>
         to preview/play/open images/videos/text inside the terminal using
         <a href="https://github.com/sxyazi/yazi">yazi</a>/
         <a href="https://github.com/mpv-player/mpv">mpv-sixel</a>/
