@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.5](https://github.com/YeferYV/sixelrice/compare/v0.0.4...v0.0.5) (2025-07-17)
+
+
+### Bug Fixes
+
+* **zsh:** missing `export PATH` ([edc6dd0](https://github.com/YeferYV/sixelrice/commit/edc6dd0679621c2f04e212228c54e0b8bb7a21b0))
+
 ## [0.0.4](https://github.com/YeferYV/sixelrice/compare/v0.0.3...v0.0.4) (2025-07-17)
 
 
