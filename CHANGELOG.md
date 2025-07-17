@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.4](https://github.com/YeferYV/sixelrice/compare/v0.0.3...v0.0.4) (2025-07-17)
+
+
+### Bug Fixes
+
+* **yazi:** `$APPDIR/usr/lib/p7zip/7z` absolute path to find `7z.so` ([1ad4eaa](https://github.com/YeferYV/sixelrice/commit/1ad4eaa6368be1d79c190b5624f1a3552d1e0257))
+
 ## [0.0.3](https://github.com/YeferYV/sixelrice/compare/v0.0.2...v0.0.3) (2025-07-17)
 
 
