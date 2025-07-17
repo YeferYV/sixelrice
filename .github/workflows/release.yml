@@ -13,6 +13,10 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+# required by `gh release upload`
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # setting GH_TOKEN for the entire workflow
+
 # GitHub requires issues: write permission for label management since labels are shared between issues and pull requests
 permissions:
   contents: write
