@@ -34,11 +34,11 @@
   chmod +x kanata.appimage
   ```
 
-- `export APPIMAGE_EXTRACT_AND_RUN=1` to run `zsh.appimage` it's also required if you are inside docker
+- `export APPIMAGE_EXTRACT_AND_RUN=1` required if you are inside docker
 - `sudo ./kanata.appimage & disown` to run `kanata` in the background
 - `yazi.appimage` contains `bat`, `fzf`, `lazygit`, `ripgrep` and `7zip`
 - `nvim.appimage` contains [mini.nvim](https://github.com/echasnovski/mini.nvim) and [snacks.nvim](https://github.com/folke/snacks.nvim)
-- `zsh.appimage` contains `starship`, `eza`, `zsh-autosugggestions` and `fast-syntax-highlighting`
-- `wezterm.appimage` contains `yazi.appimage`, `nvim.appimage`, `zsh.appimage` and [pixi](https://github.com/prefix-dev/pixi)
+- `zsh.appimage` contains `starship`, `eza`, `zsh-autosugggestions`, `fast-syntax-highlighting` and [pixi](https://github.com/prefix-dev/pixi)
+- `wezterm.appimage` contains `yazi.appimage`, `nvim.appimage` and `zsh.appimage`
 - `wezterm.appimage` searches `~/.vscode/extensions/yeferyv.retronvim*/bin/env/bin` for binaries and fallbacks to `appimages`
 - `mpv.appimage` contains [mpv-gallery-view](https://github.com/occivink/mpv-gallery-view)

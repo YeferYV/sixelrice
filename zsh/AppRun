@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export APPIMAGE_EXTRACT_AND_RUN=1 # run a appimage inside a appimage
 export ZDOTDIR="$APPDIR/usr/home/user/.config/zsh"
-export PATH="$APPDIR/usr/bin:$PATH"
-exec "$APPDIR/usr/bin/zsh" "$@"
+export PATH="$APPDIR/.pixi/envs/default/bin:$PATH"
+pixi reinstall --no-progress --locked --manifest-path $APPDIR/pixi.toml 2>/dev/null
+zsh $@

@@ -1,0 +1,13 @@
+[workspace]
+authors = ["Yefer YV <yucrayeff36@gmail.com>"]
+channels = ["conda-forge"]
+name = "zsh"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+zsh = "5.9.*"
+starship = ">=1.23.0,<2"
+eza = ">=0.23.0,<0.24"
