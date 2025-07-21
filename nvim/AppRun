@@ -1,6 +1,5 @@
 #!/bin/bash
 
-unset ARGV0
-export VIMINIT="lua vim.cmd.source(vim.env.APPDIR .. [[/usr/home/user/.config/nvim/init.lua]])"
-export CREATE_APPIMAGE=1
-exec "$(dirname "$(readlink  -f "${0}")")/usr/bin/nvim" ${@+"$@"}
+export VIMINIT="lua vim.cmd.source(vim.env.APPDIR2 .. [[/usr/home/user/.config/nvim/init.lua]])"
+export APPDIR2=$APPDIR
+$APPDIR/usr/bin/nvim $@

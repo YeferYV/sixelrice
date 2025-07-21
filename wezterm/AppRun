@@ -1,6 +1,7 @@
 #!/bin/bash
 
 export WEZTERM_CONFIG_FILE="$APPDIR/usr/home/user/.config/wezterm/wezterm.lua"
-export APPIMAGE_EXTRACT_AND_RUN=1
 export PATH="$APPDIR/usr/bin:$PATH"
+export APPIMAGE_EXTRACT_AND_RUN=1 # a appimage inside a appimage
+export APPDIR2=$APPDIR
 exec "$APPDIR/usr/bin/wezterm" "$@"

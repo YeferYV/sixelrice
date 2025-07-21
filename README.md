@@ -40,5 +40,5 @@
 - `nvim.appimage` contains [mini.nvim](https://github.com/echasnovski/mini.nvim) and [snacks.nvim](https://github.com/folke/snacks.nvim)
 - `zsh.appimage` contains `starship`, `eza`, `zsh-autosugggestions` and `fast-syntax-highlighting`
 - `wezterm.appimage` contains `yazi.appimage`, `nvim.appimage`, `zsh.appimage` and [pixi](https://github.com/prefix-dev/pixi)
-- `wezterm.appimage` searches for `~/.vscode/extensions/yeferyv.retronvim*/bin/env/bin/zsh` and fallbacks to `zsh.appimage` which has slow startup due to decompression
+- `wezterm.appimage` searches `~/.vscode/extensions/yeferyv.retronvim*/bin/env/bin` for binaries and fallbacks to `appimages`
 - `mpv.appimage` contains [mpv-gallery-view](https://github.com/occivink/mpv-gallery-view)
