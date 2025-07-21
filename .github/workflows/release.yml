@@ -107,7 +107,7 @@ jobs:
           )
           (
             pixi global install eza=0.23.0 starship=1.23.0
-            nix bundle --bundler github:ralismark/nix-appimage github:NixOS/nixpkgs/e6f23dc08d3624daab7094b701aa3954923c6bbb#eza
+            nix bundle --bundler github:ralismark/nix-appimage github:NixOS/nixpkgs/e6f23dc08d3624daab7094b701aa3954923c6bbb#zsh
             mkdir -p                                    zsh/usr/bin
             cp    -r $(readlink zsh.AppImage)           zsh/usr/bin/zsh
             cp    -r ~/.pixi/envs/eza/bin/eza           zsh/usr/bin/
