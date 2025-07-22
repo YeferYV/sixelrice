@@ -82,7 +82,7 @@ jobs:
             curl  -o wezterm/usr/bin/wezterm -L https://github.com/wezterm/wezterm/releases/download/nightly/WezTerm-nightly-Ubuntu20.04.AppImage
             chmod +x wezterm/usr/bin/wezterm
             curl  -L https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/FiraCode.tar.xz | tar -xJf- --directory /tmp
-            cp    -r /tmp/{FiraCodeNerdFont-Regular.ttf,FiraCodeNerdFont-Bold.ttf} assets
+            cp    -r /tmp/{FiraCodeNerdFont-Regular.ttf,FiraCodeNerdFont-Bold.ttf} wezterm/assets
             mkdir -p wezterm/usr/home/user/.config/wezterm
             cp    -r .config/_gitmodules/retronvim/zsh/wezterm.lua wezterm/usr/home/user/.config/wezterm
           )
