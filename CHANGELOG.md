@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.9](https://github.com/YeferYV/sixelrice/compare/v0.0.8...v0.0.9) (2025-07-22)
+
+
+### Bug Fixes
+
+* **yazi:** `export PATH` typo + `export APPIMAGE_EXTRACT_AND_RUN=1` to startup zsh.appimage ([42a1a3a](https://github.com/YeferYV/sixelrice/commit/42a1a3ad6ce484b7bceda4a43efe8df0dff40e2e))
+
 ## [0.0.8](https://github.com/YeferYV/sixelrice/compare/v0.0.7...v0.0.8) (2025-07-22)
 
 
