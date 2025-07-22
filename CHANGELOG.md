@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.0.8](https://github.com/YeferYV/sixelrice/compare/v0.0.7...v0.0.8) (2025-07-22)
+
+
+### Bug Fixes
+* **zsh:** `pixi reinstall` (updates pkgconfig/*.pc files) is faster than pixi-unpack ([87b4782](https://github.com/YeferYV/sixelrice/commit/87b47821230c1a9fa7bb8a292f5bade382172477))
+
+## [0.0.7](https://github.com/YeferYV/sixelrice/compare/v0.0.6...v0.0.7) (2025-07-21)
+
+
+### Bug Fixes
+
+* **zsh:** migrating nix-appimage build since pixi-unpack is slow ([613b3c6](https://github.com/YeferYV/sixelrice/commit/613b3c65eae48a71c20beb0b44fd46646ad482d0))
+
 ## [0.0.6](https://github.com/YeferYV/sixelrice/compare/v0.0.5...v0.0.6) (2025-07-21)
 
 
