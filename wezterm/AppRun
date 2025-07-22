@@ -2,5 +2,5 @@
 
 export WEZTERM_CONFIG_FILE="$APPDIR/usr/home/user/.config/wezterm/wezterm.lua"
 export PATH="$APPDIR/usr/bin:$PATH"
-export APPDIR2=$APPDIR
+export APPDIR3=$APPDIR
 exec "$APPDIR/usr/bin/wezterm" "$@"

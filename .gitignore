@@ -4,4 +4,5 @@ nvim/usr
 yazi/usr
 wezterm/usr
 zsh/usr
-*appimage
+*.appimage
+*.ttf
