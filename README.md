@@ -34,7 +34,8 @@
   chmod +x kanata.appimage
   ```
 
-- `export APPIMAGE_EXTRACT_AND_RUN=1` required if you are inside docker
+- `export APPIMAGE_EXTRACT_AND_RUN=1` to run `zsh.appimage` it's also required if you are inside docker
+- `export APPIMAGE_EXTRACT_AND_RUN=1` makes `appimages` to have slow startup
 - `sudo ./kanata.appimage & disown` to run `kanata` in the background
 - `yazi.appimage` contains `bat`, `fzf`, `lazygit`, `ripgrep` and `7zip`
 - `nvim.appimage` contains [mini.nvim](https://github.com/echasnovski/mini.nvim) and [snacks.nvim](https://github.com/folke/snacks.nvim)
