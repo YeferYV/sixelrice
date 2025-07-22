@@ -1,20 +1,19 @@
 #!/bin/bash
 
-yellow=$(tput setaf 3) # 3 = yellow text
-reset=$(tput sgr0)     # white text by default
-
-test -z "$APPIMAGE_EXTRACT_AND_RUN" &&
-(
-  clear
-  echo $yellow
-  echo -e "usage:"
-  echo -e "export APPIMAGE_EXTRACT_AND_RUN=1"
-  echo -e "./zsh.appimage \n\n\n"
-  echo $reset
-)
+# If we’re not already in extract‑and‑run mode, re‑exec ourselves in that mode:
+if [[ -z "$APPIMAGE_EXTRACT_AND_RUN" ]]; then
+  export APPIMAGE_EXTRACT_AND_RUN=1
+  # exec "$0" --appimage-extract-and-run "$@"
+  exec "$APPIMAGE" "$@"
+fi
 
 export ZDOTDIR="$APPDIR/usr/home/user/.config/zsh"
 export PATH="$APPDIR/.pixi/envs/default/bin:$PATH"
 pixi reinstall --no-progress --locked --manifest-path $APPDIR/pixi.toml 2>/dev/null
-[ ! -e /.dockerenv ] && unset APPIMAGE_EXTRACT_AND_RUN # APPIMAGE_EXTRACT_AND_RUN makes yazi.appimage to have slow startup
-zsh $@
+
+# APPIMAGE_EXTRACT_AND_RUN makes yazi.appimage to have slow startup
+if [[ ! -e /.dockerenv ]]; then
+  unset APPIMAGE_EXTRACT_AND_RUN
+fi
+
+$APPDIR/.pixi/envs/default/bin/zsh $@ # absolute path required by WSL
