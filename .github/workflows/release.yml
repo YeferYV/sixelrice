@@ -85,19 +85,12 @@ jobs:
             cp    -r .config/_gitmodules/retronvim/zsh/wezterm.lua wezterm/usr/home/user/.config/wezterm
           )
           (
-            pixi global install bat=0.25.0 fzf=0.62.0 lazygit=0.52.0 p7zip=16.02 ripgrep=14.1.1 yazi=25.5.31
-            mkdir -p yazi/usr/bin
-            mkdir -p yazi/usr/home/user/.config
-            cp    -r ~/.pixi/envs/bat/bin/bat           yazi/usr/bin/
-            cp    -r ~/.pixi/envs/fzf/bin/fzf           yazi/usr/bin/
-            cp    -r ~/.pixi/envs/lazygit/bin/lazygit   yazi/usr/bin/
-            cp    -r ~/.pixi/envs/ripgrep/bin/rg        yazi/usr/bin/
-            cp    -r ~/.pixi/envs/yazi/bin/yazi         yazi/usr/bin/
-            cp    -r ~/.pixi/envs/p7zip/lib             yazi/usr/lib
-            echo  -e '#!/bin/sh'                     >> yazi/usr/bin/7z
-            echo  -e '$APPDIR/usr/lib/p7zip/7z $@'   >> yazi/usr/bin/7z
-            chmod +x                                    yazi/usr/bin/7z
-            cp    -r .config/_gitmodules/retronvim/yazi yazi/usr/home/user/.config
+            cd yazi
+            pixi install
+            echo  -e '#!/bin/sh'                                   > .pixi/envs/default/bin/7z
+            echo  -e '$APPDIR/.pixi/envs/default/lib/p7zip/7z $@' >> .pixi/envs/default/bin/7z
+            mkdir -p                                                  usr/home/user/.config
+            cp    -r ../.config/_gitmodules/retronvim/yazi            usr/home/user/.config
           )
           (
             cd zsh

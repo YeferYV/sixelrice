@@ -1,0 +1,16 @@
+[workspace]
+authors = ["Yefer YV <yucrayeff36@gmail.com>"]
+channels = ["conda-forge"]
+name = "yazi"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+bat = ">=0.25.0,<0.26"
+fzf = ">=0.64.0,<0.65"
+lazygit = ">=0.53.0,<0.54"
+p7zip = ">=16.2,<17"
+ripgrep = ">=14.1.1,<15"
+yazi = ">=25.5.31,<26"
