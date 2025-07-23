@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.10](https://github.com/YeferYV/sixelrice/compare/v0.0.9...v0.0.10) (2025-07-23)
+
+
+### Bug Fixes
+
+* **wezterm:** ship appimage with firacode nerd font ([79cfe0d](https://github.com/YeferYV/sixelrice/commit/79cfe0d39ed6955bb070859701391a92515a2b93))
+* **zsh:** APPIMAGE_EXTRACT_AND_RUN integrated ([38a63e1](https://github.com/YeferYV/sixelrice/commit/38a63e1cd07c81a24369809d5095c9f6b27194fa))
+
 ## [0.0.9](https://github.com/YeferYV/sixelrice/compare/v0.0.8...v0.0.9) (2025-07-22)
 
 
