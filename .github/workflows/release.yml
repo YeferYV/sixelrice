@@ -75,7 +75,8 @@ jobs:
             curl  -o nvim/usr/bin/nvim -L https://github.com/neovim/neovim/releases/download/v0.11.3/nvim-linux-x86_64.appimage
             chmod +x nvim/usr/bin/nvim
             mkdir -p nvim/usr/home/user/.config
-            cp    -r .config/_gitmodules/retronvim/nvim nvim/usr/home/user/.config
+            cp    -r .config/_gitmodules/retronvim/nvim                           nvim/usr/home/user/.config
+            git clone --depth=1 https://github.com/supermaven-inc/supermaven-nvim nvim/usr/home/user/.config/nvim/plugins/site/pack/deps/opt/supermaven-nvim
           )
           (
             mkdir -p wezterm/usr/bin

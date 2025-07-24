@@ -39,7 +39,7 @@
 - `export APPIMAGE_EXTRACT_AND_RUN=1` makes `appimages` to have slow startup
 - `nohup sudo ./kanata.appimage` to run `kanata` in the background and `LeftCtrl + Space + Escape` to stop kanata
 - `yazi.appimage` contains `bat`, `fzf`, `lazygit`, `ripgrep` and `7zip`
-- `nvim.appimage` contains [mini.nvim](https://github.com/echasnovski/mini.nvim) and [snacks.nvim](https://github.com/folke/snacks.nvim)
+- `nvim.appimage` contains [mini.nvim](https://github.com/echasnovski/mini.nvim), [snacks.nvim](https://github.com/folke/snacks.nvim) and [supermaven-nvim](https://github.com/supermaven-inc/supermaven-nvim)
 - `zsh.appimage` contains `starship`, `eza`, `zsh-autosugggestions`, `fast-syntax-highlighting` and [pixi](https://github.com/prefix-dev/pixi)
 - `zsh.appimage`: search pixi packages on `https://prefix.dev` e.g. to install git `pixi global install git`
 - you can place `nvim.appimage` as `~/.local/bin/nvim`, `yazi.appimage` as `~/.local/bin/yazi` and `zsh.appimage` as `~/.local/bin/zsh` to be found by `zsh.appimage`
