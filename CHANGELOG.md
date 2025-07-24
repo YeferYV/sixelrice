@@ -1,11 +1,12 @@
 # Changelog
 
-## [0.0.10](https://github.com/YeferYV/sixelrice/compare/v0.0.10...v0.0.10) (2025-07-23)
+## [0.0.11](https://github.com/YeferYV/sixelrice/compare/v0.0.10...v0.0.11) (2025-07-24)
 
 
-### Miscellaneous Chores
+### Bug Fixes
 
-* release 0.0.10 ([575a3db](https://github.com/YeferYV/sixelrice/commit/575a3db4d76cfe6a992b1b5c708a3e8e9a33b7f2))
+* **nvim:** adding supermaven-nvim.git since nvim.appimage is read only ([3dbf33e](https://github.com/YeferYV/sixelrice/commit/3dbf33e30d72ecb95a37d32170c642c6ff488746))
+
 
 ## [0.0.10](https://github.com/YeferYV/sixelrice/compare/v0.0.9...v0.0.10) (2025-07-23)
 
