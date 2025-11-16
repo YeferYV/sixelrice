@@ -44,7 +44,8 @@ jobs:
 
           #####################################################################################################################################################################################################################################################################################################################################################################
 
-          git submodule update --init --recursive
+          git clone https://github.com/occivink/mpv-gallery-view
+          git clone https://github.com/yeferyv/retronvim
           rm -rf .config/_gitmodules/retronvim/nvim/plugins/site/pack/deps/opt/snacks.nvim/tests
           rm -rf .config/_gitmodules/retronvim/nvim/plugins/site/pack/deps/start/mini.nvim/tests
 
@@ -58,21 +59,26 @@ jobs:
 
           (
             mkdir -p kanata/usr/bin
-            curl  -o kanata/usr/bin/kanata -L https://github.com/jtroo/kanata/releases/download/v1.9.0/kanata_cmd_allowed
+            curl  -o kanata/usr/bin/kanata -L https://github.com/jtroo/kanata/releases/download/v1.10.0-prerelease-2/kanata_cmd_allowed
             chmod +x kanata/usr/bin/kanata
             mkdir -p kanata/usr/home/user/.config
             cp    -r .config/_gitmodules/retronvim/kanata kanata/usr/home/user/.config
           )
           (
             mkdir -p mpv/usr/bin
-            curl  -s https://api.github.com/repos/ivan-hc/MPV-appimage/releases/latest | grep -m1 browser_download_url | cut --delimiter='"' --fields=4 | xargs -I {} curl -o mpv/usr/bin/mpv -L {}
+            curl  -o mpv/usr/bin/mpv -L https://github.com/ivan-hc/MPV-appimage/releases/download/20250928-123912/mpv-Media-Player_0.40.0-6-archimage4.3-x86_64.AppImage
             chmod +x mpv/usr/bin/mpv
-            cp    -r .config/_gitmodules/mpv-gallery-view/script-modules mpv/usr/home/user/.config/mpv
-            cp    -r .config/_gitmodules/mpv-gallery-view/scripts        mpv/usr/home/user/.config/mpv
+            mkdir -p mpv/home/user/home/user/.config/mpv
+            cp    -r .config/_gitmodules/mpv-gallery-view/script-modules mpv/usr/home/user/.config/mpv/script-modules
+            cp    -r .config/_gitmodules/mpv-gallery-view/scripts        mpv/usr/home/user/.config/mpv/scripts
+            git      clone https://github.com/hoyon/mpv-mpris /tmp/mpris
+            cd       /tmp/mpris
+            make     mpris.so
+            cp       mpris.so mpv/usr/home/user/.config/mpv/scripts/mpris.so
           )
           (
             mkdir -p nvim/usr/bin
-            curl  -o nvim/usr/bin/nvim -L https://github.com/neovim/neovim/releases/download/v0.11.3/nvim-linux-x86_64.appimage
+            curl  -o nvim/usr/bin/nvim -L https://github.com/neovim/neovim/releases/download/nightly/nvim-linux-x86_64.appimage
             chmod +x nvim/usr/bin/nvim
             mkdir -p nvim/usr/home/user/.config
             cp    -r .config/_gitmodules/retronvim/nvim                           nvim/usr/home/user/.config

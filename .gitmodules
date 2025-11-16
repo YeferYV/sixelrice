@@ -1,6 +1,0 @@
-[submodule ".config/_gitmodules/mpv-gallery-view"]
-	path = .config/_gitmodules/mpv-gallery-view
-	url = https://github.com/occivink/mpv-gallery-view
-[submodule ".config/_gitmodules/retronvim"]
-	path = .config/_gitmodules/retronvim
-	url = https://github.com/yeferyv/retronvim

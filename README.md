@@ -46,4 +46,4 @@
 - don't place `zsh.appimage` as `~/.pixi/bin/zsh` since `~/.pixi/bin/zsh` is called first rather than `/tmp/appimage*/.pixi/envs/default/bin/zsh`
 - `wezterm.appimage` contains `yazi.appimage`, `nvim.appimage` and `zsh.appimage`
 - `wezterm.appimage` searches `~/.vscode/extensions/yeferyv.retronvim*/bin/env/bin` for binaries and fallbacks to `appimages`
-- `mpv.appimage` contains [mpv-gallery-view](https://github.com/occivink/mpv-gallery-view)
+- `mpv.appimage` with plugins: [mpv-gallery-view](https://github.com/occivink/mpv-gallery-view) and [mpris](https://github.com/eNV25/mpv-mpris2) (for playerctl)
