@@ -134,6 +134,7 @@ jobs:
 
       - name: Github release 📦
         run: |
+          gh    release create "$(date +%y-%m-%d)" --generate-notes --notes "Monthly Release" # --notes-from-tag
           gh    release upload "$(date +%y-%m-%d)" *.appimage mpris.so
           # npx release-please --help
           # npx release-please release-pr     --release-type node --repo-url https://github.com/yeferyv/sixelrice # --token $(gh auth token) # requires a version inside package.json # creates a PR with conventional commits
