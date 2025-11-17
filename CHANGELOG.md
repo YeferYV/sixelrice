@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.12](https://github.com/YeferYV/sixelrice/compare/v0.0.11...v0.0.12) (2025-11-17)
+
+
+### Bug Fixes
+
+* **mpv:** mpris support for playerctl ([e7cb62a](https://github.com/YeferYV/sixelrice/commit/e7cb62ad685a853713897bdfe6abbae8a014a2c8))
+* **ci:** compile mpris.so in a subshell ([d25e13b](https://github.com/YeferYV/sixelrice/commit/d25e13bbef5768c7510dd523040c42c9f9e55ab8))
+
 ## [0.0.11](https://github.com/YeferYV/sixelrice/compare/v0.0.10...v0.0.11) (2025-07-24)
 
 
