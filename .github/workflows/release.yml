@@ -73,15 +73,14 @@ jobs:
             cp    -r .config/_gitmodules/mpv-gallery-view/script-modules mpv/usr/home/user/.config/mpv/script-modules
             cp    -r .config/_gitmodules/mpv-gallery-view/scripts        mpv/usr/home/user/.config/mpv/scripts
 
-            pixi global install expat=2.7.1 gcc=15.2.0 glib=2.86.1 make=4.3 mpv=0.40.0 pkg-config=0.29.2 zlib=1.3.1 --environment gcc
-            export PKG_CONFIG_PATH="$HOME/.pixi/envs/gcc/lib/pkgconfig"   # not required if `which pkg-config` is ~/.pixi/envs/gcc/bin/pkg-config instead of /bin/pkg-config
-            export PKG_CONFIG_LIBDIR="$HOME/.pixi/envs/gcc/lib/pkgconfig" # not required if `which pkg-config` is ~/.pixi/envs/gcc/bin/pkg-config instead of /bin/pkg-config
-            ~/.pixi/envs/gcc/bin/pkg-config --cflags --libs gio-2.0       # verify detection
+            pixi     global install expat=2.7.1 gcc=15.2.0 glib=2.86.1 make=4.3 mpv=0.40.0 pkg-config=0.29.2 zlib=1.3.1 --environment gcc
+            export   PKG_CONFIG_PATH="$HOME/.pixi/envs/gcc/lib/pkgconfig"   # not required if `which pkg-config` is ~/.pixi/envs/gcc/bin/pkg-config instead of /bin/pkg-config
+            export   PKG_CONFIG_LIBDIR="$HOME/.pixi/envs/gcc/lib/pkgconfig" # not required if `which pkg-config` is ~/.pixi/envs/gcc/bin/pkg-config instead of /bin/pkg-config
+            ~/.pixi/envs/gcc/bin/pkg-config --cflags --libs gio-2.0         # verify detection
 
             git      clone https://github.com/hoyon/mpv-mpris /tmp/mpris
-            cd       /tmp/mpris
-            make     mpris.so
-            cp       mpris.so mpv/usr/home/user/.config/mpv/scripts/mpris.so
+            (cd      /tmp/mpris && make mpris.so)
+            cp       /tmp/mpris/mpris.so mpv/usr/home/user/.config/mpv/scripts/mpris.so
           )
           (
             mkdir -p nvim/usr/bin
