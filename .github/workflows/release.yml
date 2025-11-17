@@ -134,7 +134,7 @@ jobs:
 
       - name: Github release 📦
         run: |
-          gh    release upload "$( ${{ github.ref_name }} $(date +%y-%m-%d) )" *.appimage
+          gh    release upload "$(date +%y-%m-%d)" *.appimage mpris.so
           # npx release-please --help
           # npx release-please release-pr     --release-type node --repo-url https://github.com/yeferyv/sixelrice # --token $(gh auth token) # requires a version inside package.json # creates a PR with conventional commits
           # npx release-please github-release --release-type node --repo-url https://github.com/yeferyv/sixelrice # --token $(gh auth token) # requires a version inside package.json # creates release notes from conventional commits
