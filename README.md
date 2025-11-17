@@ -30,6 +30,9 @@
   curl  -s https://api.github.com/repos/yeferyv/sixelrice/releases/latest | grep -oE "https.*mpv.appimage" | xargs -I {} curl -LO {}
   chmod +x mpv.appimage
 
+  curl  -s https://api.github.com/repos/yeferyv/sixelrice/releases/latest | grep -oE "https.*mpris.so" | xargs -I {} curl -LO {}
+  chmod +x mpris.so
+
   curl  -s https://api.github.com/repos/yeferyv/sixelrice/releases/latest | grep -oE "https.*kanata.appimage" | xargs -I {} curl -LO {}
   chmod +x kanata.appimage
   ```
@@ -46,4 +49,5 @@
 - don't place `zsh.appimage` as `~/.pixi/bin/zsh` since `~/.pixi/bin/zsh` is called first rather than `/tmp/appimage*/.pixi/envs/default/bin/zsh`
 - `wezterm.appimage` contains `yazi.appimage`, `nvim.appimage` and `zsh.appimage`
 - `wezterm.appimage` searches `~/.vscode/extensions/yeferyv.retronvim*/bin/env/bin` for binaries and fallbacks to `appimages`
-- `mpv.appimage` with plugins: [mpv-gallery-view](https://github.com/occivink/mpv-gallery-view) and [mpris](https://github.com/eNV25/mpv-mpris2) (for playerctl)
+- `mpv.appimage` with [mpv-gallery-view](https://github.com/occivink/mpv-gallery-view) and a compatible (precompiled) [mpris.so](https://github.com/hoyon/mpv-mpris) (for playerctl)
+- copy `mpris.so` to `$MPV_HOME/scripts/` or to `/etc/mpv/scripts/`
